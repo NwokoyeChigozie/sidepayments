@@ -124,15 +124,15 @@ func (vr ValidateRequestM) ValidateRequest(V interface{}) error {
 }
 
 func (vr ValidateRequestM) ValidationCheck(dbName string, table, checkType string, query interface{}, args ...interface{}) bool {
+	er := request.ExternalRequest{
+		Logger: vr.Logger,
+		Test:   vr.Test,
+	}
 	db := ReturnDatabase(dbName)
 	switch dbName {
 	case "admin":
 		return checkForConnectedDB(db, table, checkType, query, args...)
 	case "auth":
-		er := request.ExternalRequest{
-			Logger: vr.Logger,
-			Test:   vr.Test,
-		}
 		status, err := er.SendExternalRequest(request.ValidateOnAuth, external_models.ValidateOnDBReq{
 			Table: table,
 			Type:  checkType,
@@ -153,7 +153,17 @@ func (vr ValidateRequestM) ValidationCheck(dbName string, table, checkType strin
 	case "subscription":
 		return checkForConnectedDB(db, table, checkType, query, args...)
 	case "transaction":
-		return checkForConnectedDB(db, table, checkType, query, args...)
+		status, err := er.SendExternalRequest(request.ValidateOnTransactions, external_models.ValidateOnDBReq{
+			Table: table,
+			Type:  checkType,
+			Query: fmt.Sprintf("%v", query),
+			Value: args[0],
+		})
+		if err != nil {
+			vr.Logger.Info("error occurred in validation", err.Error())
+			return false
+		}
+		return status.(bool)
 	case "verification":
 		return checkForConnectedDB(db, table, checkType, query, args...)
 	case "cron":

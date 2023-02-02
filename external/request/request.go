@@ -5,6 +5,7 @@ import (
 
 	"github.com/vesicash/payment-ms/external/microservice/auth"
 	"github.com/vesicash/payment-ms/external/microservice/notification"
+	"github.com/vesicash/payment-ms/external/microservice/transactions"
 	"github.com/vesicash/payment-ms/external/mocks"
 	rave "github.com/vesicash/payment-ms/external/thirdparty/Rave"
 	"github.com/vesicash/payment-ms/external/thirdparty/appruve"
@@ -60,6 +61,9 @@ var (
 	SendAuthorizedNotification         string = "send_authorized_notification"
 	SendAuthorizationNotification      string = "send_authorization_notification"
 	SetUserAuthorizationRequiredStatus string = "set_user_authorization_required_status"
+
+	ValidateOnTransactions string = "validate_on_transactions"
+	ListTransactionsByID   string = "list_transactions_by_id"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -376,6 +380,28 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.SetUserAuthorizationRequiredStatus()
+		case "validate_on_transactions":
+			obj := transactions.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/transactions/validate_on_db", config.Microservices.Transactions),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.ValidateOnTransactions()
+		case "list_transactions_by_id":
+			obj := transactions.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/transactions/listById", config.Microservices.Transactions),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.ListTransactionsByID()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

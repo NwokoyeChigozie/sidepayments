@@ -2,8 +2,9 @@ package utility
 
 import (
 	"math/rand"
-	"strings"
 	"time"
+
+	"github.com/gofrs/uuid"
 )
 
 func GetRandomNumbersInRange(min, max int) int {
@@ -11,18 +12,8 @@ func GetRandomNumbersInRange(min, max int) int {
 	return rand.Intn(max-min) + min
 }
 
-func RandomString(n int) (str string) {
-	rand.Seed(time.Now().UnixNano())
-
-	var finalString = ""
-
-	randgenS := `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`
-	s := strings.Split(randgenS, "")
-
-	for j := 1; j <= n; j++ {
-		randIdx := rand.Intn(len(s))
-		finalString += s[randIdx]
-	}
-
-	return finalString
+func RandomString(length int) string {
+	u, _ := uuid.NewV4()
+	uuidStr := u.String()
+	return (uuidStr + uuidStr[:length%36])[:length]
 }
