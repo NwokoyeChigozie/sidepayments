@@ -24,6 +24,7 @@ func Setup(logger *utility.Logger, validator *validator.Validate, db postgresql.
 
 	ApiVersion := "v2"
 	Health(r, ApiVersion, validator, db, logger)
+	Payment(r, ApiVersion, validator, db, logger)
 
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
