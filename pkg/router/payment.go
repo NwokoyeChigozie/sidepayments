@@ -12,7 +12,7 @@ import (
 	"github.com/vesicash/payment-ms/utility"
 )
 
-func Verification(r *gin.Engine, ApiVersion string, validator *validator.Validate, db postgresql.Databases, logger *utility.Logger) *gin.Engine {
+func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db postgresql.Databases, logger *utility.Logger) *gin.Engine {
 	extReq := request.ExternalRequest{Logger: logger, Test: false}
 	payment := payment.Controller{Db: db, Validator: validator, Logger: logger, ExtReq: extReq}
 
