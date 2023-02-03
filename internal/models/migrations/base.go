@@ -8,7 +8,7 @@ import (
 func RunAllMigrations(db postgresql.Databases) {
 
 	// payment migration
-	MigrateModels(db.Transaction, AuthMigrationModels())
+	MigrateModels(db.Payment, AuthMigrationModels())
 
 }
 
