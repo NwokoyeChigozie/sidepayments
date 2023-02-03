@@ -36,3 +36,9 @@ type MilestonesRecipientResponse struct {
 	PhoneNumber string  `json:"inspection_period"`
 	Amount      float64 `json:"due_date"`
 }
+type MileStoneRecipient struct {
+	AccountID    int     `json:"account_id"`
+	Amount       float64 `json:"amount"`
+	EmailAddress string  `json:"email_address"`
+	PhoneNumber  string  `json:"phone_number"`
+}
