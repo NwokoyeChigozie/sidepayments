@@ -20,5 +20,10 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 	{
 		paymentAuthUrl.POST("/create", payment.CreatePayment)
 	}
+
+	paymentApiUrl := r.Group(fmt.Sprintf("%v/payment", ApiVersion), middleware.Authorize(db, extReq, middleware.ApiType))
+	{
+		paymentApiUrl.POST("/list", payment.ListPayments)
+	}
 	return r
 }
