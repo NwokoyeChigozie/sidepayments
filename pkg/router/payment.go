@@ -23,7 +23,7 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 
 	paymentApiUrl := r.Group(fmt.Sprintf("%v/payment", ApiVersion), middleware.Authorize(db, extReq, middleware.ApiType))
 	{
-		paymentApiUrl.POST("/list", payment.ListPayments)
+		paymentApiUrl.GET("/listByTransactionId/:transaction_id", payment.ListPaymentByTransactionID)
 	}
 	return r
 }

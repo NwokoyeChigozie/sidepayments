@@ -9,7 +9,7 @@ import (
 	"github.com/vesicash/payment-ms/pkg/repository/storage/postgresql"
 )
 
-func LisPaymentsService(extReq request.ExternalRequest, db postgresql.Databases, transactionID string) (models.ListPaymentsResponse, int, error) {
+func ListPaymentByTransactionIDService(extReq request.ExternalRequest, db postgresql.Databases, transactionID string) (models.ListPaymentsResponse, int, error) {
 	var (
 		resp = models.ListPaymentsResponse{}
 	)

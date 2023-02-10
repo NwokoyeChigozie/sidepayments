@@ -8,12 +8,12 @@ import (
 	"github.com/vesicash/payment-ms/utility"
 )
 
-func (base *Controller) ListPayments(c *gin.Context) {
+func (base *Controller) ListPaymentByTransactionID(c *gin.Context) {
 	var (
 		transactionID = c.Param("transaction_id")
 	)
 
-	payments, code, err := payment.LisPaymentsService(base.ExtReq, base.Db, transactionID)
+	payments, code, err := payment.ListPaymentByTransactionIDService(base.ExtReq, base.Db, transactionID)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)

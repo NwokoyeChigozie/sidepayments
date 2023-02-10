@@ -24,7 +24,7 @@ import (
 	"github.com/vesicash/payment-ms/utility"
 )
 
-func TestCreatePayment(t *testing.T) {
+func TestListPaymentByTransactionID(t *testing.T) {
 	logger := tst.Setup()
 	gin.SetMode(gin.TestMode)
 	validatorRef := validator.New()
@@ -202,6 +202,24 @@ func TestCreatePayment(t *testing.T) {
 		IsDisputed: false,
 	}
 
+	paymentData := models.Payment{
+		ID:               int64(utility.GetRandomNumbersInRange(1000000000, 9999999999)),
+		PaymentID:        utility.RandomString(20),
+		TransactionID:    transactionID,
+		TotalAmount:      2000,
+		EscrowCharge:     0,
+		IsPaid:           false,
+		AccountID:        int64(accountID),
+		BusinessID:       int64(accountID),
+		Currency:         "NGN",
+		DisburseCurrency: "NGN",
+	}
+
+	err := paymentData.CreatePayment(db.Payment)
+	if err != nil {
+		t.Fatal("errpr creating payment: " + err.Error())
+	}
+
 	paymnt := payment.Controller{Db: db, Validator: validatorRef, Logger: logger, ExtReq: request.ExternalRequest{
 		Logger: logger,
 		Test:   true,
@@ -209,42 +227,28 @@ func TestCreatePayment(t *testing.T) {
 	r := gin.Default()
 
 	tests := []struct {
-		Name         string
-		RequestBody  models.CreatePaymentRequest
-		ExpectedCode int
-		Headers      map[string]string
-		Message      string
+		Name          string
+		RequestBody   interface{}
+		ExpectedCode  int
+		Headers       map[string]string
+		Message       string
+		TransactionID string
 	}{
 		{
-			Name: "OK create payment",
-			RequestBody: models.CreatePaymentRequest{
-				TransactionID: transactionID,
-				TotalAmount:   2000,
-				ShippingFee:   0,
-				EscrowCharge:  10,
-				Currency:      "NGN",
-			},
-			ExpectedCode: http.StatusCreated,
-			Message:      "Created",
+			Name:         "OK list payment",
+			ExpectedCode: http.StatusOK,
+			Message:      "successful",
 			Headers: map[string]string{
 				"Content-Type":  "application/json",
 				"Authorization": "Bearer " + token.String(),
 			},
-		},
-		{
-			Name:         "no input",
-			RequestBody:  models.CreatePaymentRequest{},
-			ExpectedCode: http.StatusBadRequest,
-			Headers: map[string]string{
-				"Content-Type":  "application/json",
-				"Authorization": "Bearer " + token.String(),
-			},
+			TransactionID: transactionID,
 		},
 	}
 
 	paymentAuthUrl := r.Group(fmt.Sprintf("%v/payment", "v2"), middleware.Authorize(db, paymnt.ExtReq, middleware.AuthType))
 	{
-		paymentAuthUrl.POST("/create", paymnt.CreatePayment)
+		paymentAuthUrl.POST("/listByTransactionId/:transaction_id", paymnt.ListPaymentByTransactionID)
 	}
 
 	for _, test := range tests {
@@ -252,7 +256,7 @@ func TestCreatePayment(t *testing.T) {
 
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/payment/create"}
+			URI := url.URL{Path: "/v2/payment/listByTransactionId/" + test.TransactionID}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {
