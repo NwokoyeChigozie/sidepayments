@@ -6,6 +6,7 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/vesicash/payment-ms/internal/config"
 	"github.com/vesicash/payment-ms/pkg/middleware"
 	"github.com/vesicash/payment-ms/pkg/repository/storage/postgresql"
 	"github.com/vesicash/payment-ms/utility"
@@ -16,6 +17,10 @@ func Setup(logger *utility.Logger, validator *validator.Validate, db postgresql.
 
 	// Middlewares
 	// r.Use(gin.Logger())
+	r.ForwardedByClientIP = true
+	r.SetTrustedProxies(config.GetConfig().Server.TrustedProxies)
+	r.Use(middleware.Security())
+	r.Use(middleware.Throttle())
 	r.Use(middleware.Logger())
 	r.Use(gin.Recovery())
 	r.Use(middleware.CORS())
