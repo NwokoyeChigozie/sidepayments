@@ -38,6 +38,28 @@ type CreatePaymentRequest struct {
 	EscrowCharge  float64 `json:"escrow_charge"`
 	Currency      string  `json:"currency"`
 }
+type CreatePaymentHeadlessRequest struct {
+	AccountID     int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
+	TotalAmount   float64 `json:"total_amount"  validate:"required"`
+	EscrowCharge  float64 `json:"escrow_charge"`
+	Currency      string  `json:"currency"`
+	PaymentMadeAt string  `json:"payment_made_at"`
+}
+type EditPaymentRequest struct {
+	PaymentID    string  `json:"payment_id"  validate:"required" pgvalidate:"exists=payment$payments$payment_id"`
+	EscrowCharge float64 `json:"escrow_charge"  validate:"required"`
+}
+type VerifyTransactionPaymentRequest struct {
+	TransactionID string `json:"transaction_id"  validate:"required" pgvalidate:"exists=transaction$transactions$transaction_id"`
+}
+type VerifyTransactionPaymentResponse struct {
+	Status string    `json:"status"`
+	IsPaid bool      `json:"is_paid"`
+	Amount float64   `json:"amount"`
+	Charge float64   `json:"charge"`
+	Date   time.Time `json:"date"`
+}
+
 type ListPaymentsRequest struct {
 	TransactionID string `json:"transaction_id"  validate:"required" pgvalidate:"exists=transaction$transactions$transaction_id"`
 }
@@ -86,4 +108,48 @@ func (p *Payment) GetPaymentByTransactionID(db *gorm.DB) (int, error) {
 		return http.StatusInternalServerError, err
 	}
 	return http.StatusOK, nil
+}
+func (p *Payment) GetPaymentByPaymentID(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &p, "payment_id = ?", p.PaymentID)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+func (p *Payment) GetPaymentByTransactionIDAndNotPaymentMadeAt(db *gorm.DB) (int, error) {
+	var baseTime time.Time
+	err, nilErr := postgresql.SelectOneFromDb(db, &p, "transaction_id = ? and (payment_made_at is not null and payment_made_at!=?)", p.TransactionID, baseTime)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+
+func (p *Payment) GetPaymentsByAccountIDAndNullTransactionID(db *gorm.DB, paginator postgresql.Pagination) ([]Payment, postgresql.PaginationResponse, error) {
+	details := []Payment{}
+	pagination, err := postgresql.SelectAllFromDbOrderByPaginated(db, "id", "desc", paginator, &details, "account_id = ? and (transaction_id is null or transaction_id='')", p.ID)
+	if err != nil {
+		return details, pagination, err
+	}
+	return details, pagination, nil
+}
+
+func (p *Payment) UpdateAllFields(db *gorm.DB) error {
+	_, err := postgresql.SaveAllFields(db, &p)
+	return err
+}
+func (p *Payment) Delete(db *gorm.DB) error {
+	err := postgresql.DeleteRecordFromDb(db, &p)
+	if err != nil {
+		return fmt.Errorf("payment delete failed: %v", err.Error())
+	}
+	return nil
 }
