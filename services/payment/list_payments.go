@@ -57,3 +57,53 @@ func ListPaymentByTransactionIDService(extReq request.ExternalRequest, db postgr
 	}
 	return resp, http.StatusOK, nil
 }
+
+func GetPaymentByTransactionIDService(extReq request.ExternalRequest, db postgresql.Databases, transactionID string) (models.Payment, int, error) {
+
+	payment := models.Payment{TransactionID: transactionID}
+	code, err := payment.GetPaymentByTransactionID(db.Payment)
+	if err != nil {
+		return payment, code, err
+	}
+
+	return payment, http.StatusOK, nil
+}
+
+func GetPaymentByIDService(extReq request.ExternalRequest, db postgresql.Databases, paymentID string) (models.Payment, int, error) {
+	var (
+		payment = models.Payment{PaymentID: paymentID}
+	)
+
+	code, err := payment.GetPaymentByPaymentID(db.Payment)
+	if err != nil {
+		return models.Payment{}, code, err
+	}
+	return payment, http.StatusOK, nil
+
+}
+func ListPaymentsByAccountIDService(extReq request.ExternalRequest, db postgresql.Databases, paginator postgresql.Pagination, accountID int) ([]models.Payment, postgresql.PaginationResponse, int, error) {
+	var (
+		payment = models.Payment{AccountID: int64(accountID)}
+	)
+
+	payments, pagination, err := payment.GetPaymentsByAccountIDAndNullTransactionID(db.Payment, paginator)
+	if err != nil {
+		return payments, pagination, http.StatusInternalServerError, err
+	}
+
+	return payments, pagination, http.StatusOK, nil
+
+}
+func ListWithdrawalsByAccountIDService(extReq request.ExternalRequest, db postgresql.Databases, paginator postgresql.Pagination, accountID int) ([]models.Disbursement, postgresql.PaginationResponse, int, error) {
+	var (
+		disbursement = models.Disbursement{RecipientID: accountID}
+	)
+
+	disbursements, pagination, err := disbursement.GetDisbursementsByRecipientID(db.Transaction, paginator)
+	if err != nil {
+		return disbursements, pagination, http.StatusInternalServerError, err
+	}
+
+	return disbursements, pagination, http.StatusOK, nil
+
+}

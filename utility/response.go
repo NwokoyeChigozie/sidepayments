@@ -11,13 +11,14 @@ import (
 )
 
 type Response struct {
-	Status  string      `json:"status,omitempty"`
-	Code    int         `json:"code,omitempty"`
-	Name    string      `json:"name,omitempty"` //name of the error
-	Message string      `json:"message,omitempty"`
-	Error   interface{} `json:"error,omitempty"` //for errors that occur even if request is successful
-	Data    interface{} `json:"data,omitempty"`
-	Extra   interface{} `json:"extra,omitempty"`
+	Status     string      `json:"status,omitempty"`
+	Code       int         `json:"code,omitempty"`
+	Name       string      `json:"name,omitempty"` //name of the error
+	Message    string      `json:"message,omitempty"`
+	Error      interface{} `json:"error,omitempty"` //for errors that occur even if request is successful
+	Data       interface{} `json:"data,omitempty"`
+	Pagination interface{} `json:"pagination,omitempty"`
+	Extra      interface{} `json:"extra,omitempty"`
 }
 
 // BuildResponse method is to inject data value to dynamic success response
@@ -39,13 +40,14 @@ func ResponseMessage(code int, status string, name string, message string, err i
 	}
 
 	res := Response{
-		Code:    code,
-		Name:    name,
-		Status:  status,
-		Message: message,
-		Error:   err,
-		Data:    data,
-		Extra:   extra,
+		Code:       code,
+		Name:       name,
+		Status:     status,
+		Message:    message,
+		Error:      err,
+		Data:       data,
+		Pagination: pagination,
+		Extra:      extra,
 	}
 	return res
 }
