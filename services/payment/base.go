@@ -2,6 +2,7 @@ package payment
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/vesicash/payment-ms/external/external_models"
 	"github.com/vesicash/payment-ms/external/request"
@@ -41,6 +42,20 @@ func GetUserWithAccountID(extReq request.ExternalRequest, accountID int) (extern
 	if us.ID == 0 {
 		return external_models.User{}, fmt.Errorf("user not found")
 	}
+	return us, nil
+}
+
+func GetUsersByBusinessID(extReq request.ExternalRequest, BusinessId int) ([]external_models.User, error) {
+	usItf, err := extReq.SendExternalRequest(request.GetUsersByBusinessID, strconv.Itoa(BusinessId))
+	if err != nil {
+		return []external_models.User{}, err
+	}
+
+	us, ok := usItf.([]external_models.User)
+	if !ok {
+		return []external_models.User{}, fmt.Errorf("response data format error")
+	}
+
 	return us, nil
 }
 

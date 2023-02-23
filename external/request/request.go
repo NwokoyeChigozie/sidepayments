@@ -64,6 +64,10 @@ var (
 
 	ValidateOnTransactions string = "validate_on_transactions"
 	ListTransactionsByID   string = "list_transactions_by_id"
+
+	GetUsersByBusinessID    string = "get_users_by_business_id"
+	ListBanksWithRave       string = "list_banks_with_rave"
+	ConvertCurrencyWithRave string = "convert_currency_with_rave"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -402,6 +406,39 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.ListTransactionsByID()
+		case "get_users_by_business_id":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/get_users_by_business_id", config.Microservices.Auth),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.GetUsersByBusinessID()
+		case "list_banks_with_rave":
+			obj := rave.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v3/banks", config.Rave.BaseUrl),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.ListBanksWithRave()
+		case "convert_currency_with_rave":
+			obj := rave.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v3/transfers/rates", config.Rave.BaseUrl),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.ConvertCurrencyWithRave()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

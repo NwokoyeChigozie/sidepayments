@@ -58,15 +58,15 @@ func ListPaymentByTransactionIDService(extReq request.ExternalRequest, db postgr
 	return resp, http.StatusOK, nil
 }
 
-func GetPaymentByTransactionIDService(extReq request.ExternalRequest, db postgresql.Databases, transactionID string) (models.Payment, int, error) {
+func ListPaymentRecordsService(extReq request.ExternalRequest, db postgresql.Databases, transactionID string, paginator postgresql.Pagination) ([]models.Payment, postgresql.PaginationResponse, int, error) {
 
-	payment := models.Payment{TransactionID: transactionID}
-	code, err := payment.GetPaymentByTransactionID(db.Payment)
+	payment := models.Payment{TransactionID: transactionID, IsPaid: true}
+	payments, pagination, err := payment.GetPaymentsByTransactionIDAndIsPaid(db.Transaction, paginator)
 	if err != nil {
-		return payment, code, err
+		return payments, pagination, http.StatusInternalServerError, err
 	}
 
-	return payment, http.StatusOK, nil
+	return payments, pagination, http.StatusOK, nil
 }
 
 func GetPaymentByIDService(extReq request.ExternalRequest, db postgresql.Databases, paymentID string) (models.Payment, int, error) {

@@ -27,6 +27,12 @@ type GetUserModel struct {
 	Message string      `json:"message"`
 	Data    GetUserData `json:"data"`
 }
+type GetUsersByBusinessIDModel struct {
+	Status  string `json:"status"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    []User `json:"data"`
+}
 
 type GetUserData struct {
 	User User `json:"user"`

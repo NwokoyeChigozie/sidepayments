@@ -97,6 +97,8 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		return transactions_mocks.ValidateOnTransactions(er.Logger, data)
 	case "list_transactions_by_id":
 		return transactions_mocks.ListTransactionsByID(er.Logger, data)
+	case "get_users_by_business_id":
+		return auth_mocks.GetUsersByBusinessID(er.Logger, data)
 	default:
 		return nil, fmt.Errorf("request not found")
 	}

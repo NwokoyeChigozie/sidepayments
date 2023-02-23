@@ -59,6 +59,13 @@ type VerifyTransactionPaymentResponse struct {
 	Charge float64   `json:"charge"`
 	Date   time.Time `json:"date"`
 }
+type ConvertCurrencyResponse struct {
+	Converted float64 `json:"converted"`
+	Rate      float64 `json:"rate"`
+	From      string  `json:"from"`
+	To        string  `json:"to"`
+	Amount    float64 `json:"amount"`
+}
 
 type ListPaymentsRequest struct {
 	TransactionID string `json:"transaction_id"  validate:"required" pgvalidate:"exists=transaction$transactions$transaction_id"`
@@ -140,6 +147,23 @@ func (p *Payment) GetPaymentsByAccountIDAndNullTransactionID(db *gorm.DB, pagina
 		return details, pagination, err
 	}
 	return details, pagination, nil
+}
+func (p *Payment) GetPaymentsByTransactionIDAndIsPaid(db *gorm.DB, paginator postgresql.Pagination) ([]Payment, postgresql.PaginationResponse, error) {
+	details := []Payment{}
+	pagination, err := postgresql.SelectAllFromDbOrderByPaginated(db, "id", "desc", paginator, &details, "transaction_id = ? and is_paid = ?", p.TransactionID, p.IsPaid)
+	if err != nil {
+		return details, pagination, err
+	}
+	return details, pagination, nil
+}
+func (p *Payment) GetAllPaymentsByAccountIDAndIsPaidAndPaymentMadeAtNotNull(db *gorm.DB) ([]Payment, error) {
+	details := []Payment{}
+	var baseTime time.Time
+	err := postgresql.SelectAllFromDb(db, "desc", &details, "account_id = ? and is_paid = ? and (payment_made_at is not null and payment_made_at!=?)", p.AccountID, p.IsPaid, baseTime)
+	if err != nil {
+		return details, err
+	}
+	return details, nil
 }
 
 func (p *Payment) UpdateAllFields(db *gorm.DB) error {
