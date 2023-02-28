@@ -38,6 +38,19 @@ type CreatePaymentRequest struct {
 	EscrowCharge  float64 `json:"escrow_charge"`
 	Currency      string  `json:"currency"`
 }
+type InitiatePaymentRequest struct {
+	TransactionID  string `json:"transaction_id"  validate:"required" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	SuccessPage    string `json:"success_page" validate:"required"`
+	PaymentGateway string `json:"payment_gateway"`
+}
+type InitiatePaymentResponse struct {
+	PaymentStatus string `json:"payment_status"`
+	Link          string `json:"link"`
+	Ref           string `json:"ref"`
+	ExternalRef   string `json:"external_ref"`
+	TransactionID string `json:"transaction_id"`
+}
+
 type CreatePaymentHeadlessRequest struct {
 	AccountID     int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
 	TotalAmount   float64 `json:"total_amount"  validate:"required"`
@@ -106,7 +119,7 @@ func (p *Payment) CreatePayment(db *gorm.DB) error {
 }
 
 func (p *Payment) GetPaymentByTransactionID(db *gorm.DB) (int, error) {
-	err, nilErr := postgresql.SelectOneFromDb(db, &p, "transaction_id = ?", p.TransactionID)
+	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "transaction_id = ?", p.TransactionID)
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}
@@ -117,7 +130,7 @@ func (p *Payment) GetPaymentByTransactionID(db *gorm.DB) (int, error) {
 	return http.StatusOK, nil
 }
 func (p *Payment) GetPaymentByPaymentID(db *gorm.DB) (int, error) {
-	err, nilErr := postgresql.SelectOneFromDb(db, &p, "payment_id = ?", p.PaymentID)
+	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "payment_id = ?", p.PaymentID)
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}
@@ -129,7 +142,7 @@ func (p *Payment) GetPaymentByPaymentID(db *gorm.DB) (int, error) {
 }
 func (p *Payment) GetPaymentByTransactionIDAndNotPaymentMadeAt(db *gorm.DB) (int, error) {
 	var baseTime time.Time
-	err, nilErr := postgresql.SelectOneFromDb(db, &p, "transaction_id = ? and (payment_made_at is not null and payment_made_at!=?)", p.TransactionID, baseTime)
+	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "transaction_id = ? and (payment_made_at is not null and payment_made_at!=?)", p.TransactionID, baseTime)
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}

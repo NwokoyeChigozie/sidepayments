@@ -1,6 +1,12 @@
 package models
 
-import "time"
+import (
+	"fmt"
+	"time"
+
+	"github.com/vesicash/payment-ms/pkg/repository/storage/postgresql"
+	"gorm.io/gorm"
+)
 
 type PaymentInfo struct {
 	ID          uint      `gorm:"column:id; type:uint; not null; primaryKey; unique; autoIncrement" json:"id"`
@@ -13,4 +19,12 @@ type PaymentInfo struct {
 	UpdatedAt   time.Time `gorm:"column:updated_at; autoUpdateTime" json:"updated_at"`
 	RedirectUrl string    `gorm:"column:redirecturl; type:text" json:"redirecturl"`
 	FailUrl     string    `gorm:"column:failurl; type:varchar(255)" json:"failurl"`
+}
+
+func (p *PaymentInfo) CreatePaymentInfo(db *gorm.DB) error {
+	err := postgresql.CreateOneRecord(db, &p)
+	if err != nil {
+		return fmt.Errorf("Payment info creation failed: %v", err.Error())
+	}
+	return nil
 }

@@ -67,3 +67,25 @@ func (r *Rave) ConvertCurrency(amount float64, from, to string) (models.ConvertC
 		Amount:    amount,
 	}, nil
 }
+
+func (r *Rave) InitPayment(reference, email, currency, redirectUrl string, amount float64) (string, external_models.RaveInitPaymentRequest, error) {
+	data := external_models.RaveInitPaymentRequest{
+		TxRef: reference,
+		Customer: struct {
+			Email string "json:\"email\""
+		}{Email: email},
+		Currency:    strings.ToUpper(currency),
+		Amount:      amount,
+		RedirectUrl: redirectUrl,
+	}
+	paymentItf, err := r.ExtReq.SendExternalRequest(request.RaveInitPayment, data)
+	if err != nil {
+		return "", data, err
+	}
+
+	paymentData, ok := paymentItf.(external_models.RaveInitPaymentResponse)
+	if !ok {
+		return "", data, fmt.Errorf("response data format error")
+	}
+	return paymentData.Data.Link, data, nil
+}

@@ -9,6 +9,7 @@ import (
 	"github.com/vesicash/payment-ms/external/mocks"
 	rave "github.com/vesicash/payment-ms/external/thirdparty/Rave"
 	"github.com/vesicash/payment-ms/external/thirdparty/appruve"
+	"github.com/vesicash/payment-ms/external/thirdparty/ip_api"
 	"github.com/vesicash/payment-ms/external/thirdparty/ipstack"
 	"github.com/vesicash/payment-ms/external/thirdparty/monnify"
 	"github.com/vesicash/payment-ms/internal/config"
@@ -68,6 +69,10 @@ var (
 	GetUsersByBusinessID    string = "get_users_by_business_id"
 	ListBanksWithRave       string = "list_banks_with_rave"
 	ConvertCurrencyWithRave string = "convert_currency_with_rave"
+	ResolveIP               string = "resolve_ip"
+	GetBusinessCharge       string = "get_business_charge"
+	InitBusinessCharge      string = "init_business_charge"
+	RaveInitPayment         string = "rave_init_payment"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -439,6 +444,50 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.ConvertCurrencyWithRave()
+		case "resolve_ip":
+			obj := ip_api.RequestObj{
+				Name:         name,
+				Path:         "http://ip-api.com/json",
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.ResolveIp()
+		case "get_business_charge":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/get_business_charge", config.Microservices.Auth),
+				Method:       "POST",
+				SuccessCode:  201,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.GetBusinessCharge()
+		case "init_business_charge":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/init_business_charge", config.Microservices.Auth),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.InitBusinessCharge()
+		case "rave_init_payment":
+			obj := rave.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v3/payments", config.Rave.BaseUrl),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.RaveInitPayment()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

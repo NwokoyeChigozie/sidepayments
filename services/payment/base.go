@@ -2,8 +2,11 @@ package payment
 
 import (
 	"fmt"
+	"net"
 	"strconv"
+	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/vesicash/payment-ms/external/external_models"
 	"github.com/vesicash/payment-ms/external/request"
 	"github.com/vesicash/payment-ms/utility"
@@ -80,6 +83,7 @@ func GetUserProfileByAccountID(extReq request.ExternalRequest, logger *utility.L
 	return userProfile, nil
 
 }
+
 func GetCountryByNameOrCode(extReq request.ExternalRequest, logger *utility.Logger, NameOrCode string) (external_models.Country, error) {
 
 	countryInterface, err := extReq.SendExternalRequest(request.GetCountry, external_models.GetCountryModel{
@@ -99,4 +103,116 @@ func GetCountryByNameOrCode(extReq request.ExternalRequest, logger *utility.Logg
 	}
 
 	return country, nil
+}
+
+func isRequestIPNigerian(extReq request.ExternalRequest, c *gin.Context) (bool, error) {
+	ip, _, err := net.SplitHostPort(c.Request.RemoteAddr)
+	if err != nil {
+		return false, err
+	}
+
+	ipInterface, err := extReq.SendExternalRequest(request.ResolveIP, ip)
+	if err != nil {
+		extReq.Logger.Info(err.Error())
+		return false, err
+	}
+
+	ipResponse, ok := ipInterface.(external_models.ResolveIpResponse)
+	if !ok {
+		return false, fmt.Errorf("response data format error")
+	}
+
+	if strings.ToUpper(ipResponse.CountryCode) != "NG" {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func GetBusinessProfileByAccountID(extReq request.ExternalRequest, logger *utility.Logger, accountID int) (external_models.BusinessProfile, error) {
+	businessProfileInterface, err := extReq.SendExternalRequest(request.GetBusinessProfile, external_models.GetBusinessProfileModel{
+		AccountID: uint(accountID),
+	})
+	if err != nil {
+		logger.Info(err.Error())
+		return external_models.BusinessProfile{}, fmt.Errorf("Business lacks a profile.")
+	}
+
+	businessProfile, ok := businessProfileInterface.(external_models.BusinessProfile)
+	if !ok {
+		return external_models.BusinessProfile{}, fmt.Errorf("response data format error")
+	}
+
+	if businessProfile.ID == 0 {
+		return external_models.BusinessProfile{}, fmt.Errorf("Business lacks a profile.")
+	}
+	return businessProfile, nil
+}
+
+func getBusinessChargeWithBusinessIDAndCurrency(extReq request.ExternalRequest, businessID int, currency string) (external_models.BusinessCharge, error) {
+	dataInterface, err := extReq.SendExternalRequest(request.GetBusinessCharge, external_models.GetBusinessChargeModel{
+		BusinessID: uint(businessID),
+		Currency:   strings.ToUpper(currency),
+	})
+
+	if err != nil {
+		extReq.Logger.Info(err.Error())
+		return external_models.BusinessCharge{}, err
+	}
+
+	businessCharge, ok := dataInterface.(external_models.BusinessCharge)
+	if !ok {
+		return external_models.BusinessCharge{}, fmt.Errorf("response data format error")
+	}
+
+	if businessCharge.ID == 0 {
+		return external_models.BusinessCharge{}, fmt.Errorf("business charge not found")
+	}
+
+	return businessCharge, nil
+}
+
+func getBusinessChargeWithBusinessIDAndCountry(extReq request.ExternalRequest, businessID int, country string) (external_models.BusinessCharge, error) {
+	dataInterface, err := extReq.SendExternalRequest(request.GetBusinessCharge, external_models.GetBusinessChargeModel{
+		BusinessID: uint(businessID),
+		Country:    strings.ToUpper(country),
+	})
+
+	if err != nil {
+		extReq.Logger.Info(err.Error())
+		return external_models.BusinessCharge{}, err
+	}
+
+	businessCharge, ok := dataInterface.(external_models.BusinessCharge)
+	if !ok {
+		return external_models.BusinessCharge{}, fmt.Errorf("response data format error")
+	}
+
+	if businessCharge.ID == 0 {
+		return external_models.BusinessCharge{}, fmt.Errorf("business charge not found")
+	}
+
+	return businessCharge, nil
+}
+func initBusinessCharge(extReq request.ExternalRequest, businessID int, currency string) (external_models.BusinessCharge, error) {
+	dataInterface, err := extReq.SendExternalRequest(request.InitBusinessCharge, external_models.InitBusinessChargeModel{
+		BusinessID: uint(businessID),
+		Currency:   strings.ToUpper(currency),
+	})
+
+	if err != nil {
+		extReq.Logger.Info(err.Error())
+		return external_models.BusinessCharge{}, err
+	}
+
+	businessCharge, ok := dataInterface.(external_models.BusinessCharge)
+	if !ok {
+		return external_models.BusinessCharge{}, fmt.Errorf("response data format error")
+	}
+
+	if businessCharge.ID == 0 {
+		return external_models.BusinessCharge{}, fmt.Errorf("business charge init failed")
+	}
+
+	return businessCharge, nil
 }

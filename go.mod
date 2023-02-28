@@ -20,6 +20,8 @@ require (
 )
 
 require (
+	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/nyaruka/phonenumbers v1.1.6 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	golang.org/x/time v0.1.0 // indirect
 )

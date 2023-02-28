@@ -48,18 +48,19 @@ type ConvertCurrencyDataSourceOrDestination struct {
 	Amount   float64 `json:"amount"`
 }
 
-// {
-//     "status": "success",
-//     "message": "Transfer amount fetched",
-//     "data": {
-//         "rate": 0.001391,
-//         "source": {
-//             "currency": "USD",
-//             "amount": 1.39073
-//         },
-//         "destination": {
-//             "currency": "NGN",
-//             "amount": 1000
-//         }
-//     }
-// }
+type RaveInitPaymentRequest struct {
+	TxRef    string `json:"tx_ref"`
+	Customer struct {
+		Email string `json:"email"`
+	} `json:"customer"`
+	Amount      float64 `json:"amount"`
+	Currency    string  `json:"currency"`
+	RedirectUrl string  `json:"redirect_url"`
+}
+type RaveInitPaymentResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Data    struct {
+		Link string `json:"link"`
+	} `json:"data"`
+}
