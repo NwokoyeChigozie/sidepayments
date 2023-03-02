@@ -43,6 +43,18 @@ type InitiatePaymentRequest struct {
 	SuccessPage    string `json:"success_page" validate:"required"`
 	PaymentGateway string `json:"payment_gateway"`
 }
+type InitiatePaymentHeadlessRequest struct {
+	AccountID      int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
+	Amount         float64 `json:"amount"`
+	Initialize     bool    `json:"initialize"`
+	Currency       string  `json:"currency"`
+	Country        string  `json:"country"`
+	PaymentGateway string  `json:"payment_gateway"`
+	SuccessUrl     string  `json:"success_url"`
+	FailUrl        string  `json:"fail_url"`
+	FundWallet     string  `json:"fund_wallet"`
+}
+
 type InitiatePaymentResponse struct {
 	PaymentStatus string `json:"payment_status"`
 	Link          string `json:"link"`

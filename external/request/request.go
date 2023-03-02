@@ -73,6 +73,9 @@ var (
 	GetBusinessCharge       string = "get_business_charge"
 	InitBusinessCharge      string = "init_business_charge"
 	RaveInitPayment         string = "rave_init_payment"
+	MonnifyInitPayment      string = "monnify_init_payment"
+	GetAccessTokenByKey     string = "get_access_token_by_key"
+	GetEscrowCharge         string = "get_escrow_charge"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -488,6 +491,39 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.RaveInitPayment()
+		case "monnify_init_payment":
+			obj := monnify.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v1/merchant/transactions/init-transaction", config.Monnify.MonnifyEndpoint),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.MonnifyInitPayment()
+		case "get_access_token_by_key":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/get_access_token_by_key", config.Microservices.Auth),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.GetAccessTokenByKey()
+		case "get_escrow_charge":
+			obj := transactions.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/transactions/escrowcharge", config.Microservices.Transactions),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.GetEscrowCharge()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

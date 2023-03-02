@@ -1,6 +1,7 @@
 package monnify
 
 import (
+	"encoding/base64"
 	"fmt"
 
 	"github.com/vesicash/payment-ms/external"
@@ -40,4 +41,11 @@ func (r *RequestObj) getMonnifyLoginObject() *RequestObj {
 		RequestData:  nil,
 		Logger:       r.Logger,
 	}
+}
+func getBase64Token() string {
+	var (
+		monnifyConfig = config.GetConfig().Monnify
+		token         = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", monnifyConfig.MonnifyApiKey, monnifyConfig.MonnifySecret)))
+	)
+	return token
 }

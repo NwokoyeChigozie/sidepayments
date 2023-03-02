@@ -61,6 +61,42 @@ func GetUsersByBusinessID(extReq request.ExternalRequest, BusinessId int) ([]ext
 
 	return us, nil
 }
+func GetAccessTokenByKeyFromRequest(extReq request.ExternalRequest, c *gin.Context) (external_models.AccessToken, error) {
+	privateKey := utility.GetHeader(c, "v-private-key")
+	publicKey := utility.GetHeader(c, "v-public-key")
+	key := privateKey
+	if key == "" {
+		key = publicKey
+	}
+	acItf, err := extReq.SendExternalRequest(request.GetAccessTokenByKey, key)
+	if err != nil {
+		return external_models.AccessToken{}, err
+	}
+
+	accessToken, ok := acItf.(external_models.AccessToken)
+	if !ok {
+		return external_models.AccessToken{}, fmt.Errorf("response data format error")
+	}
+
+	return accessToken, nil
+}
+
+func GetEscrowCharge(extReq request.ExternalRequest, businessId int, amount float64) (external_models.GetEscrowChargeResponseData, error) {
+	escItf, err := extReq.SendExternalRequest(request.GetEscrowCharge, external_models.GetEscrowChargeRequest{
+		BusinessID: businessId,
+		Amount:     amount,
+	})
+	if err != nil {
+		return external_models.GetEscrowChargeResponseData{}, err
+	}
+
+	escrowChargeData, ok := escItf.(external_models.GetEscrowChargeResponseData)
+	if !ok {
+		return external_models.GetEscrowChargeResponseData{}, fmt.Errorf("response data format error")
+	}
+
+	return escrowChargeData, nil
+}
 
 func GetUserProfileByAccountID(extReq request.ExternalRequest, logger *utility.Logger, accountID int) (external_models.UserProfile, error) {
 	userProfileInterface, err := extReq.SendExternalRequest(request.GetUserProfile, external_models.GetUserProfileModel{
@@ -194,6 +230,7 @@ func getBusinessChargeWithBusinessIDAndCountry(extReq request.ExternalRequest, b
 
 	return businessCharge, nil
 }
+
 func initBusinessCharge(extReq request.ExternalRequest, businessID int, currency string) (external_models.BusinessCharge, error) {
 	dataInterface, err := extReq.SendExternalRequest(request.InitBusinessCharge, external_models.InitBusinessChargeModel{
 		BusinessID: uint(businessID),

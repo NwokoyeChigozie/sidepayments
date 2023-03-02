@@ -3,6 +3,8 @@ package utility
 import (
 	"net/url"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func URLDecode(encodedString string) (string, error) {
@@ -57,4 +59,30 @@ func AddQueryParam(urlStr *string, paramKey string, paramValue string) error {
 
 func Stripslashes(s string) string {
 	return strings.ReplaceAll(s, "\\", "")
+}
+
+func GetHeader(c *gin.Context, key string) string {
+	header := ""
+	if c.GetHeader(key) != "" {
+		header = c.GetHeader(key)
+	} else if c.GetHeader(strings.ToLower(key)) != "" {
+		header = c.GetHeader(strings.ToLower(key))
+	} else if c.GetHeader(strings.ToUpper(key)) != "" {
+		header = c.GetHeader(strings.ToUpper(key))
+	} else if c.GetHeader(strings.Title(key)) != "" {
+		header = c.GetHeader(strings.Title(key))
+	}
+	return header
+}
+
+func GenerateGroupByURL(ctx *gin.Context, path string, querys map[string]string) string {
+	u := ctx.Request.URL
+	u.Path = ctx.GetString("groupPath") + path
+
+	for key, value := range querys {
+		queryParams, _ := url.ParseQuery(u.RawQuery)
+		queryParams.Set(key, value)
+		u.RawQuery = queryParams.Encode()
+	}
+	return u.String()
 }
