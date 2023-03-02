@@ -38,6 +38,31 @@ type CreatePaymentRequest struct {
 	EscrowCharge  float64 `json:"escrow_charge"`
 	Currency      string  `json:"currency"`
 }
+type InitiatePaymentRequest struct {
+	TransactionID  string `json:"transaction_id"  validate:"required" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	SuccessPage    string `json:"success_page" validate:"required"`
+	PaymentGateway string `json:"payment_gateway"`
+}
+type InitiatePaymentHeadlessRequest struct {
+	AccountID      int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
+	Amount         float64 `json:"amount"`
+	Initialize     bool    `json:"initialize"`
+	Currency       string  `json:"currency"`
+	Country        string  `json:"country"`
+	PaymentGateway string  `json:"payment_gateway"`
+	SuccessUrl     string  `json:"success_url"`
+	FailUrl        string  `json:"fail_url"`
+	FundWallet     string  `json:"fund_wallet"`
+}
+
+type InitiatePaymentResponse struct {
+	PaymentStatus string `json:"payment_status"`
+	Link          string `json:"link"`
+	Ref           string `json:"ref"`
+	ExternalRef   string `json:"external_ref"`
+	TransactionID string `json:"transaction_id"`
+}
+
 type CreatePaymentHeadlessRequest struct {
 	AccountID     int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
 	TotalAmount   float64 `json:"total_amount"  validate:"required"`
@@ -58,6 +83,13 @@ type VerifyTransactionPaymentResponse struct {
 	Amount float64   `json:"amount"`
 	Charge float64   `json:"charge"`
 	Date   time.Time `json:"date"`
+}
+type ConvertCurrencyResponse struct {
+	Converted float64 `json:"converted"`
+	Rate      float64 `json:"rate"`
+	From      string  `json:"from"`
+	To        string  `json:"to"`
+	Amount    float64 `json:"amount"`
 }
 
 type ListPaymentsRequest struct {
@@ -99,7 +131,7 @@ func (p *Payment) CreatePayment(db *gorm.DB) error {
 }
 
 func (p *Payment) GetPaymentByTransactionID(db *gorm.DB) (int, error) {
-	err, nilErr := postgresql.SelectOneFromDb(db, &p, "transaction_id = ?", p.TransactionID)
+	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "transaction_id = ?", p.TransactionID)
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}
@@ -110,7 +142,7 @@ func (p *Payment) GetPaymentByTransactionID(db *gorm.DB) (int, error) {
 	return http.StatusOK, nil
 }
 func (p *Payment) GetPaymentByPaymentID(db *gorm.DB) (int, error) {
-	err, nilErr := postgresql.SelectOneFromDb(db, &p, "payment_id = ?", p.PaymentID)
+	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "payment_id = ?", p.PaymentID)
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}
@@ -122,7 +154,7 @@ func (p *Payment) GetPaymentByPaymentID(db *gorm.DB) (int, error) {
 }
 func (p *Payment) GetPaymentByTransactionIDAndNotPaymentMadeAt(db *gorm.DB) (int, error) {
 	var baseTime time.Time
-	err, nilErr := postgresql.SelectOneFromDb(db, &p, "transaction_id = ? and (payment_made_at is not null and payment_made_at!=?)", p.TransactionID, baseTime)
+	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "transaction_id = ? and (payment_made_at is not null and payment_made_at!=?)", p.TransactionID, baseTime)
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}
@@ -140,6 +172,23 @@ func (p *Payment) GetPaymentsByAccountIDAndNullTransactionID(db *gorm.DB, pagina
 		return details, pagination, err
 	}
 	return details, pagination, nil
+}
+func (p *Payment) GetPaymentsByTransactionIDAndIsPaid(db *gorm.DB, paginator postgresql.Pagination) ([]Payment, postgresql.PaginationResponse, error) {
+	details := []Payment{}
+	pagination, err := postgresql.SelectAllFromDbOrderByPaginated(db, "id", "desc", paginator, &details, "transaction_id = ? and is_paid = ?", p.TransactionID, p.IsPaid)
+	if err != nil {
+		return details, pagination, err
+	}
+	return details, pagination, nil
+}
+func (p *Payment) GetAllPaymentsByAccountIDAndIsPaidAndPaymentMadeAtNotNull(db *gorm.DB) ([]Payment, error) {
+	details := []Payment{}
+	var baseTime time.Time
+	err := postgresql.SelectAllFromDb(db, "desc", &details, "account_id = ? and is_paid = ? and (payment_made_at is not null and payment_made_at!=?)", p.AccountID, p.IsPaid, baseTime)
+	if err != nil {
+		return details, err
+	}
+	return details, nil
 }
 
 func (p *Payment) UpdateAllFields(db *gorm.DB) error {

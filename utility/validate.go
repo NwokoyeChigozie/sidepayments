@@ -3,8 +3,8 @@ package utility
 import (
 	"net/mail"
 	"os"
-	"regexp"
-	"strings"
+
+	"github.com/nyaruka/phonenumbers"
 )
 
 func EmailValid(email string) bool {
@@ -13,18 +13,27 @@ func EmailValid(email string) bool {
 }
 
 func PhoneValid(phone string) (string, bool) {
-	if phone == "" || len(phone) < 5 {
+	parsed, err := phonenumbers.Parse(phone, "")
+	if err != nil {
 		return phone, false
 	}
-	re := regexp.MustCompile(`^(?:(?:\(?(?:00|\+)([1-4]\d\d|[1-9]\d?)\)?)?[\-\.\ \\\/]?)?((?:\(?\d{1,}\)?[\-\.\ \\\/]?){0,})(?:[\-\.\ \\\/]?(?:#|ext\.?|extension|x)[\-\.\ \\\/]?(\d+))?$`)
 
-	if strings.Contains(phone, "+234") {
-		phone = strings.Replace(phone, "+234", "0", 1)
-	} else if strings.Contains(phone, "234") {
-		phone = strings.Replace(phone, "234", "0", 1)
+	if !phonenumbers.IsValidNumber(parsed) {
+		return phone, false
 	}
 
-	return phone, re.MatchString(phone)
+	formattedNum := phonenumbers.Format(parsed, phonenumbers.NATIONAL)
+	return formattedNum, true
+}
+
+func MakePhoneNumber(number string, countryCode string) (string, error) {
+	parsed, err := phonenumbers.Parse(number, countryCode)
+	if err != nil {
+		return number, err
+	}
+
+	formattedNum := phonenumbers.Format(parsed, phonenumbers.NATIONAL)
+	return formattedNum, nil
 }
 
 func fileExists(filename string) bool {

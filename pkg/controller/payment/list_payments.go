@@ -26,19 +26,20 @@ func (base *Controller) ListPaymentByTransactionID(c *gin.Context) {
 	c.JSON(http.StatusOK, rd)
 
 }
-func (base *Controller) GetPaymentByTransactionID(c *gin.Context) {
+func (base *Controller) ListPaymentRecords(c *gin.Context) {
 	var (
 		transactionID = c.Param("transaction_id")
+		paginator     = postgresql.GetPagination(c)
 	)
 
-	payments, code, err := payment.GetPaymentByTransactionIDService(base.ExtReq, base.Db, transactionID)
+	payments, pagination, code, err := payment.ListPaymentRecordsService(base.ExtReq, base.Db, transactionID, paginator)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Payment Details Retrieved", payments)
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Payment Details Retrieved", payments, pagination)
 	c.JSON(http.StatusOK, rd)
 
 }

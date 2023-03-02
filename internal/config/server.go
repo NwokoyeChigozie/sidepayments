@@ -32,3 +32,7 @@ type Microservices struct {
 	Verification string
 	Widget       string
 }
+
+type OnlinePayment struct {
+	Max float64
+}

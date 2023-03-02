@@ -1,0 +1,40 @@
+package payment
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/vesicash/payment-ms/external/external_models"
+	"github.com/vesicash/payment-ms/external/request"
+	"github.com/vesicash/payment-ms/internal/config"
+)
+
+type Monnify struct {
+	ExtReq request.ExternalRequest
+}
+
+func (m *Monnify) InitPayment(amount float64, customerName, customerEmail, reference, description, currency, redirectUrl string) (string, external_models.MonnifyInitPaymentRequest, error) {
+	var (
+		contractCode = config.GetConfig().Monnify.MonnifyContractCode
+	)
+	data := external_models.MonnifyInitPaymentRequest{
+		Amount:             amount,
+		CustomerName:       customerName,
+		CustomerEmail:      customerEmail,
+		PaymentReference:   reference,
+		PaymentDescription: description,
+		CurrencyCode:       strings.ToUpper(currency),
+		ContractCode:       contractCode,
+		RedirectUrl:        redirectUrl,
+	}
+	paymentItf, err := m.ExtReq.SendExternalRequest(request.MonnifyInitPayment, data)
+	if err != nil {
+		return "", data, err
+	}
+
+	paymentData, ok := paymentItf.(external_models.MonnifyInitPaymentResponseBody)
+	if !ok {
+		return "", data, fmt.Errorf("response data format error")
+	}
+	return paymentData.CheckoutUrl, data, nil
+}

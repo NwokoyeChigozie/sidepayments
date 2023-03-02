@@ -38,6 +38,37 @@ func (r *RequestObj) GetUser() (external_models.User, error) {
 	return outBoundResponse.Data.User, nil
 }
 
+func (r *RequestObj) GetUsersByBusinessID() ([]external_models.User, error) {
+
+	var (
+		appKey           = config.GetConfig().App.Key
+		outBoundResponse external_models.GetUsersByBusinessIDModel
+		logger           = r.Logger
+		idata            = r.RequestData
+	)
+
+	data, ok := idata.(string)
+	if !ok {
+		logger.Info("get users by business id", idata, "request data format error")
+		return outBoundResponse.Data, fmt.Errorf("request data format error")
+	}
+
+	headers := map[string]string{
+		"Content-Type": "application/json",
+		"v-app":        appKey,
+	}
+
+	logger.Info("get users by business id", data)
+	err := r.getNewSendRequestObject(data, headers, "/"+data).SendRequest(&outBoundResponse)
+	if err != nil {
+		logger.Info("get users by business id", outBoundResponse, err.Error())
+		return outBoundResponse.Data, err
+	}
+	logger.Info("get users by business id", outBoundResponse)
+
+	return outBoundResponse.Data, nil
+}
+
 func (r *RequestObj) SetUserAuthorizationRequiredStatus() (bool, error) {
 
 	var (
