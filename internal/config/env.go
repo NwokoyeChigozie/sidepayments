@@ -13,6 +13,7 @@ type Configuration struct {
 	Rave           Rave
 	IPStack        IPStack
 	ONLINE_PAYMENT OnlinePayment
+	Slack          Slack
 }
 
 type BaseConfig struct {
@@ -105,6 +106,10 @@ type BaseConfig struct {
 	IPSTACK_BASE_URL string `mapstructure:"IPSTACK_BASE_URL"`
 
 	ONLINE_PAYMENT_MAX float64 `mapstructure:"ONLINE_PAYMENT_MAX"`
+
+	SLACK_OAUTH_TOKEN             string `mapstructure:"SLACK_OAUTH_TOKEN"`
+	SLACK_PAYMENT_CHANNELID       string `mapstructure:"SLACK_PAYMENT_CHANNELID"`
+	SLACK_DISBURSEMENTS_CHANNELID string `mapstructure:"SLACK_DISBURSEMENTS_CHANNELID"`
 }
 
 func (config *BaseConfig) SetupConfigurationn() *Configuration {
@@ -214,6 +219,11 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 
 		ONLINE_PAYMENT: OnlinePayment{
 			Max: config.ONLINE_PAYMENT_MAX,
+		},
+		Slack: Slack{
+			OauthToken:            config.SLACK_OAUTH_TOKEN,
+			PaymentChannelID:      config.SLACK_PAYMENT_CHANNELID,
+			DisbursementChannelID: config.SLACK_DISBURSEMENTS_CHANNELID,
 		},
 	}
 }

@@ -16,18 +16,15 @@ import (
 	"github.com/vesicash/payment-ms/utility"
 )
 
-var (
-	maxUSDAmountNigeria float64 = 100
-	onlinePayment               = config.GetConfig().ONLINE_PAYMENT
-)
-
 func InitiatePaymentService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.InitiatePaymentRequest) (models.InitiatePaymentResponse, int, error) {
 	var (
-		payment        = models.Payment{TransactionID: req.TransactionID}
-		paymentGateway = req.PaymentGateway
-		reference      = ""
-		rave           = Rave{ExtReq: extReq}
-		response       = models.InitiatePaymentResponse{}
+		payment                     = models.Payment{TransactionID: req.TransactionID}
+		paymentGateway              = req.PaymentGateway
+		reference                   = ""
+		rave                        = Rave{ExtReq: extReq}
+		response                    = models.InitiatePaymentResponse{}
+		maxUSDAmountNigeria float64 = 100
+		onlinePayment               = config.GetConfig().ONLINE_PAYMENT
 	)
 
 	transaction, err := ListTransactionsByID(extReq, req.TransactionID)
@@ -215,19 +212,21 @@ func InitiatePaymentService(c *gin.Context, extReq request.ExternalRequest, db p
 
 func InitiatePaymentHeadlessService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.InitiatePaymentHeadlessRequest) (models.InitiatePaymentResponse, int, error) {
 	var (
-		response               = models.InitiatePaymentResponse{}
-		rave                   = Rave{ExtReq: extReq}
-		monnify                = Monnify{ExtReq: extReq}
-		amount         float64 = 0
-		paymentGateway         = req.PaymentGateway
-		country                = ""
-		successPage            = ""
-		failPage               = ""
-		paymentUrl             = ""
-		reference              = ""
-		charge         float64 = 0
-		paymentRequest interface{}
-		paymentRef     = ""
+		response                    = models.InitiatePaymentResponse{}
+		rave                        = Rave{ExtReq: extReq}
+		monnify                     = Monnify{ExtReq: extReq}
+		amount              float64 = 0
+		paymentGateway              = req.PaymentGateway
+		country                     = ""
+		successPage                 = ""
+		failPage                    = ""
+		paymentUrl                  = ""
+		reference                   = ""
+		charge              float64 = 0
+		paymentRequest      interface{}
+		paymentRef                  = ""
+		maxUSDAmountNigeria float64 = 100
+		onlinePayment               = config.GetConfig().ONLINE_PAYMENT
 	)
 
 	if req.Amount > onlinePayment.Max {
@@ -400,4 +399,115 @@ func InitiatePaymentHeadlessService(c *gin.Context, extReq request.ExternalReque
 	extReq.Logger.Info(country)
 
 	return response, http.StatusOK, nil
+}
+
+func FundWalletService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.FundWalletRequest) (map[string]interface{}, int, error) {
+	var (
+		response        = map[string]interface{}{}
+		rave            = Rave{ExtReq: extReq}
+		paymentChannelD = config.GetConfig().Slack.PaymentChannelID
+	)
+	user, err := GetUserWithAccountID(extReq, req.AccountID)
+	if err != nil {
+		return response, http.StatusInternalServerError, err
+	}
+
+	businessCharge, err := getBusinessChargeWithBusinessIDAndCountry(extReq, req.AccountID, req.Currency)
+	if err != nil {
+		return response, http.StatusBadRequest, fmt.Errorf("Missing business charges data, visit https://vesicash.com to set this up.")
+	}
+
+	chargeString := businessCharge.ProcessingFee
+	charge, _ := strconv.ParseFloat(chargeString, 64)
+	finalAmount := req.Amount + float64(charge)
+
+	if user.Firstname == "" || user.Lastname == "" {
+		return response, http.StatusBadRequest, fmt.Errorf("Missing firstname or lastname in user data.")
+	}
+
+	referenceID, _ := uuid.NewV4()
+	reference := "VESICASH_FA_" + referenceID.String()
+	accountName := fmt.Sprintf("%v %v", user.Firstname, user.Lastname)
+
+	payment := models.Payment{
+		PaymentID:   utility.RandomString(10),
+		TotalAmount: req.Amount,
+		IsPaid:      false,
+		AccountID:   int64(req.AccountID),
+		BusinessID:  int64(req.AccountID),
+		Currency:    strings.ToUpper(req.Currency),
+	}
+
+	err = payment.CreatePayment(db.Payment)
+	if err != nil {
+		return response, http.StatusInternalServerError, err
+	}
+
+	paymentInfo := models.PaymentInfo{
+		PaymentID: payment.PaymentID,
+		Reference: reference,
+		Status:    "pending",
+		Gateway:   "flutterwave",
+	}
+
+	err = paymentInfo.CreatePaymentInfo(db.Payment)
+	if err != nil {
+		return response, http.StatusInternalServerError, err
+	}
+
+	accountDetails, err := rave.ReserveAccount(reference, accountName, user.EmailAddress, user.Firstname, user.Lastname, finalAmount)
+	if err != nil {
+		return response, http.StatusInternalServerError, err
+	}
+
+	bank, err := rave.GetBank("NGN", accountDetails.BankName)
+	bankCode := "0"
+	if err == nil {
+		bankCode = bank.Code
+	}
+
+	fID, _ := uuid.NewV4()
+	fundingAccount := models.FundingAccount{
+		FundingAccountID:  fID.String(),
+		Reference:         accountDetails.OrderRef,
+		AccountID:         req.AccountID,
+		AccountName:       accountName,
+		AccountNumber:     accountDetails.AccountNumber,
+		BankCode:          bankCode,
+		BankName:          accountDetails.BankName,
+		LastFundingAmount: fmt.Sprintf("%v", finalAmount),
+		EscrowWallet:      req.Escrow_wallet,
+	}
+
+	err = fundingAccount.CreateFundingAccount(db.Payment)
+	if err != nil {
+		return response, http.StatusInternalServerError, err
+	}
+
+	err = SlackNotify(paymentChannelD, `
+		Funding Account Generated
+		Environment: `+config.GetConfig().App.Name+`
+		Account ID: `+strconv.Itoa(req.AccountID)+`
+		Account Number: `+accountDetails.AccountNumber+`
+		Account Name: `+accountName+`
+		Bank: `+accountDetails.BankName+`
+		Status: SUCCESSFUL
+			`)
+	if err != nil && !extReq.Test {
+		extReq.Logger.Error("error sending notification to slack: ", err.Error())
+	}
+
+	pendingTransferFunding := models.PendingTransferFunding{
+		Reference: fundingAccount.Reference,
+		Status:    "pending",
+		Type:      "funding",
+	}
+
+	err = pendingTransferFunding.CreatePendingTransferFunding(db.Payment)
+	if err != nil {
+		return response, http.StatusInternalServerError, err
+	}
+
+	return gin.H{"funding_account": accountDetails, "currency": req.Currency, "amount": finalAmount, "payment": payment}, http.StatusOK, nil
+
 }

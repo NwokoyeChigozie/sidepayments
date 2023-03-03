@@ -14,7 +14,7 @@ type Rave struct {
 }
 
 func (r *Rave) ListBanks(countryCode string) ([]external_models.BanksResponse, error) {
-	banksItf, err := r.ExtReq.SendExternalRequest(request.ListBanksWithRave, countryCode)
+	banksItf, err := r.ExtReq.SendExternalRequest(request.ListBanksWithRave, strings.ToUpper(countryCode))
 	if err != nil {
 		return []external_models.BanksResponse{}, err
 	}
@@ -25,6 +25,21 @@ func (r *Rave) ListBanks(countryCode string) ([]external_models.BanksResponse, e
 	}
 
 	return banks, nil
+}
+
+func (r *Rave) GetBank(countryCode, bankName string) (external_models.BanksResponse, error) {
+	banks, err := r.ListBanks(countryCode)
+	if err != nil {
+		return external_models.BanksResponse{}, err
+	}
+
+	for _, bank := range banks {
+		if strings.ToLower(bank.Name) == strings.ToLower(bankName) {
+			return bank, nil
+		}
+	}
+
+	return external_models.BanksResponse{}, fmt.Errorf("bank not found")
 }
 
 func (r *Rave) ResolveAccount(bankCode, accountNumber string) (string, error) {
@@ -88,4 +103,27 @@ func (r *Rave) InitPayment(reference, email, currency, redirectUrl string, amoun
 		return "", data, fmt.Errorf("response data format error")
 	}
 	return paymentData.Data.Link, data, nil
+}
+
+func (r *Rave) ReserveAccount(reference, narration, email, firstName, lastName string, amount float64) (external_models.RaveReserveAccountResponseData, error) {
+	data := external_models.RaveReserveAccountRequest{
+		TxRef:       reference,
+		Narration:   narration,
+		Amount:      amount,
+		Email:       email,
+		Frequency:   1,
+		Firstname:   firstName,
+		Lastname:    lastName,
+		IsPermanent: false,
+	}
+	paymentItf, err := r.ExtReq.SendExternalRequest(request.RaveReserveAccount, data)
+	if err != nil {
+		return external_models.RaveReserveAccountResponseData{}, err
+	}
+
+	paymentData, ok := paymentItf.(external_models.RaveReserveAccountResponseData)
+	if !ok {
+		return external_models.RaveReserveAccountResponseData{}, fmt.Errorf("response data format error")
+	}
+	return paymentData, nil
 }

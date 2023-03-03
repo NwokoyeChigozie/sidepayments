@@ -76,6 +76,7 @@ var (
 	MonnifyInitPayment      string = "monnify_init_payment"
 	GetAccessTokenByKey     string = "get_access_token_by_key"
 	GetEscrowCharge         string = "get_escrow_charge"
+	RaveReserveAccount      string = "rave_reserve_account"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -524,6 +525,17 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.GetEscrowCharge()
+		case "rave_reserve_account":
+			obj := rave.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v3/virtual-account-numbers", config.Rave.BaseUrl),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.RaveReserveAccount()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}
