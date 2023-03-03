@@ -30,6 +30,7 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentAuthUrl.DELETE("/delete/:id", payment.DeletePayment)
 		paymentAuthUrl.GET("customers/card", payment.GetCustomerCard)
 		paymentAuthUrl.GET("customers/cards/:business_id", payment.GetCustomerCardsByBusinessID)
+
 	}
 
 	paymentApiUrl := r.Group(fmt.Sprintf("%v/payment", ApiVersion), middleware.Authorize(db, extReq, middleware.ApiType))
@@ -44,6 +45,7 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentApiUrl.GET("customers/payments/:business_id", payment.GetCustomerPayments)
 		paymentAuthUrl.GET("/pay", payment.InitiatePayment)
 		paymentAuthUrl.GET("pay/headless", payment.InitiatePaymentHeadless)
+		paymentAuthUrl.GET("pay/fund/wallet", payment.FundWallet)
 	}
 	return r
 }

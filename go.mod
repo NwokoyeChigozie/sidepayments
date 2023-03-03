@@ -21,8 +21,10 @@ require (
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/nyaruka/phonenumbers v1.1.6 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
+	github.com/slack-go/slack v0.12.1 // indirect
 	golang.org/x/time v0.1.0 // indirect
 )
 

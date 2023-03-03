@@ -12,22 +12,25 @@ import (
 
 type Payment struct {
 	ID               int64     `gorm:"primary_key;AUTO_INCREMENT;column:id" json:"id"`
-	PaymentID        string    `gorm:"column:payment_id" json:"payment_id"`
-	TransactionID    string    `gorm:"column:transaction_id" json:"transaction_id"`
-	TotalAmount      float64   `gorm:"column:total_amount" json:"total_amount"`
-	EscrowCharge     float64   `gorm:"column:escrow_charge" json:"escrow_charge"`
-	IsPaid           bool      `gorm:"column:is_paid" json:"is_paid"`
-	PaymentMadeAt    time.Time `gorm:"column:payment_made_at" json:"payment_made_at"`
+	PaymentID        string    `gorm:"column:payment_id; type:varchar(255); not null" json:"payment_id"`
+	TransactionID    string    `gorm:"column:transaction_id; type:varchar(255)" json:"transaction_id"`
+	TotalAmount      float64   `gorm:"column:total_amount; type:decimal(20,2)" json:"total_amount"`
+	EscrowCharge     float64   `gorm:"column:escrow_charge; type:decimal(20,2)" json:"escrow_charge"`
+	IsPaid           bool      `gorm:"column:is_paid; default: false" json:"is_paid"`
+	PaymentMadeAt    time.Time `gorm:"column:payment_made_at; comment: When payment was made to escrow" json:"payment_made_at"`
 	DeletedAt        time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 	CreatedAt        time.Time `gorm:"column:created_at; autoCreateTime" json:"created_at"`
 	UpdatedAt        time.Time `gorm:"column:updated_at; autoUpdateTime" json:"updated_at"`
-	AccountID        int64     `gorm:"column:account_id" json:"account_id"`
-	BusinessID       int64     `gorm:"column:business_id" json:"business_id"`
-	Currency         string    `gorm:"column:currency" json:"currency"`
-	ShippingFee      float64   `gorm:"column:shipping_fee" json:"shipping_fee"`
-	DisburseCurrency string    `gorm:"column:disburse_currency" json:"disburse_currency"`
-	PaymentType      string    `gorm:"column:payment_type" json:"payment_type"`
-	BrokerCharge     float64   `gorm:"column:broker_charge" json:"broker_charge"`
+	AccountID        int64     `gorm:"column:account_id; type:int" json:"account_id"`
+	BusinessID       int64     `gorm:"column:business_id; type:int" json:"business_id"`
+	Currency         string    `gorm:"column:currency; type:varchar(255)" json:"currency"`
+	ShippingFee      float64   `gorm:"column:shipping_fee; type:decimal(20,2)" json:"shipping_fee"`
+	DisburseCurrency string    `gorm:"column:disburse_currency; type:varchar(255)" json:"disburse_currency"`
+	PaymentType      string    `gorm:"column:payment_type; type:varchar(255)" json:"payment_type"`
+	BrokerCharge     float64   `gorm:"column:broker_charge; type:decimal(20,2)" json:"broker_charge"`
+	PaidBy           string    `gorm:"column:paid_by; type:varchar(255); comment: email of the payer" json:"paid_by"`
+	Payment_method   string    `gorm:"column:payment_method; type:varchar(255); comment: card,bank_transfer" json:"payment_method"`
+	WalletFunded     string    `gorm:"column:wallet_funded; type:varchar(255); comment: dollar,naira,pounds,escrow_dollar,escrow_naira,escrow_pounds" json:"wallet_funded"`
 }
 
 type CreatePaymentRequest struct {
@@ -61,6 +64,12 @@ type InitiatePaymentResponse struct {
 	Ref           string `json:"ref"`
 	ExternalRef   string `json:"external_ref"`
 	TransactionID string `json:"transaction_id"`
+}
+type FundWalletRequest struct {
+	AccountID     int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
+	Amount        float64 `json:"amount" validate:"required"`
+	Currency      string  `json:"currency" validate:"required,oneof=NGN"`
+	Escrow_wallet string  `json:"escrow_wallet" validate:"required,oneof=yes no"`
 }
 
 type CreatePaymentHeadlessRequest struct {
