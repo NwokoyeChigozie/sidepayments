@@ -469,7 +469,7 @@ func FundWalletService(c *gin.Context, extReq request.ExternalRequest, db postgr
 	fID, _ := uuid.NewV4()
 	fundingAccount := models.FundingAccount{
 		FundingAccountID:  fID.String(),
-		Reference:         accountDetails.OrderRef,
+		Reference:         reference,
 		AccountID:         req.AccountID,
 		AccountName:       accountName,
 		AccountNumber:     accountDetails.AccountNumber,
@@ -508,6 +508,92 @@ func FundWalletService(c *gin.Context, extReq request.ExternalRequest, db postgr
 		return response, http.StatusInternalServerError, err
 	}
 
-	return gin.H{"funding_account": accountDetails, "currency": req.Currency, "amount": finalAmount, "payment": payment}, http.StatusOK, nil
+	return gin.H{"funding_account": accountDetails, "currency": req.Currency, "amount": finalAmount, "payment": payment, "reference": reference}, http.StatusOK, nil
 
+}
+
+func FundWalletVerifyService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, reference, currency string) (map[string]interface{}, int, error) {
+	var (
+		fundingAccount  = models.FundingAccount{Reference: reference}
+		response        = map[string]interface{}{}
+		rave            = Rave{ExtReq: extReq}
+		paymentChannelD = config.GetConfig().Slack.PaymentChannelID
+	)
+
+	code, err := fundingAccount.GetFundingAccountByReference(db.Payment)
+	if err != nil {
+		if code == http.StatusInternalServerError {
+			return response, code, err
+		}
+		return response, code, fmt.Errorf("No funding account attached to this reference ID. Kindly re-generate a reference using the fund wallet endpoint")
+	}
+
+	user, err := GetUserWithAccountID(extReq, fundingAccount.AccountID)
+	if err != nil {
+		return response, http.StatusBadRequest, fmt.Errorf("Funding account user could not be found")
+	}
+
+	businessCharge, _ := getBusinessChargeWithBusinessIDAndCurrency(extReq, fundingAccount.AccountID, strings.ToUpper(currency))
+
+	processingFee, err := strconv.ParseFloat(businessCharge.ProcessingFee, 64)
+	lastFundingAmount, err := strconv.ParseFloat(fundingAccount.LastFundingAmount, 64)
+	if err != nil {
+		return response, http.StatusInternalServerError, fmt.Errorf("last funding amount is not of float value")
+	}
+
+	amount := lastFundingAmount - processingFee
+	if amount < 0 {
+		return response, http.StatusInternalServerError, fmt.Errorf("amount is less than 0")
+	}
+
+	_, status, _ := rave.VerifyTransactionByTxRef(reference)
+	if status == "pending" {
+		return response, http.StatusBadRequest, fmt.Errorf("account has not received any payments or error verifying payment")
+	}
+
+	businessProfile, _ := GetBusinessProfileByAccountID(extReq, extReq.Logger, int(user.AccountID))
+
+	if status != "success" {
+		if businessProfile.Webhook_uri != "" {
+			InitWebhook(extReq, db, businessProfile.Webhook_uri, "bank-transfer.failed", map[string]interface{}{"reference": reference, "amount": amount, "status": "failed"}, businessProfile.AccountID)
+		}
+
+	}
+
+	err = CreditWallet(extReq, db, amount, currency, int(user.AccountID), false, fundingAccount.EscrowWallet, "")
+	if err != nil {
+		return response, http.StatusInternalServerError, fmt.Errorf("error crediting wallet: %v", err.Error())
+	}
+
+	err = SlackNotify(paymentChannelD, `
+		Wallet Funding For Customer #`+strconv.Itoa(int(user.AccountID))+`
+		Environment: `+config.GetConfig().App.Name+`
+		Account ID: `+strconv.Itoa(int(user.AccountID))+`
+		Beneficiary Name: `+user.Firstname+` `+user.Lastname+`
+		Amount: `+fmt.Sprintf("%v", amount)+`
+		Status: PAID
+			`)
+	if err != nil && !extReq.Test {
+		extReq.Logger.Error("error sending notification to slack: ", err.Error())
+	}
+
+	err = SlackNotify(paymentChannelD, `
+		Bank Transfer Payment
+		Environment: `+config.GetConfig().App.Name+`
+		Reference: `+reference+`
+		Account Number: `+fundingAccount.AccountNumber+`
+		Account Name: `+fundingAccount.AccountName+`
+		Bank: `+fundingAccount.BankName+`
+		Amount: `+fmt.Sprintf("%v", amount)+`
+		Status: SUCCESSFUL
+			`)
+	if err != nil && !extReq.Test {
+		extReq.Logger.Error("error sending notification to slack: ", err.Error())
+	}
+
+	if businessProfile.Webhook_uri != "" {
+		InitWebhook(extReq, db, businessProfile.Webhook_uri, "bank-transfer.success", map[string]interface{}{"reference": reference, "amount": amount, "status": "success"}, businessProfile.AccountID)
+	}
+
+	return gin.H{"reference": reference, "amount": amount, "currency": strings.ToUpper(currency)}, http.StatusOK, nil
 }

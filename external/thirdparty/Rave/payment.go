@@ -64,3 +64,32 @@ func (r *RequestObj) RaveReserveAccount() (external_models.RaveReserveAccountRes
 
 	return outBoundResponse.Data, nil
 }
+
+func (r *RequestObj) RaveVerifyTransactionByTxRef() (external_models.RaveVerifyTransactionResponseData, error) {
+
+	var (
+		outBoundResponse external_models.RaveVerifyTransactionResponse
+		logger           = r.Logger
+		idata            = r.RequestData
+	)
+
+	headers := map[string]string{
+		"Content-Type":  "application/json",
+		"Authorization": "Bearer " + config.GetConfig().Rave.SecretKey,
+	}
+
+	data, ok := idata.(string)
+	if !ok {
+		logger.Info("rave verify transaction by tx_ref", idata, "request data format error")
+		return outBoundResponse.Data, fmt.Errorf("request data format error")
+	}
+
+	err := r.getNewSendRequestObject(data, headers, data).SendRequest(&outBoundResponse)
+	if err != nil {
+		logger.Info("rave verify transaction by tx_ref", outBoundResponse, err.Error())
+		return outBoundResponse.Data, err
+	}
+	logger.Info("rave verify transaction by tx_ref", outBoundResponse)
+
+	return outBoundResponse.Data, nil
+}

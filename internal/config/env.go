@@ -105,7 +105,8 @@ type BaseConfig struct {
 	IPSTACK_KEY      string `mapstructure:"IPSTACK_KEY"`
 	IPSTACK_BASE_URL string `mapstructure:"IPSTACK_BASE_URL"`
 
-	ONLINE_PAYMENT_MAX float64 `mapstructure:"ONLINE_PAYMENT_MAX"`
+	ONLINE_PAYMENT_MAX  float64 `mapstructure:"ONLINE_PAYMENT_MAX"`
+	DISBURSEMENT_CHARGE float64 `mapstructure:"DISBURSEMENT_CHARGE"`
 
 	SLACK_OAUTH_TOKEN             string `mapstructure:"SLACK_OAUTH_TOKEN"`
 	SLACK_PAYMENT_CHANNELID       string `mapstructure:"SLACK_PAYMENT_CHANNELID"`
@@ -218,7 +219,8 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 		},
 
 		ONLINE_PAYMENT: OnlinePayment{
-			Max: config.ONLINE_PAYMENT_MAX,
+			Max:                config.ONLINE_PAYMENT_MAX,
+			DisbursementCharge: config.DISBURSEMENT_CHARGE,
 		},
 		Slack: Slack{
 			OauthToken:            config.SLACK_OAUTH_TOKEN,

@@ -66,17 +66,26 @@ var (
 	ValidateOnTransactions string = "validate_on_transactions"
 	ListTransactionsByID   string = "list_transactions_by_id"
 
-	GetUsersByBusinessID    string = "get_users_by_business_id"
-	ListBanksWithRave       string = "list_banks_with_rave"
-	ConvertCurrencyWithRave string = "convert_currency_with_rave"
-	ResolveIP               string = "resolve_ip"
-	GetBusinessCharge       string = "get_business_charge"
-	InitBusinessCharge      string = "init_business_charge"
-	RaveInitPayment         string = "rave_init_payment"
-	MonnifyInitPayment      string = "monnify_init_payment"
-	GetAccessTokenByKey     string = "get_access_token_by_key"
-	GetEscrowCharge         string = "get_escrow_charge"
-	RaveReserveAccount      string = "rave_reserve_account"
+	GetUsersByBusinessID         string = "get_users_by_business_id"
+	ListBanksWithRave            string = "list_banks_with_rave"
+	ConvertCurrencyWithRave      string = "convert_currency_with_rave"
+	ResolveIP                    string = "resolve_ip"
+	GetBusinessCharge            string = "get_business_charge"
+	InitBusinessCharge           string = "init_business_charge"
+	RaveInitPayment              string = "rave_init_payment"
+	MonnifyInitPayment           string = "monnify_init_payment"
+	GetAccessTokenByKey          string = "get_access_token_by_key"
+	GetEscrowCharge              string = "get_escrow_charge"
+	RaveReserveAccount           string = "rave_reserve_account"
+	RaveVerifyTransactionByTxRef string = "rave_verify_transaction_by_tx_ref"
+
+	CreateWalletBalance                    string = "create_wallet_balance"
+	GetWalletBalanceByAccountIDAndCurrency string = "get_wallet_balance_by_account_id_and_currency"
+	UpdateWalletBalance                    string = "update_wallet_balance"
+	UpdateTransactionAmountPaid            string = "update_transaction_amount_paid"
+
+	WalletFundedNotification string = "wallet_funded_notification"
+	WalletDebitNotification  string = "wallet_debit_notification"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -536,6 +545,83 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.RaveReserveAccount()
+		case "rave_verify_transaction_by_tx_ref":
+			obj := rave.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v3/transactions/verify_by_reference?tx_ref=", config.Rave.BaseUrl),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.RaveVerifyTransactionByTxRef()
+		case "create_wallet_balance":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/create_wallet", config.Microservices.Auth),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.CreateWalletBalance()
+		case "get_wallet_balance_by_account_id_and_currency":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/get_wallet", config.Microservices.Auth),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.GetWalletBalanceByAccountIDAndCurrency()
+		case "update_wallet_balance":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/update_wallet_balance", config.Microservices.Auth),
+				Method:       "PATCH",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.UpdateWalletBalance()
+		case "update_transaction_amount_paid":
+			obj := transactions.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/get_access_token_by_key", config.Microservices.Transactions),
+				Method:       "PATCH",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.UpdateTransactionAmountPaid()
+		case "wallet_funded_notification":
+			obj := notification.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/email/send/wallet_funded", config.Microservices.Notification),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.WalletfundedNotification()
+		case "wallet_debit_notification":
+			obj := notification.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/email/send/wallet_debit", config.Microservices.Notification),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.WalletDebitNotification()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

@@ -46,6 +46,7 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentAuthUrl.GET("/pay", payment.InitiatePayment)
 		paymentAuthUrl.GET("pay/headless", payment.InitiatePaymentHeadless)
 		paymentAuthUrl.GET("pay/fund/wallet", payment.FundWallet)
+		paymentAuthUrl.GET("pay/fund/wallet/verify", payment.FundWalletVerify)
 	}
 	return r
 }

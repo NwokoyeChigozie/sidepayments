@@ -94,3 +94,45 @@ type RaveReserveAccountResponseData struct {
 	Note            string `json:"note"`
 	Amount          string `json:"amount"`
 }
+
+type RaveVerifyTransactionResponse struct {
+	Status  string                            `json:"status"`
+	Message string                            `json:"message"`
+	Data    RaveVerifyTransactionResponseData `json:"data"`
+}
+type RaveVerifyTransactionResponseData struct {
+	ID                int                                       `json:"id"`
+	TxRef             string                                    `json:"tx_ref"`
+	FlwRef            string                                    `json:"flw_ref"`
+	DeviceFingerprint string                                    `json:"device_fingerprint"`
+	Amount            float64                                   `json:"amount"`
+	Currency          string                                    `json:"currency"`
+	ChargedAmount     float64                                   `json:"charged_amount"`
+	AppFee            float64                                   `json:"app_fee"`
+	MerchantFee       float64                                   `json:"merchant_fee"`
+	ProcessorResponse string                                    `json:"processor_response"`
+	AuthModel         string                                    `json:"auth_model"`
+	Ip                string                                    `json:"ip"`
+	Narration         string                                    `json:"narration"`
+	Status            string                                    `json:"status"`
+	PaymentType       string                                    `json:"payment_type"`
+	CreatedAt         string                                    `json:"created_at"`
+	AccountId         int                                       `json:"account_id"`
+	Meta              RaveVerifyTransactionResponseDataMeta     `json:"meta"`
+	AmountSettled     float64                                   `json:"amount_settled"`
+	Customer          RaveVerifyTransactionResponseDataCustomer `json:"customer"`
+}
+
+type RaveVerifyTransactionResponseDataMeta struct {
+	OriginatorAccountNumber string `json:"originatoraccountnumber"`
+	OriginatorName          string `json:"originatorname"`
+	BankName                string `json:"bankname"`
+	OriginatorAmount        string `json:"originatoramount"`
+}
+type RaveVerifyTransactionResponseDataCustomer struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	PhoneNumber string `json:"phone_number"`
+	Email       string `json:"email"`
+	CreatedAt   string `json:"created_at"`
+}
