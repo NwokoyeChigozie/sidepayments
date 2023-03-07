@@ -127,3 +127,17 @@ func (r *Rave) ReserveAccount(reference, narration, email, firstName, lastName s
 	}
 	return paymentData, nil
 }
+
+func (r *Rave) VerifyTransactionByTxRef(reference string) (external_models.RaveVerifyTransactionResponseData, string, error) {
+	paymentItf, err := r.ExtReq.SendExternalRequest(request.RaveVerifyTransactionByTxRef, reference)
+	if err != nil {
+		return external_models.RaveVerifyTransactionResponseData{}, "pending", err
+	}
+
+	data, ok := paymentItf.(external_models.RaveVerifyTransactionResponseData)
+	if !ok {
+		return data, "pending", fmt.Errorf("response data format error")
+	}
+
+	return data, "success", nil
+}

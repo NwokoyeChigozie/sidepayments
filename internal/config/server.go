@@ -34,5 +34,6 @@ type Microservices struct {
 }
 
 type OnlinePayment struct {
-	Max float64
+	Max                float64
+	DisbursementCharge float64
 }
