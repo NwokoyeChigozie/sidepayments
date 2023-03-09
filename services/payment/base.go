@@ -253,3 +253,24 @@ func initBusinessCharge(extReq request.ExternalRequest, businessID int, currency
 
 	return businessCharge, nil
 }
+
+func getCountryByCurrency(extReq request.ExternalRequest, logger *utility.Logger, currencyCode string) (external_models.Country, error) {
+
+	countryInterface, err := extReq.SendExternalRequest(request.GetCountry, external_models.GetCountryModel{
+		CurrencyCode: currencyCode,
+	})
+
+	if err != nil {
+		logger.Info(err.Error())
+		return external_models.Country{}, fmt.Errorf("Your country could not be resolved, please update your profile.")
+	}
+	country, ok := countryInterface.(external_models.Country)
+	if !ok {
+		return external_models.Country{}, fmt.Errorf("response data format error")
+	}
+	if country.ID == 0 {
+		return external_models.Country{}, fmt.Errorf("Your country could not be resolved, please update your profile")
+	}
+
+	return country, nil
+}

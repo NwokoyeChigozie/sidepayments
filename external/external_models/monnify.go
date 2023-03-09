@@ -63,3 +63,20 @@ type MonnifyInitPaymentResponseBody struct {
 	EnabledPaymentMethod []string `json:"enabledPaymentMethod"`
 	CheckoutUrl          string   `json:"checkoutUrl"`
 }
+type MonnifyVerifyByReferenceResponse struct {
+	RequestSuccessful bool                                 `json:"requestSuccessful"`
+	ResponseMessage   string                               `json:"responseMessage"`
+	ResponseCode      string                               `json:"responseCode"`
+	ResponseBody      MonnifyVerifyByReferenceResponseBody `json:"responseBody"`
+}
+type MonnifyVerifyByReferenceResponseBody struct {
+	CreatedOn            string  `json:"createdOn"`
+	Amount               float64 `json:"amount"`
+	CurrencyCode         string  `json:"currencyCode"`
+	CustomerName         string  `json:"customerName"`
+	CustomerEmail        string  `json:"customerEmail"`
+	PaymentDescription   string  `json:"paymentDescription"`
+	PaymentStatus        string  `json:"paymentStatus"`
+	TransactionReference string  `json:"transactionReference"`
+	PaymentReference     string  `json:"paymentReference"`
+}

@@ -86,3 +86,19 @@ type UpdateTransactionAmountPaidResponse struct {
 	Message string      `json:"message"`
 	Data    Transaction `json:"data"`
 }
+
+type CreateActivityLogRequest struct {
+	TransactionID string `json:"transaction_id"`
+	Description   string `json:"description"`
+}
+
+type UpdateTransactionStatusRequest struct {
+	AccountID     int    `json:"account_id"`
+	TransactionID string `json:"transaction_id"`
+	MilestoneID   string `json:"milestone_id"`
+	Status        string `json:"status"`
+}
+
+type OnlyTransactionIDRequiredRequest struct {
+	TransactionID string `json:"transaction_id"`
+}

@@ -38,3 +38,29 @@ func (m *Monnify) InitPayment(amount float64, customerName, customerEmail, refer
 	}
 	return paymentData.CheckoutUrl, data, nil
 }
+
+func (m *Monnify) Status(reference string) (bool, float64, error) {
+	var (
+		status bool
+		amount float64
+	)
+	paymentItf, err := m.ExtReq.SendExternalRequest(request.MonnifyVerifyTransactionByReference, reference)
+	if err != nil {
+		return status, amount, err
+	}
+
+	data, ok := paymentItf.(external_models.MonnifyVerifyByReferenceResponseBody)
+	if !ok {
+		return status, amount, fmt.Errorf("response data format error")
+	}
+
+	if strings.ToUpper(data.PaymentStatus) == "PAID" {
+		status = true
+		amount = data.Amount
+	} else {
+		status = false
+		amount = data.Amount
+	}
+
+	return status, amount, nil
+}

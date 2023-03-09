@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -42,6 +43,17 @@ func (p *PaymentCardInfo) GetPaymentCardInfoByAccountID(db *gorm.DB) (int, error
 	}
 	return http.StatusOK, nil
 }
+func (p *PaymentCardInfo) GetPaymentCardInfoByAccountIDLast4DigitsAndBrand(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &p, "account_id = ? and lastFourDigits=? and brand=?", p.AccountID, p.LastFourDigits, p.Brand)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
 
 func (p *PaymentCardInfo) GetAllPaymentCardInfosByAccountIDs(db *gorm.DB, accountIds []int) ([]PaymentCardInfo, error) {
 	details := []PaymentCardInfo{}
@@ -50,4 +62,11 @@ func (p *PaymentCardInfo) GetAllPaymentCardInfosByAccountIDs(db *gorm.DB, accoun
 		return details, err
 	}
 	return details, nil
+}
+func (p *PaymentCardInfo) CreatePaymentCardInfo(db *gorm.DB) error {
+	err := postgresql.CreateOneRecord(db, &p)
+	if err != nil {
+		return fmt.Errorf("Payment card info creation failed: %v", err.Error())
+	}
+	return nil
 }

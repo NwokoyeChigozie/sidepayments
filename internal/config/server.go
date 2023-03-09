@@ -9,8 +9,10 @@ type ServerConfiguration struct {
 	ExemptFromThrottle        []string
 }
 type App struct {
-	Name string
-	Key  string
+	Name    string
+	Key     string
+	SiteUrl string
+	Url     string
 }
 
 type Microservices struct {

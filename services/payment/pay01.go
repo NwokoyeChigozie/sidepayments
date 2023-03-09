@@ -597,3 +597,16 @@ func FundWalletVerifyService(c *gin.Context, extReq request.ExternalRequest, db 
 
 	return gin.H{"reference": reference, "amount": amount, "currency": strings.ToUpper(currency)}, http.StatusOK, nil
 }
+
+func FundWalletLogsService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, accountID int, paginator postgresql.Pagination) ([]models.FundingAccount, postgresql.PaginationResponse, int, error) {
+	var (
+		fundingAccount = models.FundingAccount{AccountID: accountID}
+	)
+
+	fundingAccounts, pagination, err := fundingAccount.GetFundingAccountsByAccountID(db.Payment, "id", "desc", paginator)
+	if err != nil {
+		return fundingAccounts, pagination, http.StatusInternalServerError, err
+	}
+
+	return fundingAccounts, pagination, http.StatusOK, nil
+}

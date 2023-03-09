@@ -65,6 +65,13 @@ type InitiatePaymentResponse struct {
 	ExternalRef   string `json:"external_ref"`
 	TransactionID string `json:"transaction_id"`
 }
+type ChargeCardInitRequest struct {
+	TransactionID string  `json:"transaction_id" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	PaymentID     string  `json:"payment_id" pgvalidate:"exists=payment$payments$payment_id"`
+	Amount        float64 `json:"amount"`
+	Narration     string  `json:"narration"`
+	Meta          string  `json:"meta"`
+}
 type FundWalletRequest struct {
 	AccountID     int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
 	Amount        float64 `json:"amount" validate:"required"`
@@ -129,6 +136,19 @@ type ListPayment struct {
 type ListPaymentsResponse struct {
 	Transaction external_models.TransactionByID `json:"transaction"`
 	Payment     ListPayment                     `json:"payment"`
+}
+
+type GetStatusRequest struct {
+	Reference   string `json:"reference" validate:"required"`
+	Headless    bool   `json:"headless"`
+	SuccessPage string `json:"success_page"`
+	FailurePage string `json:"failure_page"`
+	FundWallet  bool   `json:"fund_wallet"`
+}
+type GetPaymentStatusRequest struct {
+	Reference  string `json:"reference" validate:"required"`
+	Headless   bool   `json:"headless" validate:"required"`
+	FundWallet bool   `json:"fund_wallet"`
 }
 
 func (p *Payment) CreatePayment(db *gorm.DB) error {

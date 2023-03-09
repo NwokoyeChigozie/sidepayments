@@ -1,12 +1,14 @@
 package payment
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/vesicash/payment-ms/external/external_models"
 	"github.com/vesicash/payment-ms/external/request"
 	"github.com/vesicash/payment-ms/internal/models"
+	"github.com/vesicash/payment-ms/pkg/repository/storage/postgresql"
 )
 
 type Rave struct {
@@ -140,4 +142,92 @@ func (r *Rave) VerifyTransactionByTxRef(reference string) (external_models.RaveV
 	}
 
 	return data, "success", nil
+}
+
+func (r *Rave) StatusV3(db postgresql.Databases, payment models.Payment, paymentInfo models.PaymentInfo, reference string) (bool, float64, error) {
+	var (
+		status bool
+		amount float64
+	)
+
+	paymentItf, err := r.ExtReq.SendExternalRequest(request.RaveVerifyTransactionByTxRef, reference)
+	if err != nil {
+		return status, amount, err
+	}
+
+	data, ok := paymentItf.(external_models.RaveVerifyTransactionResponseData)
+	if !ok {
+		return status, amount, fmt.Errorf("response data format error")
+	}
+
+	if data.Card != nil {
+		expirySlice := strings.Split(data.Card.Expiry, "/")
+		expiryMonth := ""
+		expiryYear := ""
+		if len(expirySlice) >= 2 {
+			expiryMonth = expirySlice[0]
+			expiryYear = expirySlice[1]
+		}
+
+		cardByte, _ := json.Marshal(data.Card)
+
+		paymentCardInfo := models.PaymentCardInfo{AccountID: int(payment.AccountID), LastFourDigits: data.Card.Last4digits, Brand: data.Card.Type}
+		_, err := paymentCardInfo.GetPaymentCardInfoByAccountIDLast4DigitsAndBrand(db.Payment)
+		if err != nil {
+			paymentCardInfo = models.PaymentCardInfo{
+				AccountID:         int(payment.AccountID),
+				PaymentID:         paymentInfo.PaymentID,
+				CcExpiryMonth:     expiryMonth,
+				CcExpiryYear:      expiryYear,
+				LastFourDigits:    data.Card.Last4digits,
+				Brand:             data.Card.Type,
+				IssuingCountry:    data.Card.Country,
+				CardToken:         string(cardByte),
+				CardLifeTimeToken: data.Card.Token,
+				Payload:           string(cardByte),
+			}
+			err := paymentCardInfo.CreatePaymentCardInfo(db.Payment)
+			if err != nil {
+				return status, amount, err
+			}
+		}
+	}
+
+	if data.Status == "successful" || data.Status == "completed" {
+		status = true
+		amount = data.Amount
+	} else if data.Status == "failed" {
+		status = false
+		amount = data.Amount
+	} else {
+		status = true
+		amount = data.Amount
+	}
+
+	return status, amount, nil
+}
+
+func (r *Rave) ChargeCard(token, currency, email, reference string, amount float64) (string, error) {
+	data := external_models.RaveChargeCardRequest{
+		Token:    token,
+		Currency: strings.ToUpper(currency),
+		Email:    email,
+		TxRef:    reference,
+		Amount:   amount,
+	}
+	paymentItf, err := r.ExtReq.SendExternalRequest(request.RaveChargeCard, data)
+	if err != nil {
+		return "failed", err
+	}
+
+	paymentData, ok := paymentItf.(external_models.RaveVerifyTransactionResponseData)
+	if !ok {
+		return "failed", fmt.Errorf("response data format error")
+	}
+
+	if strings.ToLower(paymentData.Status) != "successful" {
+		return "failed", nil
+	}
+
+	return "success", nil
 }

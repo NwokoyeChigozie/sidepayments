@@ -26,6 +26,8 @@ type BaseConfig struct {
 
 	APP_NAME string `mapstructure:"APP_NAME"`
 	APP_KEY  string `mapstructure:"APP_KEY"`
+	SITE_URL string `mapstructure:"SITE_URL"`
+	APP_URL  string `mapstructure:"APP_URL"`
 
 	DB_HOST          string `mapstructure:"DB_HOST"`
 	DB_PORT          string `mapstructure:"DB_PORT"`
@@ -128,8 +130,10 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 			ExemptFromThrottle:        exemptFromThrottle,
 		},
 		App: App{
-			Name: config.APP_NAME,
-			Key:  config.APP_KEY,
+			Name:    config.APP_NAME,
+			Key:     config.APP_KEY,
+			SiteUrl: config.SITE_URL,
+			Url:     config.APP_URL,
 		},
 		Databases: Databases{
 			DB_HOST:          config.DB_HOST,

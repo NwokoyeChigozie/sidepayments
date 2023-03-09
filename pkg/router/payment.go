@@ -43,10 +43,18 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentApiUrl.GET("/list/wallet_withdrawals/:account_id", payment.ListWithdrawalsByAccountID)
 		paymentApiUrl.POST("/verify", payment.VerifyTransactionPayment)
 		paymentApiUrl.GET("customers/payments/:business_id", payment.GetCustomerPayments)
+
+		// /pay
 		paymentAuthUrl.GET("/pay", payment.InitiatePayment)
 		paymentAuthUrl.GET("pay/headless", payment.InitiatePaymentHeadless)
 		paymentAuthUrl.GET("pay/fund/wallet", payment.FundWallet)
 		paymentAuthUrl.GET("pay/fund/wallet/verify", payment.FundWalletVerify)
+		paymentAuthUrl.POST("pay/fund/wallet/logs", payment.FundWalletLogs)
+		paymentAuthUrl.POST("pay/tokenized", payment.ChargeCardInit)
+
+		paymentAuthUrl.GET("pay/status", payment.GetStatus)
+		paymentAuthUrl.POST("pay/new-status", payment.GetPaymentStatus)
+
 	}
 	return r
 }
