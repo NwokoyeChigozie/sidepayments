@@ -66,12 +66,28 @@ type InitiatePaymentResponse struct {
 	TransactionID string `json:"transaction_id"`
 }
 type ChargeCardInitRequest struct {
-	TransactionID string  `json:"transaction_id" pgvalidate:"exists=transaction$transactions$transaction_id"`
-	PaymentID     string  `json:"payment_id" pgvalidate:"exists=payment$payments$payment_id"`
-	Amount        float64 `json:"amount"`
+	TransactionID string  `json:"transaction_id" validate:"required" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	PaymentID     string  `json:"payment_id" validate:"required" pgvalidate:"exists=payment$payments$payment_id"`
+	Amount        float64 `json:"amount" validate:"required"`
 	Narration     string  `json:"narration"`
 	Meta          string  `json:"meta"`
 }
+type ChargeCardInitHeadlessRequest struct {
+	TransactionID string  `json:"transaction_id" validate:"required" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	AccountID     int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
+	Amount        float64 `json:"amount" validate:"required"`
+	Narration     string  `json:"narration"`
+	Currency      string  `json:"currency" validate:"required"`
+	Meta          string  `json:"meta"`
+}
+
+type PaymentAccountMonnifyListRequest struct {
+	TransactionID      string `json:"transaction_id" validate:"required" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	AccountID          int    `json:"account_id"  pgvalidate:"exists=auth$users$account_id"`
+	GeneratedReference string `json:"generated_reference"`
+	Gateway            string `json:"gateway" validate:"required,oneof=rave monnify"`
+}
+
 type FundWalletRequest struct {
 	AccountID     int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
 	Amount        float64 `json:"amount" validate:"required"`

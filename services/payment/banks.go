@@ -1,7 +1,6 @@
 package payment
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/vesicash/payment-ms/external/external_models"
@@ -21,19 +20,6 @@ func ListBanksService(extReq request.ExternalRequest, db postgresql.Databases, c
 	}
 
 	return banks, http.StatusOK, nil
-}
-
-func VerifyBankAccountService(extReq request.ExternalRequest, db postgresql.Databases, bankCode, accountNumber string) (string, int, error) {
-	var (
-		rave = Rave{ExtReq: extReq}
-	)
-
-	accountName, err := rave.ResolveAccount(bankCode, accountNumber)
-	if err != nil || accountName == "" {
-		return "", http.StatusBadRequest, fmt.Errorf("could not resolve account details")
-	}
-
-	return accountName, http.StatusOK, nil
 }
 
 func ConvertCurrencyService(extReq request.ExternalRequest, db postgresql.Databases, amount float64, from, to string) (models.ConvertCurrencyResponse, int, error) {

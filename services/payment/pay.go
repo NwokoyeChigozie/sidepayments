@@ -401,212 +401,152 @@ func InitiatePaymentHeadlessService(c *gin.Context, extReq request.ExternalReque
 	return response, http.StatusOK, nil
 }
 
-func FundWalletService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.FundWalletRequest) (map[string]interface{}, int, error) {
+func ChargeCardInitService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.ChargeCardInitRequest) (string, int, error) {
+	transaction, err := ListTransactionsByID(extReq, req.TransactionID)
+	if err != nil {
+		return "", http.StatusInternalServerError, err
+	}
+
+	sellerParty, ok := transaction.Parties["seller"]
+	if !ok {
+		return "", http.StatusBadRequest, fmt.Errorf("transaction lacks a seller")
+	}
+
+	user, err := GetUserWithAccountID(extReq, sellerParty.AccountID)
+	if err != nil {
+		return "", http.StatusInternalServerError, fmt.Errorf("could not retrieve seller info: %v", err)
+	}
+
+	payment := models.Payment{PaymentID: req.PaymentID}
+	code, err := payment.GetPaymentByPaymentID(db.Payment)
+	if err != nil {
+		return "", code, err
+	}
+
+	paymentCheck := models.Payment{TransactionID: payment.TransactionID}
+	code, err = paymentCheck.GetPaymentByTransactionID(db.Payment)
+	if err != nil {
+		return "", code, fmt.Errorf("transaction has no payment record: %v", err.Error())
+	}
+
+	paymentCardInfo := models.PaymentCardInfo{AccountID: sellerParty.AccountID}
+	code, err = paymentCardInfo.GetPaymentCardInfoByAccountID(db.Payment)
+	if err != nil {
+		return "", code, fmt.Errorf("recipient has no card details stored: %v", err.Error())
+	}
+
+	if paymentCardInfo.CardLifeTimeToken == "" {
+		return "", http.StatusBadRequest, fmt.Errorf("user has no chargeable card")
+	}
+
+	rave := Rave{ExtReq: extReq}
+	reference := fmt.Sprintf("VC%v", utility.RandomString(10))
+	status, err := rave.ChargeCard(paymentCardInfo.CardLifeTimeToken, transaction.Currency, user.EmailAddress, reference, payment.TotalAmount)
+	if err != nil {
+		return "", http.StatusInternalServerError, err
+	}
+
+	return status, http.StatusOK, nil
+}
+
+func ChargeCardHeadlessInitService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.ChargeCardInitHeadlessRequest) (map[string]interface{}, int, error) {
 	var (
-		response        = map[string]interface{}{}
-		rave            = Rave{ExtReq: extReq}
-		paymentChannelD = config.GetConfig().Slack.PaymentChannelID
+		paymentCardInfo = models.PaymentCardInfo{AccountID: req.AccountID}
+		payment         = models.Payment{TransactionID: req.TransactionID}
+		data            map[string]interface{}
+		maxAmounut      float64 = 500000
+		rave                    = Rave{ExtReq: extReq}
+		escrowWallet            = "no"
 	)
+
 	user, err := GetUserWithAccountID(extReq, req.AccountID)
 	if err != nil {
-		return response, http.StatusInternalServerError, err
+		return data, http.StatusInternalServerError, err
 	}
 
-	businessCharge, err := getBusinessChargeWithBusinessIDAndCountry(extReq, req.AccountID, req.Currency)
-	if err != nil {
-		return response, http.StatusBadRequest, fmt.Errorf("Missing business charges data, visit https://vesicash.com to set this up.")
-	}
-
-	chargeString := businessCharge.ProcessingFee
-	charge, _ := strconv.ParseFloat(chargeString, 64)
-	finalAmount := req.Amount + float64(charge)
-
-	if user.Firstname == "" || user.Lastname == "" {
-		return response, http.StatusBadRequest, fmt.Errorf("Missing firstname or lastname in user data.")
-	}
-
-	referenceID, _ := uuid.NewV4()
-	reference := "VESICASH_FA_" + referenceID.String()
-	accountName := fmt.Sprintf("%v %v", user.Firstname, user.Lastname)
-
-	payment := models.Payment{
-		PaymentID:   utility.RandomString(10),
-		TotalAmount: req.Amount,
-		IsPaid:      false,
-		AccountID:   int64(req.AccountID),
-		BusinessID:  int64(req.AccountID),
-		Currency:    strings.ToUpper(req.Currency),
-	}
-
-	err = payment.CreatePayment(db.Payment)
-	if err != nil {
-		return response, http.StatusInternalServerError, err
-	}
-
-	paymentInfo := models.PaymentInfo{
-		PaymentID: payment.PaymentID,
-		Reference: reference,
-		Status:    "pending",
-		Gateway:   "flutterwave",
-	}
-
-	err = paymentInfo.CreatePaymentInfo(db.Payment)
-	if err != nil {
-		return response, http.StatusInternalServerError, err
-	}
-
-	accountDetails, err := rave.ReserveAccount(reference, accountName, user.EmailAddress, user.Firstname, user.Lastname, finalAmount)
-	if err != nil {
-		return response, http.StatusInternalServerError, err
-	}
-
-	bank, err := rave.GetBank("NGN", accountDetails.BankName)
-	bankCode := "0"
-	if err == nil {
-		bankCode = bank.Code
-	}
-
-	fID, _ := uuid.NewV4()
-	fundingAccount := models.FundingAccount{
-		FundingAccountID:  fID.String(),
-		Reference:         reference,
-		AccountID:         req.AccountID,
-		AccountName:       accountName,
-		AccountNumber:     accountDetails.AccountNumber,
-		BankCode:          bankCode,
-		BankName:          accountDetails.BankName,
-		LastFundingAmount: fmt.Sprintf("%v", finalAmount),
-		EscrowWallet:      req.Escrow_wallet,
-	}
-
-	err = fundingAccount.CreateFundingAccount(db.Payment)
-	if err != nil {
-		return response, http.StatusInternalServerError, err
-	}
-
-	err = SlackNotify(paymentChannelD, `
-		Funding Account Generated
-		Environment: `+config.GetConfig().App.Name+`
-		Account ID: `+strconv.Itoa(req.AccountID)+`
-		Account Number: `+accountDetails.AccountNumber+`
-		Account Name: `+accountName+`
-		Bank: `+accountDetails.BankName+`
-		Status: SUCCESSFUL
-			`)
-	if err != nil && !extReq.Test {
-		extReq.Logger.Error("error sending notification to slack: ", err.Error())
-	}
-
-	pendingTransferFunding := models.PendingTransferFunding{
-		Reference: fundingAccount.Reference,
-		Status:    "pending",
-		Type:      "funding",
-	}
-
-	err = pendingTransferFunding.CreatePendingTransferFunding(db.Payment)
-	if err != nil {
-		return response, http.StatusInternalServerError, err
-	}
-
-	return gin.H{"funding_account": accountDetails, "currency": req.Currency, "amount": finalAmount, "payment": payment, "reference": reference}, http.StatusOK, nil
-
-}
-
-func FundWalletVerifyService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, reference, currency string) (map[string]interface{}, int, error) {
-	var (
-		fundingAccount  = models.FundingAccount{Reference: reference}
-		response        = map[string]interface{}{}
-		rave            = Rave{ExtReq: extReq}
-		paymentChannelD = config.GetConfig().Slack.PaymentChannelID
-	)
-
-	code, err := fundingAccount.GetFundingAccountByReference(db.Payment)
+	code, err := paymentCardInfo.GetPaymentCardInfoByAccountID(db.Payment)
 	if err != nil {
 		if code == http.StatusInternalServerError {
-			return response, code, err
+			return data, code, err
 		}
-		return response, code, fmt.Errorf("No funding account attached to this reference ID. Kindly re-generate a reference using the fund wallet endpoint")
+		return data, code, fmt.Errorf("user has no card details stored")
 	}
 
-	user, err := GetUserWithAccountID(extReq, fundingAccount.AccountID)
+	code, err = payment.GetPaymentByTransactionID(db.Payment)
 	if err != nil {
-		return response, http.StatusBadRequest, fmt.Errorf("Funding account user could not be found")
+		if code == http.StatusInternalServerError {
+			return data, code, err
+		}
+		return data, code, fmt.Errorf("no payment record for this transactionID")
 	}
 
-	businessCharge, _ := getBusinessChargeWithBusinessIDAndCurrency(extReq, fundingAccount.AccountID, strings.ToUpper(currency))
+	if req.Amount > maxAmounut {
+		return data, http.StatusBadRequest, fmt.Errorf("Amount cannot be greater than %v", maxAmounut)
+	}
 
-	processingFee, err := strconv.ParseFloat(businessCharge.ProcessingFee, 64)
-	lastFundingAmount, err := strconv.ParseFloat(fundingAccount.LastFundingAmount, 64)
+	transaction, err := ListTransactionsByID(extReq, req.TransactionID)
 	if err != nil {
-		return response, http.StatusInternalServerError, fmt.Errorf("last funding amount is not of float value")
+		return data, http.StatusInternalServerError, err
 	}
 
-	amount := lastFundingAmount - processingFee
-	if amount < 0 {
-		return response, http.StatusInternalServerError, fmt.Errorf("amount is less than 0")
+	if transaction.EscrowWallet != "" {
+		escrowWallet = transaction.EscrowWallet
 	}
 
-	_, status, _ := rave.VerifyTransactionByTxRef(reference)
-	if status == "pending" {
-		return response, http.StatusBadRequest, fmt.Errorf("account has not received any payments or error verifying payment")
+	currency := req.Currency
+	if currency == "" {
+		currency = transaction.Currency
+		if currency == "" {
+			currency = "NGN"
+		}
 	}
 
-	businessProfile, _ := GetBusinessProfileByAccountID(extReq, extReq.Logger, int(user.AccountID))
+	reference := fmt.Sprintf("VC%v", utility.RandomString(10))
+	status, err := rave.ChargeCard(paymentCardInfo.CardLifeTimeToken, transaction.Currency, user.EmailAddress, reference, req.Amount)
+	if err != nil {
+		return data, http.StatusInternalServerError, err
+	}
 
-	if status != "success" {
-		if businessProfile.Webhook_uri != "" {
-			InitWebhook(extReq, db, businessProfile.Webhook_uri, "bank-transfer.failed", map[string]interface{}{"reference": reference, "amount": amount, "status": "failed"}, businessProfile.AccountID)
+	data = map[string]interface{}{
+		"reference": reference,
+		"token":     paymentCardInfo.CardLifeTimeToken,
+		"amount":    req.Amount,
+		"currency":  currency,
+		"email":     user.EmailAddress,
+		"firstname": user.Firstname,
+		"lastname":  user.Lastname,
+		"status":    status,
+	}
+
+	if status == "success" {
+		chargeBearer := transaction.Parties["charge_bearer"]
+		if chargeBearer.AccountID != 0 {
+			paymentAmount := payment.TotalAmount
+			newAmount := paymentAmount - payment.EscrowCharge
+			err = CreditWallet(extReq, db, newAmount, currency, chargeBearer.AccountID, false, escrowWallet, transaction.TransactionID)
+			if err != nil {
+				return data, http.StatusInternalServerError, err
+			}
 		}
 
+		businessEscrowCharge, err := getBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, transaction.Country.CountryCode)
+		if err == nil {
+			paymentAmount := payment.TotalAmount
+			businessPerc, _ := strconv.ParseFloat(businessEscrowCharge.BusinessCharge, 64)
+			vesicashCharge, _ := strconv.ParseFloat(businessEscrowCharge.VesicashCharge, 64)
+			amount := utility.PercentageOf(paymentAmount, businessPerc)
+			err = CreditWallet(extReq, db, amount, currency, transaction.BusinessID, false, escrowWallet, transaction.TransactionID)
+			if err != nil {
+				return data, http.StatusInternalServerError, err
+			}
+
+			amountTwo := utility.PercentageOf(paymentAmount, vesicashCharge)
+			err = CreditWallet(extReq, db, amountTwo, currency, 1, false, "no", transaction.TransactionID)
+			if err != nil {
+				return data, http.StatusInternalServerError, err
+			}
+		}
 	}
 
-	err = CreditWallet(extReq, db, amount, currency, int(user.AccountID), false, fundingAccount.EscrowWallet, "")
-	if err != nil {
-		return response, http.StatusInternalServerError, fmt.Errorf("error crediting wallet: %v", err.Error())
-	}
-
-	err = SlackNotify(paymentChannelD, `
-		Wallet Funding For Customer #`+strconv.Itoa(int(user.AccountID))+`
-		Environment: `+config.GetConfig().App.Name+`
-		Account ID: `+strconv.Itoa(int(user.AccountID))+`
-		Beneficiary Name: `+user.Firstname+` `+user.Lastname+`
-		Amount: `+fmt.Sprintf("%v", amount)+`
-		Status: PAID
-			`)
-	if err != nil && !extReq.Test {
-		extReq.Logger.Error("error sending notification to slack: ", err.Error())
-	}
-
-	err = SlackNotify(paymentChannelD, `
-		Bank Transfer Payment
-		Environment: `+config.GetConfig().App.Name+`
-		Reference: `+reference+`
-		Account Number: `+fundingAccount.AccountNumber+`
-		Account Name: `+fundingAccount.AccountName+`
-		Bank: `+fundingAccount.BankName+`
-		Amount: `+fmt.Sprintf("%v", amount)+`
-		Status: SUCCESSFUL
-			`)
-	if err != nil && !extReq.Test {
-		extReq.Logger.Error("error sending notification to slack: ", err.Error())
-	}
-
-	if businessProfile.Webhook_uri != "" {
-		InitWebhook(extReq, db, businessProfile.Webhook_uri, "bank-transfer.success", map[string]interface{}{"reference": reference, "amount": amount, "status": "success"}, businessProfile.AccountID)
-	}
-
-	return gin.H{"reference": reference, "amount": amount, "currency": strings.ToUpper(currency)}, http.StatusOK, nil
-}
-
-func FundWalletLogsService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, accountID int, paginator postgresql.Pagination) ([]models.FundingAccount, postgresql.PaginationResponse, int, error) {
-	var (
-		fundingAccount = models.FundingAccount{AccountID: accountID}
-	)
-
-	fundingAccounts, pagination, err := fundingAccount.GetFundingAccountsByAccountID(db.Payment, "id", "desc", paginator)
-	if err != nil {
-		return fundingAccounts, pagination, http.StatusInternalServerError, err
-	}
-
-	return fundingAccounts, pagination, http.StatusOK, nil
+	return data, http.StatusOK, nil
 }

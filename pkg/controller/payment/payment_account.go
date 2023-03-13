@@ -10,9 +10,9 @@ import (
 	"github.com/vesicash/payment-ms/utility"
 )
 
-func (base *Controller) GetPaymentStatus(c *gin.Context) {
+func (base *Controller) PaymentAccountMonnifyList(c *gin.Context) {
 	var (
-		req models.GetPaymentStatusRequest
+		req models.PaymentAccountMonnifyListRequest
 	)
 
 	err := c.ShouldBind(&req)
@@ -37,14 +37,14 @@ func (base *Controller) GetPaymentStatus(c *gin.Context) {
 		return
 	}
 
-	uri, msg, code, err := payment.GetPaymentStatusService(c, base.ExtReq, base.Db, req)
+	status, code, err := payment.PaymentAccountMonnifyListService(c, base.ExtReq, base.Db, req)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, msg, uri)
+	rd := utility.BuildSuccessResponse(http.StatusOK, "successful", status)
 	c.JSON(http.StatusOK, rd)
 
 }

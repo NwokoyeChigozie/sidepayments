@@ -20,7 +20,7 @@ func CreditWallet(extReq request.ExternalRequest, db postgresql.Databases, amoun
 	if strings.ToLower(creditEscrow) == "yes" {
 		currency = fmt.Sprintf("ESCROW_%v", currency)
 		extReq.Logger.Info("credit-wallet", "creditEscrow is yes", "currency = ", currency, fmt.Sprintf("transaction with id %v", transactionID))
-		if transactionID != "" {
+		if transactionID != "" && transactionID != "0" {
 			_, err := UpdateTransactionAmountPaid(extReq, transactionID, amount, "+")
 			if err != nil {
 				extReq.Logger.Error(fmt.Sprintf("Error adding amount to transaction amount paid for transaction with id: %v, action:%v, amount:%v", transactionID, "+", amount))

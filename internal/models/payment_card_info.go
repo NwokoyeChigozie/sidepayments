@@ -32,6 +32,27 @@ type CardResponse struct {
 	ExpiryYear  string `json:"expiryYear"`
 }
 
+type DeleteStoredCardRequest struct {
+	AccountID int `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
+}
+
+func (p *PaymentCardInfo) DeleteByAccountID(db *gorm.DB) error {
+	err, nilErr := postgresql.SelectOneFromDb(db, &p, "account_id = ?", p.AccountID)
+	if nilErr != nil {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	err = postgresql.DeleteRecordFromDb(db, &p)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *PaymentCardInfo) GetPaymentCardInfoByAccountID(db *gorm.DB) (int, error) {
 	err, nilErr := postgresql.SelectOneFromDb(db, &p, "account_id = ?", p.AccountID)
 	if nilErr != nil {

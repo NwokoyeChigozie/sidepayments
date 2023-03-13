@@ -19,7 +19,6 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 	paymentUrl := r.Group(fmt.Sprintf("%v/payment", ApiVersion))
 	{
 		paymentUrl.POST("/banks", payment.ListBanks)
-		paymentUrl.POST("/banks/account_verification", payment.VerifyBankAccount)
 		paymentUrl.POST("currency/converter", payment.ConvertCurrency)
 	}
 
@@ -46,14 +45,13 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 
 		// /pay
 		paymentAuthUrl.GET("/pay", payment.InitiatePayment)
-		paymentAuthUrl.GET("pay/headless", payment.InitiatePaymentHeadless)
-		paymentAuthUrl.GET("pay/fund/wallet", payment.FundWallet)
-		paymentAuthUrl.GET("pay/fund/wallet/verify", payment.FundWalletVerify)
-		paymentAuthUrl.POST("pay/fund/wallet/logs", payment.FundWalletLogs)
-		paymentAuthUrl.POST("pay/tokenized", payment.ChargeCardInit)
+		paymentAuthUrl.GET("/pay/headless", payment.InitiatePaymentHeadless)
+		paymentAuthUrl.POST("/pay/tokenized", payment.ChargeCardInit)
+		paymentAuthUrl.POST("/pay/tokenized/headless", payment.ChargeCardHeadlessInit)
+		paymentAuthUrl.POST("/pay/tokenized/delete", payment.DeleteStoredCard)
+		paymentAuthUrl.POST("/pay/new-status", payment.GetPaymentStatus)
 
-		paymentAuthUrl.GET("pay/status", payment.GetStatus)
-		paymentAuthUrl.POST("pay/new-status", payment.GetPaymentStatus)
+		paymentAuthUrl.POST("/payment_account/list", payment.PaymentAccountMonnifyList)
 
 	}
 	return r
