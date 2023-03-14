@@ -52,6 +52,7 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentAuthUrl.POST("/pay/new-status", payment.GetPaymentStatus)
 
 		paymentAuthUrl.POST("/payment_account/list", payment.PaymentAccountMonnifyList)
+		paymentAuthUrl.POST("/payment_account/verify", payment.PaymentAccountMonnifyVerify)
 
 	}
 	return r

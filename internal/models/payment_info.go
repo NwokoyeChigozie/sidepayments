@@ -41,6 +41,17 @@ func (p *PaymentInfo) GetPaymentInfoByReference(db *gorm.DB) (int, error) {
 	}
 	return http.StatusOK, nil
 }
+func (p *PaymentInfo) GetPaymentInfoByPaymentID(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &p, "payment_id = ?", p.PaymentID)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
 
 func (p *PaymentInfo) UpdateAllFields(db *gorm.DB) error {
 	_, err := postgresql.SaveAllFields(db, &p)

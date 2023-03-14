@@ -65,3 +65,73 @@ func (r *RequestObj) MonnifyVerifyTransactionByReference() (external_models.Monn
 
 	return outBoundResponse.ResponseBody, nil
 }
+
+func (r *RequestObj) MonnifyReserveAccount() (external_models.MonnifyReserveAccountResponseBody, error) {
+
+	var (
+		outBoundResponse external_models.MonnifyReserveAccountResponse
+		logger           = r.Logger
+		idata            = r.RequestData
+	)
+
+	data, ok := idata.(external_models.MonnifyReserveAccountRequest)
+	if !ok {
+		logger.Info("monnify reserve account", idata, "request data format error")
+		return outBoundResponse.ResponseBody, fmt.Errorf("request data format error")
+	}
+
+	token, err := r.getMonnifyLoginObject().MonnifyLogin()
+	if err != nil {
+		logger.Info("monnify reserve account", outBoundResponse, err.Error())
+		return outBoundResponse.ResponseBody, err
+	}
+
+	headers := map[string]string{
+		"Content-Type":  "application/json",
+		"Authorization": "Bearer " + token,
+	}
+
+	logger.Info("monnify reserve account", data)
+	err = r.getNewSendRequestObject(nil, headers, "").SendRequest(&outBoundResponse)
+	if err != nil {
+		logger.Info("monnify reserve account", outBoundResponse, err.Error())
+		return outBoundResponse.ResponseBody, err
+	}
+
+	return outBoundResponse.ResponseBody, nil
+}
+
+func (r *RequestObj) GetMonnifyReserveAccountTransactions() (external_models.GetMonnifyReserveAccountTransactionsResponseBody, error) {
+
+	var (
+		outBoundResponse external_models.GetMonnifyReserveAccountTransactionsResponse
+		logger           = r.Logger
+		idata            = r.RequestData
+	)
+
+	data, ok := idata.(string)
+	if !ok {
+		logger.Info("get monnify reserve account transactions", idata, "request data format error")
+		return outBoundResponse.ResponseBody, fmt.Errorf("request data format error")
+	}
+
+	token, err := r.getMonnifyLoginObject().MonnifyLogin()
+	if err != nil {
+		logger.Info("get monnify reserve account transactions", outBoundResponse, err.Error())
+		return outBoundResponse.ResponseBody, err
+	}
+
+	headers := map[string]string{
+		"Content-Type":  "application/json",
+		"Authorization": "Bearer " + token,
+	}
+
+	logger.Info("get monnify reserve account transactions", data)
+	err = r.getNewSendRequestObject(nil, headers, fmt.Sprintf("?accountReference=%v&page=0&size=100", data)).SendRequest(&outBoundResponse)
+	if err != nil {
+		logger.Info("get monnify reserve account transactions", outBoundResponse, err.Error())
+		return outBoundResponse.ResponseBody, err
+	}
+
+	return outBoundResponse.ResponseBody, nil
+}

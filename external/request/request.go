@@ -92,7 +92,9 @@ var (
 	TransactionUpdateStatus    string = "transaction_update_status"
 	BuyerSatisfied             string = "buyer_satisfied"
 
-	RaveChargeCard string = "rave_charge_card"
+	RaveChargeCard                       string = "rave_charge_card"
+	MonnifyReserveAccount                string = "monnify_reserve_account"
+	GetMonnifyReserveAccountTransactions string = "get_monnify_reserve_account_transactions"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -695,6 +697,28 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.RaveChargeCard()
+		case "monnify_reserve_account":
+			obj := monnify.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v1/bank-transfer/reserved-accounts", config.Monnify.MonnifyEndpoint),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.MonnifyReserveAccount()
+		case "get_monnify_reserve_account_transactions":
+			obj := monnify.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v1/bank-transfer/reserved-accounts/transactions", config.Monnify.MonnifyEndpoint),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.GetMonnifyReserveAccountTransactions()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

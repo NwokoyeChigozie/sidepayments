@@ -98,11 +98,13 @@ type BaseConfig struct {
 	APPRUVE_TEST_ACCESS_TOKEN string `mapstructure:"APPRUVE_TEST_ACCESS_TOKEN"`
 	APPRUVE_BASE_URL          string `mapstructure:"APPRUVE_BASE_URL"`
 
-	RAVE_PUBLIC_KEY  string `mapstructure:"RAVE_PUBLIC_KEY"`
-	RAVE_SECRET_KEY  string `mapstructure:"RAVE_SECRET_KEY"`
-	RAVE_BASE_URL    string `mapstructure:"RAVE_BASE_URL"`
-	RAVE_PAYMENT_URL string `mapstructure:"RAVE_PAYMENT_URL"`
-	RAVE_KEY         string `mapstructure:"RAVE_KEY"`
+	RAVE_PUBLIC_KEY          string `mapstructure:"RAVE_PUBLIC_KEY"`
+	RAVE_SECRET_KEY          string `mapstructure:"RAVE_SECRET_KEY"`
+	RAVE_BASE_URL            string `mapstructure:"RAVE_BASE_URL"`
+	RAVE_PAYMENT_URL         string `mapstructure:"RAVE_PAYMENT_URL"`
+	RAVE_KEY                 string `mapstructure:"RAVE_KEY"`
+	FLUTTERWAVE_MERCHANT_ID  string `mapstructure:"FLUTTERWAVE_MERCHANT_ID"`
+	FLUTTERWAVE_ACCOUNT_NAME string `mapstructure:"FLUTTERWAVE_ACCOUNT_NAME"`
 
 	IPSTACK_KEY      string `mapstructure:"IPSTACK_KEY"`
 	IPSTACK_BASE_URL string `mapstructure:"IPSTACK_BASE_URL"`

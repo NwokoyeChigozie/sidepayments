@@ -82,10 +82,14 @@ type ChargeCardInitHeadlessRequest struct {
 }
 
 type PaymentAccountMonnifyListRequest struct {
-	TransactionID      string `json:"transaction_id" validate:"required" pgvalidate:"exists=transaction$transactions$transaction_id"`
-	AccountID          int    `json:"account_id"  pgvalidate:"exists=auth$users$account_id"`
+	TransactionID      string `json:"transaction_id" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	AccountID          int    `json:"account_id" validate:"required"  pgvalidate:"exists=auth$users$account_id"`
 	GeneratedReference string `json:"generated_reference"`
 	Gateway            string `json:"gateway" validate:"required,oneof=rave monnify"`
+}
+type PaymentAccountMonnifyVerifyRequest struct {
+	TransactionID string `json:"transaction_id" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	Reference     string `json:"reference" validate:"required"`
 }
 
 type FundWalletRequest struct {
