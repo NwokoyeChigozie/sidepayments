@@ -6,6 +6,7 @@ import (
 	"github.com/vesicash/payment-ms/external/microservice/auth"
 	"github.com/vesicash/payment-ms/external/microservice/notification"
 	"github.com/vesicash/payment-ms/external/microservice/transactions"
+	"github.com/vesicash/payment-ms/external/microservice/upload"
 	"github.com/vesicash/payment-ms/external/mocks"
 	rave "github.com/vesicash/payment-ms/external/thirdparty/Rave"
 	"github.com/vesicash/payment-ms/external/thirdparty/appruve"
@@ -95,6 +96,7 @@ var (
 	RaveChargeCard                       string = "rave_charge_card"
 	MonnifyReserveAccount                string = "monnify_reserve_account"
 	GetMonnifyReserveAccountTransactions string = "get_monnify_reserve_account_transactions"
+	UploadFile                           string = "upload_file"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -719,6 +721,17 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.GetMonnifyReserveAccountTransactions()
+		case "upload_file":
+			obj := upload.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/upload/files", config.Microservices.Transactions),
+				Method:       "POST",
+				SuccessCode:  201,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.UploadFile()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}
