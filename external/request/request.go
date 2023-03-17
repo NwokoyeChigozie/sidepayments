@@ -97,6 +97,11 @@ var (
 	MonnifyReserveAccount                string = "monnify_reserve_account"
 	GetMonnifyReserveAccountTransactions string = "get_monnify_reserve_account_transactions"
 	UploadFile                           string = "upload_file"
+
+	CreateWalletHistory       string = "create_wallet_history"
+	CreateWalletTransaction   string = "create_wallet_transaction"
+	CreateExchangeTransaction string = "create_exchange_transaction"
+	GetRateByID               string = "get_rate_by_id"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -732,6 +737,50 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.UploadFile()
+		case "create_wallet_history":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/create_wallet_history", config.Microservices.Auth),
+				Method:       "POST",
+				SuccessCode:  201,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.CreateWalletHistory()
+		case "create_wallet_transaction":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/create_wallet_transaction", config.Microservices.Auth),
+				Method:       "POST",
+				SuccessCode:  201,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.CreateWalletTransaction()
+		case "create_exchange_transaction":
+			obj := transactions.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/transactions/create_exchange_transaction", config.Microservices.Transactions),
+				Method:       "POST",
+				SuccessCode:  201,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.CreateExchangeTransaction()
+		case "get_rate_by_id":
+			obj := transactions.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/transactions/get_rate", config.Microservices.Transactions),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.GetRateByID()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

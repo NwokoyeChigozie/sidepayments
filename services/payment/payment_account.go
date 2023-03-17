@@ -314,7 +314,7 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 		}
 		finalAmount := amountPaid - fundingCharge
 
-		err = CreditWallet(extReq, db, finalAmount, transaction.Currency, int(user.AccountID), false, fundEscrowWallet, transaction.TransactionID)
+		_, err = CreditWallet(extReq, db, finalAmount, transaction.Currency, int(user.AccountID), false, fundEscrowWallet, transaction.TransactionID)
 		if err != nil {
 			return data, msg, http.StatusBadRequest, err
 		}
@@ -439,12 +439,12 @@ func sendTransactionConfirmed(extReq request.ExternalRequest, db postgresql.Data
 		businessPerc, _ := strconv.ParseFloat(businessEscrowCharge.BusinessCharge, 64)
 		vesicashCharge, _ := strconv.ParseFloat(businessEscrowCharge.VesicashCharge, 64)
 		// credit vesicash
-		err = CreditWallet(extReq, db, utility.PercentageOf(amount, vesicashCharge), transaction.Currency, 1, false, "no", transaction.TransactionID)
+		_, err = CreditWallet(extReq, db, utility.PercentageOf(amount, vesicashCharge), transaction.Currency, 1, false, "no", transaction.TransactionID)
 		if err != nil {
 			return transaction, "", err
 		}
 
-		err = CreditWallet(extReq, db, utility.PercentageOf(amount, businessPerc), transaction.Currency, transaction.BusinessID, false, transaction.EscrowWallet, transaction.TransactionID)
+		_, err = CreditWallet(extReq, db, utility.PercentageOf(amount, businessPerc), transaction.Currency, transaction.BusinessID, false, transaction.EscrowWallet, transaction.TransactionID)
 		if err != nil {
 			return transaction, "", err
 		}

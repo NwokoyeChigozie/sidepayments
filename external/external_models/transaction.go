@@ -102,3 +102,25 @@ type UpdateTransactionStatusRequest struct {
 type OnlyTransactionIDRequiredRequest struct {
 	TransactionID string `json:"transaction_id"`
 }
+type CreateExchangeTransactionRequest struct {
+	AccountID     int     `json:"account_id"`
+	InitialAmount float64 `json:"initial_amount"`
+	FinalAmount   float64 `json:"final_amount"`
+	RateID        int     `json:"rate_id"`
+	Status        string  `json:"status"`
+}
+
+type Rate struct {
+	ID           int64   `json:"id"`
+	FromCurrency string  `json:"from_currency"`
+	ToCurrency   string  `json:"to_currency"`
+	From_symbol  string  `json:"from_symbol"`
+	ToSymbol     string  `json:"to_symbol"`
+	Amount       float64 `json:"amount"`
+}
+type RateResponse struct {
+	Status  string `json:"status"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    Rate   `json:"data"`
+}

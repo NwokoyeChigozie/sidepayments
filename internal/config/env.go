@@ -111,6 +111,7 @@ type BaseConfig struct {
 
 	ONLINE_PAYMENT_MAX  float64 `mapstructure:"ONLINE_PAYMENT_MAX"`
 	DISBURSEMENT_CHARGE float64 `mapstructure:"DISBURSEMENT_CHARGE"`
+	NAIRA_THRESHOLD     float64 `mapstructure:"NAIRA_THRESHOLD"`
 
 	SLACK_OAUTH_TOKEN             string `mapstructure:"SLACK_OAUTH_TOKEN"`
 	SLACK_PAYMENT_CHANNELID       string `mapstructure:"SLACK_PAYMENT_CHANNELID"`
@@ -227,6 +228,7 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 		ONLINE_PAYMENT: OnlinePayment{
 			Max:                config.ONLINE_PAYMENT_MAX,
 			DisbursementCharge: config.DISBURSEMENT_CHARGE,
+			NairaThreshold:     config.NAIRA_THRESHOLD,
 		},
 		Slack: Slack{
 			OauthToken:            config.SLACK_OAUTH_TOKEN,

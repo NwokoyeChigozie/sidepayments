@@ -216,7 +216,7 @@ func (p *Payment) GetPaymentByTransactionIDAndNotPaymentMadeAt(db *gorm.DB) (int
 
 func (p *Payment) GetPaymentsByAccountIDAndNullTransactionID(db *gorm.DB, paginator postgresql.Pagination) ([]Payment, postgresql.PaginationResponse, error) {
 	details := []Payment{}
-	pagination, err := postgresql.SelectAllFromDbOrderByPaginated(db, "id", "desc", paginator, &details, "account_id = ? and (transaction_id is null or transaction_id='')", p.ID)
+	pagination, err := postgresql.SelectAllFromDbOrderByPaginated(db, "id", "desc", paginator, &details, "account_id = ? and (transaction_id is null or transaction_id='')", p.AccountID)
 	if err != nil {
 		return details, pagination, err
 	}

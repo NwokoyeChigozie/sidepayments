@@ -54,6 +54,9 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentAuthUrl.POST("/payment_account/list", payment.PaymentAccountMonnifyList)
 		paymentAuthUrl.POST("/payment_account/verify", payment.PaymentAccountMonnifyVerify)
 
+		paymentAuthUrl.GET("/disbursement/user/:account_id", payment.ListDisbursementByAccountID)
+		paymentAuthUrl.GET("/disbursement/wallet/wallet-transfer", payment.WalletTransfer)
+
 	}
 	return r
 }

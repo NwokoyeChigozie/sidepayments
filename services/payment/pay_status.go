@@ -108,12 +108,12 @@ func GetPaymentStatusService(c *gin.Context, extReq request.ExternalRequest, db 
 			}
 
 			// credit vesicash
-			err = CreditWallet(extReq, db, escrowCharge, transaction.Currency, 1, false, "no", transaction.TransactionID)
+			_, err = CreditWallet(extReq, db, escrowCharge, transaction.Currency, 1, false, "no", transaction.TransactionID)
 			if err != nil {
 				return uri, "error", http.StatusInternalServerError, err
 			}
 			buyerAmount := payment.TotalAmount - escrowCharge
-			err = CreditWallet(extReq, db, buyerAmount, transaction.Currency, businessID, false, escrowWallet, transaction.TransactionID)
+			_, err = CreditWallet(extReq, db, buyerAmount, transaction.Currency, businessID, false, escrowWallet, transaction.TransactionID)
 			if err != nil {
 				return uri, "error", http.StatusInternalServerError, err
 			}
@@ -135,7 +135,7 @@ func GetPaymentStatusService(c *gin.Context, extReq request.ExternalRequest, db 
 			}
 		} else {
 			if req.FundWallet {
-				err = CreditWallet(extReq, db, payment.TotalAmount, payment.Currency, int(payment.AccountID), false, escrowWallet, "")
+				_, err = CreditWallet(extReq, db, payment.TotalAmount, payment.Currency, int(payment.AccountID), false, escrowWallet, "")
 				if err != nil {
 					return uri, "error", http.StatusInternalServerError, err
 				}
