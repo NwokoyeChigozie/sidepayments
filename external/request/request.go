@@ -6,6 +6,7 @@ import (
 	"github.com/vesicash/payment-ms/external/microservice/auth"
 	"github.com/vesicash/payment-ms/external/microservice/notification"
 	"github.com/vesicash/payment-ms/external/microservice/transactions"
+	"github.com/vesicash/payment-ms/external/microservice/upload"
 	"github.com/vesicash/payment-ms/external/mocks"
 	rave "github.com/vesicash/payment-ms/external/thirdparty/Rave"
 	"github.com/vesicash/payment-ms/external/thirdparty/appruve"
@@ -66,26 +67,41 @@ var (
 	ValidateOnTransactions string = "validate_on_transactions"
 	ListTransactionsByID   string = "list_transactions_by_id"
 
-	GetUsersByBusinessID         string = "get_users_by_business_id"
-	ListBanksWithRave            string = "list_banks_with_rave"
-	ConvertCurrencyWithRave      string = "convert_currency_with_rave"
-	ResolveIP                    string = "resolve_ip"
-	GetBusinessCharge            string = "get_business_charge"
-	InitBusinessCharge           string = "init_business_charge"
-	RaveInitPayment              string = "rave_init_payment"
-	MonnifyInitPayment           string = "monnify_init_payment"
-	GetAccessTokenByKey          string = "get_access_token_by_key"
-	GetEscrowCharge              string = "get_escrow_charge"
-	RaveReserveAccount           string = "rave_reserve_account"
-	RaveVerifyTransactionByTxRef string = "rave_verify_transaction_by_tx_ref"
+	GetUsersByBusinessID                string = "get_users_by_business_id"
+	ListBanksWithRave                   string = "list_banks_with_rave"
+	ConvertCurrencyWithRave             string = "convert_currency_with_rave"
+	ResolveIP                           string = "resolve_ip"
+	GetBusinessCharge                   string = "get_business_charge"
+	InitBusinessCharge                  string = "init_business_charge"
+	RaveInitPayment                     string = "rave_init_payment"
+	MonnifyInitPayment                  string = "monnify_init_payment"
+	GetAccessTokenByKey                 string = "get_access_token_by_key"
+	GetEscrowCharge                     string = "get_escrow_charge"
+	RaveReserveAccount                  string = "rave_reserve_account"
+	RaveVerifyTransactionByTxRef        string = "rave_verify_transaction_by_tx_ref"
+	MonnifyVerifyTransactionByReference string = "monnify_verify_transaction_by_reference"
 
 	CreateWalletBalance                    string = "create_wallet_balance"
 	GetWalletBalanceByAccountIDAndCurrency string = "get_wallet_balance_by_account_id_and_currency"
 	UpdateWalletBalance                    string = "update_wallet_balance"
 	UpdateTransactionAmountPaid            string = "update_transaction_amount_paid"
 
-	WalletFundedNotification string = "wallet_funded_notification"
-	WalletDebitNotification  string = "wallet_debit_notification"
+	WalletFundedNotification   string = "wallet_funded_notification"
+	WalletDebitNotification    string = "wallet_debit_notification"
+	CreateActivityLog          string = "create_activity_log"
+	PaymentInvoiceNotification string = "payment_invoice_notification"
+	TransactionUpdateStatus    string = "transaction_update_status"
+	BuyerSatisfied             string = "buyer_satisfied"
+
+	RaveChargeCard                       string = "rave_charge_card"
+	MonnifyReserveAccount                string = "monnify_reserve_account"
+	GetMonnifyReserveAccountTransactions string = "get_monnify_reserve_account_transactions"
+	UploadFile                           string = "upload_file"
+
+	CreateWalletHistory       string = "create_wallet_history"
+	CreateWalletTransaction   string = "create_wallet_transaction"
+	CreateExchangeTransaction string = "create_exchange_transaction"
+	GetRateByID               string = "get_rate_by_id"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -556,6 +572,17 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.RaveVerifyTransactionByTxRef()
+		case "monnify_verify_transaction_by_reference":
+			obj := monnify.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v1/merchant/transactions/query?paymentReference=", config.Monnify.MonnifyEndpoint),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.MonnifyVerifyTransactionByReference()
 		case "create_wallet_balance":
 			obj := auth.RequestObj{
 				Name:         name,
@@ -622,6 +649,138 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.WalletDebitNotification()
+		case "create_activity_log":
+			obj := transactions.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/transactions/create_activity_log", config.Microservices.Transactions),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.CreateActivityLog()
+		case "payment_invoice_notification":
+			obj := notification.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/email/payment/receipt", config.Microservices.Notification),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.PaymentInvoiceNotification()
+		case "transaction_update_status":
+			obj := transactions.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/transactions/api/updateStatus", config.Microservices.Transactions),
+				Method:       "PATCH",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.TransactionUpdateStatus()
+		case "buyer_satisfied":
+			obj := transactions.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/transactions/api/satisfied", config.Microservices.Transactions),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.BuyerSatisfied()
+		case "rave_charge_card":
+			obj := rave.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v3/tokenized-charges", config.Rave.BaseUrl),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.RaveChargeCard()
+		case "monnify_reserve_account":
+			obj := monnify.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v1/bank-transfer/reserved-accounts", config.Monnify.MonnifyEndpoint),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.MonnifyReserveAccount()
+		case "get_monnify_reserve_account_transactions":
+			obj := monnify.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v1/bank-transfer/reserved-accounts/transactions", config.Monnify.MonnifyEndpoint),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.GetMonnifyReserveAccountTransactions()
+		case "upload_file":
+			obj := upload.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/upload/files", config.Microservices.Transactions),
+				Method:       "POST",
+				SuccessCode:  201,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.UploadFile()
+		case "create_wallet_history":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/create_wallet_history", config.Microservices.Auth),
+				Method:       "POST",
+				SuccessCode:  201,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.CreateWalletHistory()
+		case "create_wallet_transaction":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/create_wallet_transaction", config.Microservices.Auth),
+				Method:       "POST",
+				SuccessCode:  201,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.CreateWalletTransaction()
+		case "create_exchange_transaction":
+			obj := transactions.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/transactions/create_exchange_transaction", config.Microservices.Transactions),
+				Method:       "POST",
+				SuccessCode:  201,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.CreateExchangeTransaction()
+		case "get_rate_by_id":
+			obj := transactions.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/transactions/get_rate", config.Microservices.Transactions),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.GetRateByID()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

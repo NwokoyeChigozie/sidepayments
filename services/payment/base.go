@@ -12,6 +12,14 @@ import (
 	"github.com/vesicash/payment-ms/utility"
 )
 
+type ExchangeTransactionStatus string
+
+var (
+	ExchangeTransactionCompleted ExchangeTransactionStatus = "completed"
+	ExchangeTransactionPending   ExchangeTransactionStatus = "pending"
+	ExchangeTransactionFailed    ExchangeTransactionStatus = "failed"
+)
+
 func ListTransactionsByID(extReq request.ExternalRequest, transactionID string) (external_models.TransactionByID, error) {
 
 	transactionInterface, err := extReq.SendExternalRequest(request.ListTransactionsByID, transactionID)
@@ -252,4 +260,62 @@ func initBusinessCharge(extReq request.ExternalRequest, businessID int, currency
 	}
 
 	return businessCharge, nil
+}
+
+func getCountryByCurrency(extReq request.ExternalRequest, logger *utility.Logger, currencyCode string) (external_models.Country, error) {
+
+	countryInterface, err := extReq.SendExternalRequest(request.GetCountry, external_models.GetCountryModel{
+		CurrencyCode: currencyCode,
+	})
+
+	if err != nil {
+		logger.Info(err.Error())
+		return external_models.Country{}, fmt.Errorf("Your country could not be resolved, please update your profile.")
+	}
+	country, ok := countryInterface.(external_models.Country)
+	if !ok {
+		return external_models.Country{}, fmt.Errorf("response data format error")
+	}
+	if country.ID == 0 {
+		return external_models.Country{}, fmt.Errorf("Your country could not be resolved, please update your profile")
+	}
+
+	return country, nil
+}
+
+func GetRateByID(extReq request.ExternalRequest, rateID int) (external_models.Rate, error) {
+
+	rateInterface, err := extReq.SendExternalRequest(request.GetRateByID, rateID)
+
+	if err != nil {
+		extReq.Logger.Info(err.Error())
+		return external_models.Rate{}, fmt.Errorf("Your country could not be resolved, please update your profile.")
+	}
+	rate, ok := rateInterface.(external_models.Rate)
+	if !ok {
+		return rate, fmt.Errorf("response data format error")
+	}
+	if rate.ID == 0 {
+		return rate, fmt.Errorf("rate with id %v not found", rateID)
+	}
+
+	return rate, nil
+}
+
+func CreateExchangeTransaction(extReq request.ExternalRequest, accountID, rateID int, initialAmount, finalAmount float64, status ExchangeTransactionStatus) error {
+
+	_, err := extReq.SendExternalRequest(request.CreateExchangeTransaction, external_models.CreateExchangeTransactionRequest{
+		AccountID:     accountID,
+		InitialAmount: initialAmount,
+		FinalAmount:   finalAmount,
+		RateID:        rateID,
+		Status:        string(status),
+	})
+
+	if err != nil {
+		extReq.Logger.Info(err.Error())
+		return err
+	}
+
+	return nil
 }

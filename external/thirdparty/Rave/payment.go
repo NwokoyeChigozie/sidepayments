@@ -93,3 +93,32 @@ func (r *RequestObj) RaveVerifyTransactionByTxRef() (external_models.RaveVerifyT
 
 	return outBoundResponse.Data, nil
 }
+
+func (r *RequestObj) RaveChargeCard() (external_models.RaveVerifyTransactionResponseData, error) {
+
+	var (
+		outBoundResponse external_models.RaveVerifyTransactionResponse
+		logger           = r.Logger
+		idata            = r.RequestData
+	)
+
+	headers := map[string]string{
+		"Content-Type":  "application/json",
+		"Authorization": "Bearer " + config.GetConfig().Rave.SecretKey,
+	}
+
+	data, ok := idata.(external_models.RaveChargeCardRequest)
+	if !ok {
+		logger.Info("rave charge card", idata, "request data format error")
+		return outBoundResponse.Data, fmt.Errorf("request data format error")
+	}
+
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
+	if err != nil {
+		logger.Info("rave charge card", outBoundResponse, err.Error())
+		return outBoundResponse.Data, err
+	}
+	logger.Info("rave charge card", outBoundResponse)
+
+	return outBoundResponse.Data, nil
+}

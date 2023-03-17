@@ -44,3 +44,15 @@ func (f *FundingAccount) GetFundingAccountByReference(db *gorm.DB) (int, error) 
 	}
 	return http.StatusOK, nil
 }
+
+func (f *FundingAccount) GetFundingAccountsByAccountID(db *gorm.DB, orderBy, order string, paginator postgresql.Pagination) ([]FundingAccount, postgresql.PaginationResponse, error) {
+	var (
+		details = []FundingAccount{}
+	)
+
+	totalPages, err := postgresql.SelectAllFromDbOrderByPaginated(db, orderBy, order, paginator, &details, "account_id = ?", f.AccountID)
+	if err != nil {
+		return details, totalPages, err
+	}
+	return details, totalPages, nil
+}

@@ -65,6 +65,33 @@ type InitiatePaymentResponse struct {
 	ExternalRef   string `json:"external_ref"`
 	TransactionID string `json:"transaction_id"`
 }
+type ChargeCardInitRequest struct {
+	TransactionID string  `json:"transaction_id" validate:"required" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	PaymentID     string  `json:"payment_id" validate:"required" pgvalidate:"exists=payment$payments$payment_id"`
+	Amount        float64 `json:"amount" validate:"required"`
+	Narration     string  `json:"narration"`
+	Meta          string  `json:"meta"`
+}
+type ChargeCardInitHeadlessRequest struct {
+	TransactionID string  `json:"transaction_id" validate:"required" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	AccountID     int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
+	Amount        float64 `json:"amount" validate:"required"`
+	Narration     string  `json:"narration"`
+	Currency      string  `json:"currency" validate:"required"`
+	Meta          string  `json:"meta"`
+}
+
+type PaymentAccountMonnifyListRequest struct {
+	TransactionID      string `json:"transaction_id" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	AccountID          int    `json:"account_id" validate:"required"  pgvalidate:"exists=auth$users$account_id"`
+	GeneratedReference string `json:"generated_reference"`
+	Gateway            string `json:"gateway" validate:"required,oneof=rave monnify"`
+}
+type PaymentAccountMonnifyVerifyRequest struct {
+	TransactionID string `json:"transaction_id" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	Reference     string `json:"reference" validate:"required"`
+}
+
 type FundWalletRequest struct {
 	AccountID     int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
 	Amount        float64 `json:"amount" validate:"required"`
@@ -131,6 +158,19 @@ type ListPaymentsResponse struct {
 	Payment     ListPayment                     `json:"payment"`
 }
 
+type GetStatusRequest struct {
+	Reference   string `json:"reference" validate:"required"`
+	Headless    bool   `json:"headless"`
+	SuccessPage string `json:"success_page"`
+	FailurePage string `json:"failure_page"`
+	FundWallet  bool   `json:"fund_wallet"`
+}
+type GetPaymentStatusRequest struct {
+	Reference  string `json:"reference" validate:"required"`
+	Headless   bool   `json:"headless" validate:"required"`
+	FundWallet bool   `json:"fund_wallet"`
+}
+
 func (p *Payment) CreatePayment(db *gorm.DB) error {
 	err := postgresql.CreateOneRecord(db, &p)
 	if err != nil {
@@ -176,7 +216,7 @@ func (p *Payment) GetPaymentByTransactionIDAndNotPaymentMadeAt(db *gorm.DB) (int
 
 func (p *Payment) GetPaymentsByAccountIDAndNullTransactionID(db *gorm.DB, paginator postgresql.Pagination) ([]Payment, postgresql.PaginationResponse, error) {
 	details := []Payment{}
-	pagination, err := postgresql.SelectAllFromDbOrderByPaginated(db, "id", "desc", paginator, &details, "account_id = ? and (transaction_id is null or transaction_id='')", p.ID)
+	pagination, err := postgresql.SelectAllFromDbOrderByPaginated(db, "id", "desc", paginator, &details, "account_id = ? and (transaction_id is null or transaction_id='')", p.AccountID)
 	if err != nil {
 		return details, pagination, err
 	}

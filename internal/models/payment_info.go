@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/vesicash/payment-ms/pkg/repository/storage/postgresql"
@@ -27,4 +28,32 @@ func (p *PaymentInfo) CreatePaymentInfo(db *gorm.DB) error {
 		return fmt.Errorf("Payment info creation failed: %v", err.Error())
 	}
 	return nil
+}
+
+func (p *PaymentInfo) GetPaymentInfoByReference(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &p, "reference = ?", p.Reference)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+func (p *PaymentInfo) GetPaymentInfoByPaymentID(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &p, "payment_id = ?", p.PaymentID)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+
+func (p *PaymentInfo) UpdateAllFields(db *gorm.DB) error {
+	_, err := postgresql.SaveAllFields(db, &p)
+	return err
 }

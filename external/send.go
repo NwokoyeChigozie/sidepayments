@@ -22,10 +22,11 @@ type SendRequestObject struct {
 	Data         interface{}
 	DecodeMethod string
 	UrlPrefix    string
+	RequestBody  *bytes.Buffer
 }
 
-func GetNewSendRequestObject(logger *utility.Logger, name, path, method, urlPrefix, decodeMethod string, headers map[string]string, successCode int, data interface{}) *SendRequestObject {
-	return &SendRequestObject{
+func GetNewSendRequestObject(logger *utility.Logger, name, path, method, urlPrefix, decodeMethod string, headers map[string]string, successCode int, data interface{}, requestBody ...bytes.Buffer) *SendRequestObject {
+	req := SendRequestObject{
 		Logger:       logger,
 		Name:         name,
 		Path:         path,
@@ -36,6 +37,11 @@ func GetNewSendRequestObject(logger *utility.Logger, name, path, method, urlPref
 		SuccessCode:  successCode,
 		Data:         data,
 	}
+
+	if len(requestBody) > 0 {
+		req.RequestBody = &requestBody[0]
+	}
+	return &req
 }
 
 var (
@@ -57,16 +63,21 @@ func (r *SendRequestObject) SendRequest(response interface{}) error {
 	)
 
 	buf := new(bytes.Buffer)
-	err = json.NewEncoder(buf).Encode(data)
-	if err != nil {
-		logger.Error("encoding error", name, err.Error())
-	}
 
-	logger.Info("before prefix", name, r.Path, data, buf)
-	if r.UrlPrefix != "" {
-		r.Path += r.UrlPrefix
+	if r.RequestBody != nil {
+		buf = r.RequestBody
+	} else {
+		err = json.NewEncoder(buf).Encode(data)
+		if err != nil {
+			logger.Error("encoding error", name, err.Error())
+		}
+
+		logger.Info("before prefix", name, r.Path, data, buf)
+		if r.UrlPrefix != "" {
+			r.Path += r.UrlPrefix
+		}
+		logger.Info("after prefix", name, r.Path, data, buf)
 	}
-	logger.Info("after prefix", name, r.Path, data, buf)
 
 	client := &http.Client{}
 	req, err := http.NewRequest(r.Method, r.Path, buf)

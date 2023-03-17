@@ -26,6 +26,8 @@ type BaseConfig struct {
 
 	APP_NAME string `mapstructure:"APP_NAME"`
 	APP_KEY  string `mapstructure:"APP_KEY"`
+	SITE_URL string `mapstructure:"SITE_URL"`
+	APP_URL  string `mapstructure:"APP_URL"`
 
 	DB_HOST          string `mapstructure:"DB_HOST"`
 	DB_PORT          string `mapstructure:"DB_PORT"`
@@ -96,17 +98,20 @@ type BaseConfig struct {
 	APPRUVE_TEST_ACCESS_TOKEN string `mapstructure:"APPRUVE_TEST_ACCESS_TOKEN"`
 	APPRUVE_BASE_URL          string `mapstructure:"APPRUVE_BASE_URL"`
 
-	RAVE_PUBLIC_KEY  string `mapstructure:"RAVE_PUBLIC_KEY"`
-	RAVE_SECRET_KEY  string `mapstructure:"RAVE_SECRET_KEY"`
-	RAVE_BASE_URL    string `mapstructure:"RAVE_BASE_URL"`
-	RAVE_PAYMENT_URL string `mapstructure:"RAVE_PAYMENT_URL"`
-	RAVE_KEY         string `mapstructure:"RAVE_KEY"`
+	RAVE_PUBLIC_KEY          string `mapstructure:"RAVE_PUBLIC_KEY"`
+	RAVE_SECRET_KEY          string `mapstructure:"RAVE_SECRET_KEY"`
+	RAVE_BASE_URL            string `mapstructure:"RAVE_BASE_URL"`
+	RAVE_PAYMENT_URL         string `mapstructure:"RAVE_PAYMENT_URL"`
+	RAVE_KEY                 string `mapstructure:"RAVE_KEY"`
+	FLUTTERWAVE_MERCHANT_ID  string `mapstructure:"FLUTTERWAVE_MERCHANT_ID"`
+	FLUTTERWAVE_ACCOUNT_NAME string `mapstructure:"FLUTTERWAVE_ACCOUNT_NAME"`
 
 	IPSTACK_KEY      string `mapstructure:"IPSTACK_KEY"`
 	IPSTACK_BASE_URL string `mapstructure:"IPSTACK_BASE_URL"`
 
 	ONLINE_PAYMENT_MAX  float64 `mapstructure:"ONLINE_PAYMENT_MAX"`
 	DISBURSEMENT_CHARGE float64 `mapstructure:"DISBURSEMENT_CHARGE"`
+	NAIRA_THRESHOLD     float64 `mapstructure:"NAIRA_THRESHOLD"`
 
 	SLACK_OAUTH_TOKEN             string `mapstructure:"SLACK_OAUTH_TOKEN"`
 	SLACK_PAYMENT_CHANNELID       string `mapstructure:"SLACK_PAYMENT_CHANNELID"`
@@ -128,8 +133,10 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 			ExemptFromThrottle:        exemptFromThrottle,
 		},
 		App: App{
-			Name: config.APP_NAME,
-			Key:  config.APP_KEY,
+			Name:    config.APP_NAME,
+			Key:     config.APP_KEY,
+			SiteUrl: config.SITE_URL,
+			Url:     config.APP_URL,
 		},
 		Databases: Databases{
 			DB_HOST:          config.DB_HOST,
@@ -221,6 +228,7 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 		ONLINE_PAYMENT: OnlinePayment{
 			Max:                config.ONLINE_PAYMENT_MAX,
 			DisbursementCharge: config.DISBURSEMENT_CHARGE,
+			NairaThreshold:     config.NAIRA_THRESHOLD,
 		},
 		Slack: Slack{
 			OauthToken:            config.SLACK_OAUTH_TOKEN,

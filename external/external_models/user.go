@@ -19,6 +19,9 @@ type User struct {
 	AuthorizationRequired bool   `json:"authorization_required"`
 	Meta                  string `json:"meta"`
 	ThePeerReference      string `json:"the_peer_reference"`
+	CanMakeWithdrawal     bool   `json:"can_make_withdrawal"`
+	CanFund               bool   `json:"can_fund"`
+	CanExchange           bool   `json:"can_exchange"`
 }
 
 type GetUserModel struct {

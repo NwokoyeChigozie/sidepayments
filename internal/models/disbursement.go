@@ -35,9 +35,30 @@ type Disbursement struct {
 	BankName              string    `gorm:"column:bank_name; type:varchar(255)" json:"bank_name"`
 }
 
+type WalletTransferRequest struct {
+	SenderAccountID    int     `json:"sender_account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
+	RecipientAccountID int     `json:"recipient_account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
+	InitialAmount      float64 `json:"initial_amount" validate:"gt=0"`
+	FinalAmount        float64 `json:"final_amount" validate:"required,gt=0"`
+	RateID             int     `json:"rate_id" pgvalidate:"exists=transaction$rates$id"`
+	SenderCurrency     string  `json:"sender_currency" validate:"required"`
+	RecipientCurrency  string  `json:"recipient_currency" validate:"required"`
+	TransactionID      string  `json:"transaction_id" pgvalidate:"exists=transaction$transactions$transaction_id"`
+	Refund             bool    `json:"refund"`
+}
+
 func (d *Disbursement) GetDisbursementsByRecipientID(db *gorm.DB, paginator postgresql.Pagination) ([]Disbursement, postgresql.PaginationResponse, error) {
 	details := []Disbursement{}
 	pagination, err := postgresql.SelectAllFromDbOrderByPaginated(db, "id", "desc", paginator, &details, "recipient_id = ?", d.RecipientID)
+	if err != nil {
+		return details, pagination, err
+	}
+	return details, pagination, nil
+}
+
+func (d *Disbursement) GetDisbursementsByAccountID(db *gorm.DB, paginator postgresql.Pagination) ([]Disbursement, postgresql.PaginationResponse, error) {
+	details := []Disbursement{}
+	pagination, err := postgresql.SelectAllFromDbOrderByPaginated(db, "id", "desc", paginator, &details, "account_id = ?", d.BusinessID)
 	if err != nil {
 		return details, pagination, err
 	}

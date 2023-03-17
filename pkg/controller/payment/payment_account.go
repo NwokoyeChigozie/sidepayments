@@ -4,15 +4,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/vesicash/payment-ms/internal/models"
+	"github.com/vesicash/payment-ms/pkg/repository/storage/postgresql"
 	"github.com/vesicash/payment-ms/services/payment"
 	"github.com/vesicash/payment-ms/utility"
 )
 
-func (base *Controller) ListBanks(c *gin.Context) {
+func (base *Controller) PaymentAccountMonnifyList(c *gin.Context) {
 	var (
-		req struct {
-			CountryCode string `json:"country_code" validate:"required"`
-		}
+		req models.PaymentAccountMonnifyListRequest
 	)
 
 	err := c.ShouldBind(&req)
@@ -29,25 +29,29 @@ func (base *Controller) ListBanks(c *gin.Context) {
 		return
 	}
 
-	banks, code, err := payment.ListBanksService(base.ExtReq, base.Db, req.CountryCode)
+	vr := postgresql.ValidateRequestM{Logger: base.Logger, Test: base.ExtReq.Test}
+	err = vr.ValidateRequest(req)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", err.Error(), err, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	status, code, err := payment.PaymentAccountMonnifyListService(c, base.ExtReq, base.Db, req)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Banks fetched", banks)
+	rd := utility.BuildSuccessResponse(http.StatusOK, "successful", status)
 	c.JSON(http.StatusOK, rd)
 
 }
 
-func (base *Controller) ConvertCurrency(c *gin.Context) {
+func (base *Controller) PaymentAccountMonnifyVerify(c *gin.Context) {
 	var (
-		req struct {
-			Amount float64 `json:"amount" validate:"required"`
-			From   string  `json:"from" validate:"required"`
-			To     string  `json:"to" validate:"required"`
-		}
+		req models.PaymentAccountMonnifyVerifyRequest
 	)
 
 	err := c.ShouldBind(&req)
@@ -64,14 +68,22 @@ func (base *Controller) ConvertCurrency(c *gin.Context) {
 		return
 	}
 
-	data, code, err := payment.ConvertCurrencyService(base.ExtReq, base.Db, req.Amount, req.From, req.To)
+	vr := postgresql.ValidateRequestM{Logger: base.Logger, Test: base.ExtReq.Test}
+	err = vr.ValidateRequest(req)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", err.Error(), err, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	status, msg, code, err := payment.PaymentAccountMonnifyVerifyService(c, base.ExtReq, base.Db, req)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Conversion Successful", data)
+	rd := utility.BuildSuccessResponse(http.StatusOK, msg, status)
 	c.JSON(http.StatusOK, rd)
 
 }

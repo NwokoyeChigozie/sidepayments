@@ -7,6 +7,8 @@ func AuthMigrationModels() []interface{} {
 	return []interface{}{
 		models.Disbursement{},
 		models.FundingAccount{},
+		models.PaymentAccount{},
+		models.PaymentCallback{},
 		models.PaymentCardInfo{},
 		models.PaymentInfo{},
 		models.PaymentLog{},

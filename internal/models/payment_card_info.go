@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -31,8 +32,40 @@ type CardResponse struct {
 	ExpiryYear  string `json:"expiryYear"`
 }
 
+type DeleteStoredCardRequest struct {
+	AccountID int `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
+}
+
+func (p *PaymentCardInfo) DeleteByAccountID(db *gorm.DB) error {
+	err, nilErr := postgresql.SelectOneFromDb(db, &p, "account_id = ?", p.AccountID)
+	if nilErr != nil {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	err = postgresql.DeleteRecordFromDb(db, &p)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *PaymentCardInfo) GetPaymentCardInfoByAccountID(db *gorm.DB) (int, error) {
 	err, nilErr := postgresql.SelectOneFromDb(db, &p, "account_id = ?", p.AccountID)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+func (p *PaymentCardInfo) GetPaymentCardInfoByAccountIDLast4DigitsAndBrand(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &p, "account_id = ? and lastFourDigits=? and brand=?", p.AccountID, p.LastFourDigits, p.Brand)
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}
@@ -50,4 +83,11 @@ func (p *PaymentCardInfo) GetAllPaymentCardInfosByAccountIDs(db *gorm.DB, accoun
 		return details, err
 	}
 	return details, nil
+}
+func (p *PaymentCardInfo) CreatePaymentCardInfo(db *gorm.DB) error {
+	err := postgresql.CreateOneRecord(db, &p)
+	if err != nil {
+		return fmt.Errorf("Payment card info creation failed: %v", err.Error())
+	}
+	return nil
 }

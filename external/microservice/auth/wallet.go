@@ -101,3 +101,64 @@ func (r *RequestObj) UpdateWalletBalance() (external_models.WalletBalance, error
 
 	return outBoundResponse.Data, nil
 }
+
+func (r *RequestObj) CreateWalletHistory() (external_models.WalletHistory, error) {
+
+	var (
+		appKey           = config.GetConfig().App.Key
+		outBoundResponse external_models.WalletHistoryResponse
+		logger           = r.Logger
+		idata            = r.RequestData
+	)
+
+	data, ok := idata.(external_models.CreateWalletHistoryRequest)
+	if !ok {
+		logger.Info("create wallet history", idata, "request data format error")
+		return outBoundResponse.Data, fmt.Errorf("request data format error")
+	}
+
+	headers := map[string]string{
+		"Content-Type": "application/json",
+		"v-app":        appKey,
+	}
+
+	logger.Info("create wallet history", data)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
+	if err != nil {
+		logger.Info("create wallet history", outBoundResponse, err.Error())
+		return outBoundResponse.Data, err
+	}
+	logger.Info("create wallet history", outBoundResponse)
+
+	return outBoundResponse.Data, nil
+}
+func (r *RequestObj) CreateWalletTransaction() (external_models.WalletTransaction, error) {
+
+	var (
+		appKey           = config.GetConfig().App.Key
+		outBoundResponse external_models.WalletTransactionResponse
+		logger           = r.Logger
+		idata            = r.RequestData
+	)
+
+	data, ok := idata.(external_models.CreateWalletTransactionRequest)
+	if !ok {
+		logger.Info("create wallet transaction", idata, "request data format error")
+		return outBoundResponse.Data, fmt.Errorf("request data format error")
+	}
+
+	headers := map[string]string{
+		"Content-Type": "application/json",
+		"v-app":        appKey,
+	}
+
+	logger.Info("create wallet transaction", data)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
+	if err != nil {
+		logger.Info("create wallet transaction", outBoundResponse, err.Error())
+		return outBoundResponse.Data, err
+	}
+	logger.Info("create wallet transaction", outBoundResponse)
+
+	return outBoundResponse.Data, nil
+}

@@ -88,9 +88,9 @@ func (base *Controller) InitiatePaymentHeadless(c *gin.Context) {
 
 }
 
-func (base *Controller) FundWallet(c *gin.Context) {
+func (base *Controller) ChargeCardInit(c *gin.Context) {
 	var (
-		req models.FundWalletRequest
+		req models.ChargeCardInitRequest
 	)
 
 	err := c.ShouldBind(&req)
@@ -115,24 +115,21 @@ func (base *Controller) FundWallet(c *gin.Context) {
 		return
 	}
 
-	data, code, err := payment.FundWalletService(c, base.ExtReq, base.Db, req)
+	status, code, err := payment.ChargeCardInitService(c, base.ExtReq, base.Db, req)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Funding Account Generated", data)
+	rd := utility.BuildSuccessResponse(http.StatusOK, "successful", status)
 	c.JSON(http.StatusOK, rd)
 
 }
 
-func (base *Controller) FundWalletVerify(c *gin.Context) {
+func (base *Controller) ChargeCardHeadlessInit(c *gin.Context) {
 	var (
-		req struct {
-			Reference string `json:"reference" validate:"required"`
-			Currency  string `json:"currency" validate:"required"`
-		}
+		req models.ChargeCardInitHeadlessRequest
 	)
 
 	err := c.ShouldBind(&req)
@@ -157,14 +154,53 @@ func (base *Controller) FundWalletVerify(c *gin.Context) {
 		return
 	}
 
-	data, code, err := payment.FundWalletVerifyService(c, base.ExtReq, base.Db, req.Reference, req.Currency)
+	status, code, err := payment.ChargeCardHeadlessInitService(c, base.ExtReq, base.Db, req)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Bank Transfer Verified", data)
+	rd := utility.BuildSuccessResponse(http.StatusOK, "successful", status)
+	c.JSON(http.StatusOK, rd)
+
+}
+func (base *Controller) DeleteStoredCard(c *gin.Context) {
+	var (
+		req models.DeleteStoredCardRequest
+	)
+
+	err := c.ShouldBind(&req)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Failed to parse request body", err, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	err = base.Validator.Struct(&req)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Validation failed", utility.ValidationResponse(err, base.Validator), nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	vr := postgresql.ValidateRequestM{Logger: base.Logger, Test: base.ExtReq.Test}
+	err = vr.ValidateRequest(req)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", err.Error(), err, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	paymentCardInfo := models.PaymentCardInfo{AccountID: req.AccountID}
+	err = paymentCardInfo.DeleteByAccountID(base.Db.Payment)
+	if err != nil {
+		rd := utility.BuildErrorResponse(http.StatusInternalServerError, "error", err.Error(), err, nil)
+		c.JSON(http.StatusInternalServerError, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Card Deleted", nil)
 	c.JSON(http.StatusOK, rd)
 
 }

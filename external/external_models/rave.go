@@ -120,6 +120,7 @@ type RaveVerifyTransactionResponseData struct {
 	AccountId         int                                       `json:"account_id"`
 	Meta              RaveVerifyTransactionResponseDataMeta     `json:"meta"`
 	AmountSettled     float64                                   `json:"amount_settled"`
+	Card              *RaveVerifyTransactionResponseDataCard    `json:"card"`
 	Customer          RaveVerifyTransactionResponseDataCustomer `json:"customer"`
 }
 
@@ -135,4 +136,21 @@ type RaveVerifyTransactionResponseDataCustomer struct {
 	PhoneNumber string `json:"phone_number"`
 	Email       string `json:"email"`
 	CreatedAt   string `json:"created_at"`
+}
+type RaveVerifyTransactionResponseDataCard struct {
+	First6digits string `json:"first_6digits"`
+	Last4digits  string `json:"last_4digits"`
+	Issuer       string `json:"issuer"`
+	Country      string `json:"country"`
+	Type         string `json:"type"`
+	Token        string `json:"token"`
+	Expiry       string `json:"expiry"`
+}
+
+type RaveChargeCardRequest struct {
+	Token    string  `json:"token"`
+	Currency string  `json:"currency"`
+	Amount   float64 `json:"amount"`
+	Email    string  `json:"email"`
+	TxRef    string  `json:"tx_ref"`
 }

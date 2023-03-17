@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/vesicash/payment-ms/pkg/repository/storage/postgresql"
@@ -21,6 +22,26 @@ func (f *PendingTransferFunding) CreatePendingTransferFunding(db *gorm.DB) error
 	err := postgresql.CreateOneRecord(db, &f)
 	if err != nil {
 		return fmt.Errorf("pending transfer funding creation failed: %v", err.Error())
+	}
+	return nil
+}
+
+func (p *PendingTransferFunding) GetPendingTransferFundingByReference(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &p, "reference = ?", p.Reference)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+
+func (p *PendingTransferFunding) Delete(db *gorm.DB) error {
+	err := postgresql.DeleteRecordFromDb(db, &p)
+	if err != nil {
+		return fmt.Errorf("pending transfer funding delete failed: %v", err.Error())
 	}
 	return nil
 }
