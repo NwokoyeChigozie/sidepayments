@@ -1,0 +1,252 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@2.2.0
+
+executors:
+  ubuntu:
+    environment:
+      REGISTRY: registry.digitalocean.com
+      TAG: latest
+    docker:
+      - image: cimg/base:2023.03
+  golang:
+    docker:
+      - image: cimg/go:1.20.1
+
+jobs:
+  install-dependencies:
+    working_directory: ~/payment-ms
+    executor: golang
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+      - run:
+          name: Install dependencies
+          command: go mod download
+      - run:
+          name: Verify installation
+          command: go mod verify
+      - save_cache:
+          paths:
+            - "/go/pkg/mod"
+          key: go-mod-v4-{{ checksum "go.sum" }}
+  build-application:
+    working_directory: ~/payment-ms
+    executor: golang
+    environment:
+      SERVER_ADDRESS: "staging.api.vesicash.com"
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+      - run:
+          name: Create environment variable
+          command: cp app-sample.env app.env
+      - run:
+          name: Configure environment variables
+          command: |
+            sed -i '/^MS_NOTIFICATION/d' app.env
+            echo MS_NOTIFICATION: "${SERVER_ADDRESS}/v1/notifications" >> app.env
+      - run:
+          name: Build application
+          command: go build -v -o vesicash-payment-ms
+      - persist_to_workspace:
+          root: .
+          paths:
+            - vesicash-payment-ms
+            - app.env
+  test-application:
+    docker:
+      - image: cimg/go:1.20.1
+      - image: cimg/postgres:14.0
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: auth
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+      - run:
+          name: Run tests
+          command: |
+            cat app.env
+            go test -v  ./tests/... -timeout 99999s
+  generate-code-coverage-metrics:
+    executor: golang
+    steps:
+      - checkout
+      - run: go build
+      - run:
+          name: "Create a temp directory for artifacts"
+          command: |
+            mkdir -p /tmp/artifacts
+      - run:
+          command: |
+            go test -coverprofile=c.out
+            go tool cover -html=c.out -o coverage.html
+            mv coverage.html /tmp/artifacts
+      - store_artifacts:
+          path: /tmp/artifacts
+  lint-docker-file:
+    executor: golang
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      - run:
+          name: Lint dockerfile
+          command: |
+            docker pull hadolint/hadolint
+            docker run --rm -i hadolint/hadolint < Dockerfile
+  build-image:
+    executor: ubuntu
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      - run:
+          name: Build Docker image
+          command: |
+            IMAGE_NAME="${REGISTRY}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            docker build -t $IMAGE_NAME:$TAG .
+      - run:
+          name: Archive Docker image
+          command: |
+            IMAGE_NAME="${REGISTRY}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            docker save -o image.tar $IMAGE_NAME
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image.tar
+  publish-image:
+    executor: ubuntu
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Publish Docker image
+          command: |
+            IMAGE_NAME="${REGISTRY}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            IMAGE_TAG="0.1.${CIRCLE_BUILD_NUM}"
+            echo $DOCKER_PASS | docker login $REGISTRY -u $DOCKER_USER --password-stdin
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
+            docker push $IMAGE_NAME:$IMAGE_TAG
+  publish-latest-image:
+    executor: ubuntu
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Publish Docker image
+          command: |
+            echo $DOCKER_PASS | docker login $REGISTRY -u $DOCKER_USER --password-stdin
+            IMAGE_NAME="${REGISTRY}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            docker push $IMAGE_NAME:$TAG
+  publish-tagged-image:
+    executor: ubuntu
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Publish Docker image
+          command: |
+            echo $DOCKER_PASS | docker login $REGISTRY -u $DOCKER_USER --password-stdin
+            IMAGE_NAME="${REGISTRY}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            IMAGE_TAG="${CIRCLE_TAG/v/''}"
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
+            docker push $IMAGE_NAME:$IMAGE_TAG
+      # docker build -t $REGISTRY/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:$TAG .
+      # docker push $REGISTRY/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:$TAG
+
+workflows:
+  default:
+    jobs:
+      - install-dependencies
+      - build-application:
+          requires:
+            - install-dependencies
+      - test-application:
+          requires:
+            - build-application
+      - generate-code-coverage-metrics:
+          requires:
+            - build-application
+  development:
+    jobs:
+      - lint-docker-file
+      - build-image:
+          requires:
+            - lint-docker-file
+      - publish-image:
+          requires:
+            - build-image
+  build-master:
+    jobs:
+      - lint-docker-file:
+          filters:
+            branches:
+              only: master
+      - build-image:
+          requires:
+            - lint-docker-file
+          filters:
+            branches:
+              only: master
+      - publish-latest-image:
+          requires:
+            - build-image
+          filters:
+            branches:
+              only: master
+  release:
+    jobs:
+      - lint-docker-file:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - build-image:
+          requires:
+            - lint-docker-file
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - publish-tagged-image:
+          requires:
+            - build-image
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
