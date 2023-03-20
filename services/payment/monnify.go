@@ -121,3 +121,27 @@ func (m *Monnify) FetchAccountTrans(reference string) ([]external_models.GetMonn
 
 	return data.Content, nil
 }
+
+func (m *Monnify) InitTransfer(amount float64, reference, narration, destinationBankCode, destinationAccountNo, currency, destinationAccountName string) (external_models.MonnifyInitTransferResponse, error) {
+	reqData := external_models.MonnifyInitTransferRequest{
+		Amount:                   amount,
+		Reference:                reference,
+		Narration:                narration,
+		DestinationBankCode:      destinationBankCode,
+		DestinationAccountNumber: destinationAccountNo,
+		Currency:                 strings.ToUpper(currency),
+		SourceAccountNumber:      config.GetConfig().Monnify.MonnifyDisbursementAccount,
+		DestinationAccountName:   destinationAccountName,
+	}
+	paymentItf, err := m.ExtReq.SendExternalRequest(request.MonnifyInitTransfer, reqData)
+	if err != nil {
+		return external_models.MonnifyInitTransferResponse{}, err
+	}
+
+	data, ok := paymentItf.(external_models.MonnifyInitTransferResponse)
+	if !ok {
+		return external_models.MonnifyInitTransferResponse{}, fmt.Errorf("response data format error")
+	}
+
+	return data, nil
+}

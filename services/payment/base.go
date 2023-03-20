@@ -319,3 +319,104 @@ func CreateExchangeTransaction(extReq request.ExternalRequest, accountID, rateID
 
 	return nil
 }
+func GetUserCredentialByAccountIdAndType(extReq request.ExternalRequest, accountID int, iType string) (external_models.UsersCredential, error) {
+
+	userCredInterface, err := extReq.SendExternalRequest(request.GetUserCredential, external_models.GetUserCredentialModel{
+		AccountID:          uint(accountID),
+		IdentificationType: iType,
+	})
+
+	if err != nil {
+		extReq.Logger.Info(err.Error())
+		return external_models.UsersCredential{}, err
+	}
+
+	userCred, ok := userCredInterface.(external_models.GetUserCredentialResponse)
+	if !ok {
+		return userCred.Data, fmt.Errorf("response data format error")
+	}
+	if userCred.Data.ID == 0 {
+		return userCred.Data, fmt.Errorf("user credential not found")
+	}
+
+	return userCred.Data, nil
+}
+func GetBankDetail(extReq request.ExternalRequest, id, accountID int, country, currency string) (external_models.BankDetail, error) {
+
+	data := external_models.GetBankDetailModel{}
+
+	if id != 0 {
+		data = external_models.GetBankDetailModel{
+			ID: uint(id),
+		}
+	} else {
+		data = external_models.GetBankDetailModel{
+			AccountID: uint(accountID),
+			Country:   country,
+			Currency:  currency,
+		}
+	}
+	userBankInterface, err := extReq.SendExternalRequest(request.GetBankDetails, data)
+
+	if err != nil {
+		extReq.Logger.Info(err.Error())
+		return external_models.BankDetail{}, err
+	}
+
+	bankDetail, ok := userBankInterface.(external_models.BankDetail)
+	if !ok {
+		return bankDetail, fmt.Errorf("response data format error")
+	}
+	if bankDetail.ID == 0 {
+		return bankDetail, fmt.Errorf("bank detail not found")
+	}
+
+	return bankDetail, nil
+}
+
+func GetBank(extReq request.ExternalRequest, id int, name, code, country string) (external_models.Bank, error) {
+
+	data := external_models.GetBankRequest{
+		ID:      uint(id),
+		Name:    name,
+		Code:    code,
+		Country: country,
+	}
+	bankInterface, err := extReq.SendExternalRequest(request.GetBank, data)
+
+	if err != nil {
+		extReq.Logger.Info(err.Error())
+		return external_models.Bank{}, err
+	}
+
+	bank, ok := bankInterface.(external_models.Bank)
+	if !ok {
+		return bank, fmt.Errorf("response data format error")
+	}
+	if bank.ID == 0 {
+		return bank, fmt.Errorf("bank not found")
+	}
+
+	return bank, nil
+}
+
+func HasBvn(extReq request.ExternalRequest, accountID uint) bool {
+	userCredential, err := GetUserCredentialByAccountIdAndType(extReq, int(accountID), "bvn")
+	if err != nil {
+		return false
+	}
+	return userCredential.Bvn != ""
+}
+
+func thisOrThatStr(this, that string) string {
+	if this == "" {
+		return that
+	}
+	return this
+}
+func thisOrThatInt(this, that int) int {
+	if this == 0 {
+		return that
+	}
+	return this
+}

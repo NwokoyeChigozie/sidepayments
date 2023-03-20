@@ -154,3 +154,48 @@ type RaveChargeCardRequest struct {
 	Email    string  `json:"email"`
 	TxRef    string  `json:"tx_ref"`
 }
+type RaveInitTransferRequest struct {
+	AccountBank     string                      `json:"account_bank"`
+	AccountNumber   string                      `json:"account_number"`
+	Amount          float64                     `json:"amount"`
+	Narration       string                      `json:"narration"`
+	Currency        string                      `json:"currency"`
+	BeneficiaryName string                      `json:"beneficiary_name"`
+	Reference       string                      `json:"reference"`
+	DebitCurrency   string                      `json:"debit_currency"`
+	CallbackUrl     string                      `json:"callback_url"`
+	Meta            RaveInitTransferRequestMeta `json:"meta"`
+}
+
+type RaveInitTransferRequestMeta struct {
+	FirstName        string `json:"first_name"`
+	LastName         string `json:"last_name"`
+	Email            string `json:"email"`
+	MobileNumber     string `json:"mobile_number"`
+	RecipientAddress string `json:"recipient_address"`
+}
+
+type RaveInitTransferResponse struct {
+	Status  string                       `json:"status"`
+	Message string                       `json:"message"`
+	Data    RaveInitTransferResponseData `json:"data"`
+}
+type RaveInitTransferResponseData struct {
+	ID               uint                   `json:"id"`
+	AccountNumber    string                 `json:"account_number"`
+	BankCode         string                 `json:"bank_code"`
+	FullName         string                 `json:"full_name"`
+	CreatedAt        string                 `json:"created_at"`
+	Currency         string                 `json:"currency"`
+	DebitCurrency    string                 `json:"debit_currency"`
+	Amount           float64                `json:"amount"`
+	Fee              float64                `json:"fee"`
+	Status           string                 `json:"status"`
+	Reference        string                 `json:"reference"`
+	Meta             map[string]interface{} `json:"meta"`
+	Narration        string                 `json:"narration"`
+	CompleteMessage  string                 `json:"complete_message"`
+	RequiresApproval int                    `json:"requires_approval"`
+	IsApproved       int                    `json:"is_approved"`
+	BankName         string                 `json:"bank_name"`
+}

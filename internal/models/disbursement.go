@@ -1,6 +1,9 @@
 package models
 
 import (
+	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/vesicash/payment-ms/pkg/repository/storage/postgresql"
@@ -33,6 +36,7 @@ type Disbursement struct {
 	TryAgainAt            time.Time `gorm:"column:try_again_at" json:"try_again_at"`
 	BankAccountNumber     string    `gorm:"column:bank_account_number; type:varchar(255)" json:"bank_account_number"`
 	BankName              string    `gorm:"column:bank_name; type:varchar(255)" json:"bank_name"`
+	Approved              string    `gorm:"column:approved; type:varchar(255); not null; default:pending; comment: yes,no,pending" json:"approved"`
 }
 
 type WalletTransferRequest struct {
@@ -45,6 +49,42 @@ type WalletTransferRequest struct {
 	RecipientCurrency  string  `json:"recipient_currency" validate:"required"`
 	TransactionID      string  `json:"transaction_id" pgvalidate:"exists=transaction$transactions$transaction_id"`
 	Refund             bool    `json:"refund"`
+}
+type ManualDebitRequest struct {
+	AccountID             int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
+	Amount                float64 `json:"amount" validate:"required,gt=0"`
+	Narration             string  `json:"narration"`
+	Currency              string  `json:"currency" validate:"required"`
+	BeneficiaryName       string  `json:"beneficiary_name"`
+	Firstname             string  `json:"firstname"`
+	Lastname              string  `json:"lastname"`
+	Email                 string  `json:"email"`
+	BankAccountNumber     string  `json:"bank_account_number"`
+	BankAccountName       string  `json:"bank_account_name"`
+	BankCode              string  `json:"bank_code"`
+	DestinationBranchCode string  `json:"destination_branch_code"`
+	DebitCurrency         string  `json:"debit_currency" validate:"required"`
+	Status                string  `json:"status"`
+	Gateway               string  `json:"gateway" validate:"required,oneof=rave monnify paystack rave_banktransfer"`
+	EscrowWallet          string  `json:"escrow_wallet" validate:"required,oneof=yes no"`
+}
+type ManualDebitResponse struct {
+	DisbursementID int         `json:"disbursement_id"`
+	Status         string      `json:"status"`
+	Msg            string      `json:"msg"`
+	Response       interface{} `json:"response"`
+}
+
+func (d *Disbursement) GetDisbursementByReferenceAndNotStatus(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &d, "reference = ? and LOWER(status) <> ?", d.Reference, strings.ToLower(d.Status))
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
 }
 
 func (d *Disbursement) GetDisbursementsByRecipientID(db *gorm.DB, paginator postgresql.Pagination) ([]Disbursement, postgresql.PaginationResponse, error) {
@@ -63,4 +103,19 @@ func (d *Disbursement) GetDisbursementsByAccountID(db *gorm.DB, paginator postgr
 		return details, pagination, err
 	}
 	return details, pagination, nil
+}
+
+func (d *Disbursement) CreateDisbursement(db *gorm.DB) error {
+	d.Currency = strings.ToUpper(d.Currency)
+	d.DebitCurrency = strings.ToUpper(d.DebitCurrency)
+	err := postgresql.CreateOneRecord(db, &d)
+	if err != nil {
+		return fmt.Errorf("disbursement creation failed: %v", err.Error())
+	}
+	return nil
+}
+
+func (d *Disbursement) UpdateAllFields(db *gorm.DB) error {
+	_, err := postgresql.SaveAllFields(db, &d)
+	return err
 }

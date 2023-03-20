@@ -231,3 +231,31 @@ func (r *Rave) ChargeCard(token, currency, email, reference string, amount float
 
 	return "success", nil
 }
+
+func (r *Rave) InitTransfer(bank, accountNo string, amount float64, narration, currency, reference, callback string) (external_models.RaveInitTransferResponse, error) {
+	data := external_models.RaveInitTransferRequest{
+		AccountBank:   bank,
+		AccountNumber: accountNo,
+		Amount:        amount,
+		Narration:     narration,
+		Currency:      strings.ToUpper(currency),
+		Reference:     reference,
+		DebitCurrency: strings.ToUpper(currency),
+		CallbackUrl:   callback,
+	}
+	paymentItf, err := r.ExtReq.SendExternalRequest(request.RaveInitTransfer, data)
+	if err != nil {
+		return external_models.RaveInitTransferResponse{}, err
+	}
+
+	paymentData, ok := paymentItf.(external_models.RaveInitTransferResponse)
+	if !ok {
+		return paymentData, fmt.Errorf("response data format error")
+	}
+
+	if strings.ToLower(paymentData.Status) != "successful" {
+		return paymentData, nil
+	}
+
+	return paymentData, nil
+}

@@ -19,8 +19,10 @@ type BankDetail struct {
 }
 
 type GetBankDetailModel struct {
-	ID        uint `json:"id"`
-	AccountID uint `json:"account_id"`
+	ID        uint   `json:"id"`
+	AccountID uint   `json:"account_id"`
+	Country   string `json:"country"`
+	Currency  string `json:"currency"`
 }
 
 type GetBankDetailResponse struct {
