@@ -1,11 +1,24 @@
-FROM golang:1.19
+# Build stage
+FROM golang:1.20.1-alpine3.17 as build
 
 WORKDIR /usr/src/app
 
 COPY go.mod go.sum ./
+
 RUN go mod download && go mod verify
 
 COPY . .
-RUN go build -v -o /usr/local/bin/vesicash-payment-ms
+
+RUN mv app-sample.env app.env && \
+    go build -v -o /dist/vesicash-payment-ms
+
+# Deployment stage
+FROM alpine:3.17
+
+WORKDIR /usr/src/app
+
+COPY --from=build /usr/src/app ./
+
+COPY --from=build /dist/vesicash-payment-ms /usr/local/bin/vesicash-payment-ms
 
 CMD ["vesicash-payment-ms"]
