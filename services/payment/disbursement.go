@@ -160,7 +160,7 @@ func ManualDebitService(c *gin.Context, extReq request.ExternalRequest, db postg
 	)
 
 	if !HasBvn(extReq, uint(req.AccountID)) {
-		return "", data, http.StatusBadRequest, fmt.Errorf("this account does not have bvn associated with it.")
+		return "", data, http.StatusBadRequest, fmt.Errorf("this account does not have bvn associated with it")
 	}
 
 	user, err := GetUserWithAccountID(extReq, req.AccountID)
@@ -172,7 +172,7 @@ func ManualDebitService(c *gin.Context, extReq request.ExternalRequest, db postg
 		return "", data, http.StatusBadRequest, fmt.Errorf("user withdrawals not enabled, please contact customer care")
 	}
 
-	businessProfile, err := GetBusinessProfileByAccountID(extReq, extReq.Logger, req.AccountID)
+	businessProfile, _ := GetBusinessProfileByAccountID(extReq, extReq.Logger, req.AccountID)
 	if businessProfile.BusinessName != "" {
 		businessName = businessProfile.BusinessName
 	}
@@ -186,7 +186,7 @@ func ManualDebitService(c *gin.Context, extReq request.ExternalRequest, db postg
 		beneficiaryName = req.BeneficiaryName
 	} else {
 		if user.Firstname == "" && user.Lastname == "" {
-			return "", data, http.StatusBadRequest, fmt.Errorf("Recipient does not have a first & last name")
+			return "", data, http.StatusBadRequest, fmt.Errorf("recipient does not have a first & last name")
 		}
 		beneficiaryName = fmt.Sprintf("%v %v", user.Firstname, user.Lastname)
 	}
@@ -232,7 +232,7 @@ func ManualDebitService(c *gin.Context, extReq request.ExternalRequest, db postg
 	finalAmount := amount - disbursementCharge
 
 	if amount > walletBalance.Available {
-		return "", data, http.StatusBadRequest, fmt.Errorf("Requested amount is greater than wallet balance")
+		return "", data, http.StatusBadRequest, fmt.Errorf("requested amount is greater than wallet balance")
 	}
 
 	walletBalance, debitStatus, err := DebitWallet(extReq, db, amount, currency, req.AccountID, req.EscrowWallet, "")

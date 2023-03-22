@@ -104,8 +104,9 @@ var (
 	GetRateByID               string = "get_rate_by_id"
 	GetBank                   string = "get_bank"
 
-	RaveInitTransfer    string = "rave_init_transfer"
-	MonnifyInitTransfer string = "monnify_init_transfer"
+	RaveInitTransfer            string = "rave_init_transfer"
+	MonnifyInitTransfer         string = "monnify_init_transfer"
+	TransactionPaidNotification string = "transaction_paid_notification"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -818,6 +819,17 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.MonnifyInitTransfer()
+		case "transaction_paid_notification":
+			obj := notification.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/email/send/transaction_paid", config.Microservices.Notification),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.TransactionPaidNotification()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

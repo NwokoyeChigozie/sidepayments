@@ -29,7 +29,7 @@ type Payment struct {
 	PaymentType      string    `gorm:"column:payment_type; type:varchar(255)" json:"payment_type"`
 	BrokerCharge     float64   `gorm:"column:broker_charge; type:decimal(20,2)" json:"broker_charge"`
 	PaidBy           string    `gorm:"column:paid_by; type:varchar(255); comment: email of the payer" json:"paid_by"`
-	Payment_method   string    `gorm:"column:payment_method; type:varchar(255); comment: card,bank_transfer" json:"payment_method"`
+	PaymentMethod    string    `gorm:"column:payment_method; type:varchar(255); comment: card,bank_transfer" json:"payment_method"`
 	WalletFunded     string    `gorm:"column:wallet_funded; type:varchar(255); comment: dollar,naira,pounds,escrow_dollar,escrow_naira,escrow_pounds" json:"wallet_funded"`
 }
 

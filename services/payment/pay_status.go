@@ -29,13 +29,13 @@ func GetPaymentStatusService(c *gin.Context, extReq request.ExternalRequest, db 
 
 	code, err := paymentInfo.GetPaymentInfoByReference(db.Payment)
 	if err != nil {
-		return uri, "error", code, fmt.Errorf("Payment data lacks a log record: %v", err.Error())
+		return uri, "error", code, fmt.Errorf("payment data lacks a log record: %v", err.Error())
 	}
 
 	payment := models.Payment{PaymentID: paymentInfo.PaymentID}
 	code, err = payment.GetPaymentByPaymentID(db.Payment)
 	if err != nil {
-		return uri, msg, code, fmt.Errorf("Payment data lacks a payment record: %v", err.Error())
+		return uri, msg, code, fmt.Errorf("payment data lacks a payment record: %v", err.Error())
 	}
 
 	reqByte, err := json.Marshal(req)

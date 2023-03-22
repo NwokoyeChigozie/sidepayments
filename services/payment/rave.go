@@ -36,7 +36,7 @@ func (r *Rave) GetBank(countryCode, bankName string) (external_models.BanksRespo
 	}
 
 	for _, bank := range banks {
-		if strings.ToLower(bank.Name) == strings.ToLower(bankName) {
+		if strings.EqualFold(bank.Name, bankName) {
 			return bank, nil
 		}
 	}
@@ -130,18 +130,34 @@ func (r *Rave) ReserveAccount(reference, narration, email, firstName, lastName s
 	return paymentData, nil
 }
 
-func (r *Rave) VerifyTransactionByTxRef(reference string) (external_models.RaveVerifyTransactionResponseData, string, error) {
+func (r *Rave) VerifyTrans(reference string, amount float64, currency string) (string, error) {
 	paymentItf, err := r.ExtReq.SendExternalRequest(request.RaveVerifyTransactionByTxRef, reference)
 	if err != nil {
-		return external_models.RaveVerifyTransactionResponseData{}, "pending", err
+		return "pending", err
 	}
 
 	data, ok := paymentItf.(external_models.RaveVerifyTransactionResponseData)
 	if !ok {
-		return data, "pending", fmt.Errorf("response data format error")
+		return "pending", fmt.Errorf("response data format error")
 	}
 
-	return data, "success", nil
+	if data.Status == "error" || data.Status == "" {
+		return "error", fmt.Errorf("error occured verifying transaction")
+	}
+
+	if data.Status == "failed" {
+		return "error", fmt.Errorf("transaction failed")
+	}
+
+	if !strings.EqualFold(data.Currency, currency) {
+		return "error", fmt.Errorf("different currencies")
+	}
+
+	if data.ChargedAmount < amount {
+		return "pending", fmt.Errorf("incomplete payment")
+	}
+
+	return "success", nil
 }
 
 func (r *Rave) StatusV3(db postgresql.Databases, payment models.Payment, paymentInfo models.PaymentInfo, reference string) (bool, float64, error) {
@@ -195,13 +211,16 @@ func (r *Rave) StatusV3(db postgresql.Databases, payment models.Payment, payment
 
 	if data.Status == "successful" || data.Status == "completed" {
 		status = true
-		amount = data.Amount
+		amount = data.ChargedAmount
 	} else if data.Status == "failed" {
 		status = false
-		amount = data.Amount
+		amount = data.ChargedAmount
+	} else if data.Status == "error" {
+		status = false
+		amount = data.ChargedAmount
 	} else {
 		status = true
-		amount = data.Amount
+		amount = data.ChargedAmount
 	}
 
 	return status, amount, nil

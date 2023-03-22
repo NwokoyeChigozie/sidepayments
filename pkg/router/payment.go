@@ -20,6 +20,8 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 	{
 		paymentUrl.POST("/banks", payment.ListBanks)
 		paymentUrl.POST("currency/converter", payment.ConvertCurrency)
+
+		paymentUrl.POST("webhook/rave", payment.RaveWebhook)
 	}
 
 	paymentAuthUrl := r.Group(fmt.Sprintf("%v/payment", ApiVersion), middleware.Authorize(db, extReq, middleware.AuthType))

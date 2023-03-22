@@ -1,0 +1,23 @@
+{
+  "event.type": "Transfer",
+  "transfer": {
+    "id": 387949,
+    "account_number": "22188129",
+    "bank_code": "wallet",
+    "fullname": "Ceedvest Alliance Partners Limited",
+    "date_created": "2023-01-18T09:03:16.000Z",
+    "currency": "NGN",
+    "debit_currency": "NGN",
+    "amount": 1000,
+    "fee": 0,
+    "status": "FAILED",
+    "reference": "TRF-922722047725",
+    "meta": { "AccountId": 1215127, "merchant_id": "100309327" },
+    "narration": null,
+    "approver": null,
+    "complete_message": "DISBURSE FAILED: Insufficient balance in customer's wallet",
+    "requires_approval": 0,
+    "is_approved": 1,
+    "bank_name": "wallet"
+  }
+}

@@ -70,6 +70,18 @@ func (p *PaymentAccount) GetPaymentAccountByPaymentID(db *gorm.DB) (int, error) 
 	return http.StatusOK, nil
 }
 
+func (p *PaymentAccount) GetBybusinessIDBankNameAndCodeAndTransactionIDNotNull(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "business_id = ? and bank_name = ? and bank_code=? and transaction_id <> NULL", p.BusinessID, p.BankName, p.BankCode)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+
 func (p *PaymentAccount) GetPaymentAccountByBusinessID(db *gorm.DB) (int, error) {
 	err, nilErr := postgresql.SelectOneFromDb(db, &p, "business_id = ?", p.BusinessID)
 	if nilErr != nil {

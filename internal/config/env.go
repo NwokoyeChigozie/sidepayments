@@ -103,6 +103,7 @@ type BaseConfig struct {
 	RAVE_BASE_URL            string `mapstructure:"RAVE_BASE_URL"`
 	RAVE_PAYMENT_URL         string `mapstructure:"RAVE_PAYMENT_URL"`
 	RAVE_KEY                 string `mapstructure:"RAVE_KEY"`
+	RAVE_WEBHOOK_SECRET      string `mapstructure:"RAVE_WEBHOOK_SECRET"`
 	FLUTTERWAVE_MERCHANT_ID  string `mapstructure:"FLUTTERWAVE_MERCHANT_ID"`
 	FLUTTERWAVE_ACCOUNT_NAME string `mapstructure:"FLUTTERWAVE_ACCOUNT_NAME"`
 
@@ -213,11 +214,14 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 			BaseUrl:     config.APPRUVE_BASE_URL,
 		},
 		Rave: Rave{
-			PublicKey:  config.RAVE_PUBLIC_KEY,
-			SecretKey:  config.RAVE_SECRET_KEY,
-			BaseUrl:    config.RAVE_BASE_URL,
-			PaymentUrl: config.RAVE_PAYMENT_URL,
-			Key:        config.RAVE_KEY,
+			PublicKey:     config.RAVE_PUBLIC_KEY,
+			SecretKey:     config.RAVE_SECRET_KEY,
+			BaseUrl:       config.RAVE_BASE_URL,
+			PaymentUrl:    config.RAVE_PAYMENT_URL,
+			Key:           config.RAVE_KEY,
+			MerchantId:    config.FLUTTERWAVE_MERCHANT_ID,
+			AccountName:   config.FLUTTERWAVE_ACCOUNT_NAME,
+			WebhookSecret: config.RAVE_WEBHOOK_SECRET,
 		},
 
 		IPStack: IPStack{
