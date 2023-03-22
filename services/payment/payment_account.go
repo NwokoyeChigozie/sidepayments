@@ -34,7 +34,7 @@ func PaymentAccountMonnifyListService(c *gin.Context, extReq request.ExternalReq
 		return data, http.StatusInternalServerError, err
 	}
 
-	businessProfile, err := GetBusinessProfileByAccountID(extReq, extReq.Logger, req.AccountID)
+	businessProfile, err := GetBusinessProfileByAccountID(extReq, extReq.Logger, user.BusinessId)
 	if err != nil {
 		return data, http.StatusInternalServerError, fmt.Errorf("business profile not found for user: %v", err)
 	}

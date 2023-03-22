@@ -57,6 +57,7 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentAuthUrl.GET("/disbursement/user/:account_id", payment.ListDisbursementByAccountID)
 		paymentAuthUrl.GET("/disbursement/wallet/wallet-transfer", payment.WalletTransfer)
 		paymentAuthUrl.GET("disbursement/wallet/withdraw", payment.ManualDebit)
+		paymentAuthUrl.GET("disbursement/process/refund", payment.ManualRefund)
 
 	}
 	return r

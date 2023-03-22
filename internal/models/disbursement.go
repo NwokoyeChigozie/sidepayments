@@ -50,6 +50,9 @@ type WalletTransferRequest struct {
 	TransactionID      string  `json:"transaction_id" pgvalidate:"exists=transaction$transactions$transaction_id"`
 	Refund             bool    `json:"refund"`
 }
+type ManualRefundRequest struct {
+	TransactionID string `json:"transaction_id" validate:"required" pgvalidate:"exists=transaction$transactions$transaction_id"`
+}
 type ManualDebitRequest struct {
 	AccountID             int     `json:"account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
 	Amount                float64 `json:"amount" validate:"required,gt=0"`
@@ -77,6 +80,17 @@ type ManualDebitResponse struct {
 
 func (d *Disbursement) GetDisbursementByReferenceAndNotStatus(db *gorm.DB) (int, error) {
 	err, nilErr := postgresql.SelectOneFromDb(db, &d, "reference = ? and LOWER(status) <> ?", d.Reference, strings.ToLower(d.Status))
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+func (d *Disbursement) GetDisbursementByPaymentID(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &d, "payment_id = ? ", d.PaymentID)
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}
