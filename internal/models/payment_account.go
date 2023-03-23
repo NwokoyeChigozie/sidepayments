@@ -58,6 +58,17 @@ func (p *PaymentAccount) GetPaymentAccountByPaymentAccountID(db *gorm.DB) (int, 
 	}
 	return http.StatusOK, nil
 }
+func (p *PaymentAccount) GetLatestPaymentAccountByPaymentAccountID(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "payment_account_id = ?", p.PaymentAccountID)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
 func (p *PaymentAccount) GetPaymentAccountByPaymentID(db *gorm.DB) (int, error) {
 	err, nilErr := postgresql.SelectOneFromDb(db, &p, "payment_id = ?", p.PaymentID)
 	if nilErr != nil {
@@ -72,6 +83,17 @@ func (p *PaymentAccount) GetPaymentAccountByPaymentID(db *gorm.DB) (int, error) 
 
 func (p *PaymentAccount) GetBybusinessIDBankNameAndCodeAndTransactionIDNotNull(db *gorm.DB) (int, error) {
 	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "business_id = ? and bank_name = ? and bank_code=? and transaction_id <> NULL", p.BusinessID, p.BankName, p.BankCode)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+func (p *PaymentAccount) GetByPaymentAccountIDAndTransactionIDNotNull(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "payment_account_id=? and transaction_id <> NULL", p.PaymentAccountID)
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}

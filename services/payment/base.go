@@ -55,6 +55,22 @@ func GetUserWithAccountID(extReq request.ExternalRequest, accountID int) (extern
 	}
 	return us, nil
 }
+func GetUserWithEmail(extReq request.ExternalRequest, email string) (external_models.User, error) {
+	usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{EmailAddress: email})
+	if err != nil {
+		return external_models.User{}, err
+	}
+
+	us, ok := usItf.(external_models.User)
+	if !ok {
+		return external_models.User{}, fmt.Errorf("response data format error")
+	}
+
+	if us.ID == 0 {
+		return external_models.User{}, fmt.Errorf("user not found")
+	}
+	return us, nil
+}
 
 func GetUsersByBusinessID(extReq request.ExternalRequest, BusinessId int) ([]external_models.User, error) {
 	usItf, err := extReq.SendExternalRequest(request.GetUsersByBusinessID, strconv.Itoa(BusinessId))

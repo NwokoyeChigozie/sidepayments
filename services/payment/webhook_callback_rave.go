@@ -2,7 +2,6 @@ package payment
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -22,7 +21,7 @@ func RaveWebhookService(c *gin.Context, extReq request.ExternalRequest, db postg
 	if config.GetConfig().Rave.WebhookSecret != utility.GetHeader(c, "verif-hash") {
 		return http.StatusUnauthorized, fmt.Errorf("invalid webhook secret")
 	}
-	requestBody, err := io.ReadAll(c.Request.Body)
+	requestBody, err := c.GetRawData()
 	if err != nil {
 		extReq.Logger.Error("rave webhhook log error", "Failed to read request body", err.Error())
 	}
@@ -129,7 +128,7 @@ func handleChargeCompleted(c *gin.Context, extReq request.ExternalRequest, db po
 	escrowChargeBearerParty := transaction.Parties["charge_bearer"]
 	if sts == "success" {
 		if payment.TransactionID != "" {
-			transactionPaid(extReq, db, payment, transaction, ref, currency, "card_payment")
+			transactionPaid(extReq, db, &payment, &transaction, ref, currency, "card_payment")
 		} else {
 			payment.IsPaid = true
 			payment.WalletFunded = strings.ToUpper(currency)
@@ -322,7 +321,7 @@ func handleTransferCompleted(c *gin.Context, extReq request.ExternalRequest, db 
 	return http.StatusOK, nil
 }
 
-func transactionPaid(extReq request.ExternalRequest, db postgresql.Databases, payment models.Payment, transaction external_models.TransactionByID, txref, currency string, paymentMethod string) error {
+func transactionPaid(extReq request.ExternalRequest, db postgresql.Databases, payment *models.Payment, transaction *external_models.TransactionByID, txref, currency string, paymentMethod string) error {
 	var (
 		paymentChannelD = config.GetConfig().Slack.PaymentChannelID
 	)

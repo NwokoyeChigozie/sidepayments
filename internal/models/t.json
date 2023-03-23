@@ -1,23 +1,66 @@
 {
-  "event.type": "Transfer",
-  "transfer": {
-    "id": 387949,
-    "account_number": "22188129",
-    "bank_code": "wallet",
-    "fullname": "Ceedvest Alliance Partners Limited",
-    "date_created": "2023-01-18T09:03:16.000Z",
+  "eventType": "SUCCESSFUL_TRANSACTION",
+  "eventData": {
+    "product": {
+      "reference": "1636106097661",
+      "type": "RESERVED_ACCOUNT"
+    },
+    "transactionReference": "MNFY|04|20211117112842|000170",
+    "paymentReference": "MNFY|04|20211117112842|000170",
+    "paidOn": "2021-11-17 11:28:42.615",
+    "paymentDescription": "Adm",
+    "metaData": {
+      "name": "Damilare",
+      "age": "45"
+    },
+    "paymentSourceInformation": [
+      {
+        "bankCode": "",
+        "amountPaid": 3000,
+        "accountName": "Monnify Limited",
+        "sessionId": "e6cV1smlpkwG38Cg6d5F9B2PRnIq5FqA",
+        "accountNumber": "0065432190"
+      }
+    ],
+    "destinationAccountInformation": {
+      "bankCode": "232",
+      "bankName": "Sterling bank",
+      "accountNumber": "6000140770"
+    },
+    "amountPaid": 3000,
+    "totalPayable": 3000,
+    "cardDetails": {
+      "last4": "2718",
+      "expMonth": "10",
+      "expYear": "22",
+      "bin": "506102",
+      "reusable": false
+    },
+    "paymentMethod": "ACCOUNT_TRANSFER",
     "currency": "NGN",
-    "debit_currency": "NGN",
-    "amount": 1000,
-    "fee": 0,
-    "status": "FAILED",
-    "reference": "TRF-922722047725",
-    "meta": { "AccountId": 1215127, "merchant_id": "100309327" },
-    "narration": null,
-    "approver": null,
-    "complete_message": "DISBURSE FAILED: Insufficient balance in customer's wallet",
-    "requires_approval": 0,
-    "is_approved": 1,
-    "bank_name": "wallet"
+    "settlementAmount": "2990.00",
+    "paymentStatus": "PAID",
+    "customer": {
+      "name": "John Doe",
+      "email": "test@tester.com"
+    },
+    "amount": 10,
+    "fee": 8,
+    "transactionDescription": "Approved or completed successfully",
+    "destinationAccountNumber": "0068687503",
+    "sessionId": "090405210317032336726272971260",
+    "createdOn": "17/03/2021 3:23:32 AM",
+    "destinationAccountName": "DAMILARE SAMUEL OGUNNAIKE",
+    "reference": "ref1615947809303",
+    "destinationBankCode": "232",
+    "completedOn": "17/03/2021 3:23:38 AM",
+    "narration": "This is a quite long narration",
+    "destinationBankName": "Sterling bank",
+    "status": "SUCCESS",
+    "merchantReason": "defective goods",
+    "refundStatus": "COMPLETED",
+    "customerNote": "defects",
+    "refundReference": "ref001",
+    "refundAmount": 10.0
   }
 }
