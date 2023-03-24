@@ -55,6 +55,22 @@ func GetUserWithAccountID(extReq request.ExternalRequest, accountID int) (extern
 	}
 	return us, nil
 }
+func GetUserWithEmail(extReq request.ExternalRequest, email string) (external_models.User, error) {
+	usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{EmailAddress: email})
+	if err != nil {
+		return external_models.User{}, err
+	}
+
+	us, ok := usItf.(external_models.User)
+	if !ok {
+		return external_models.User{}, fmt.Errorf("response data format error")
+	}
+
+	if us.ID == 0 {
+		return external_models.User{}, fmt.Errorf("user not found")
+	}
+	return us, nil
+}
 
 func GetUsersByBusinessID(extReq request.ExternalRequest, BusinessId int) ([]external_models.User, error) {
 	usItf, err := extReq.SendExternalRequest(request.GetUsersByBusinessID, strconv.Itoa(BusinessId))
@@ -136,14 +152,14 @@ func GetCountryByNameOrCode(extReq request.ExternalRequest, logger *utility.Logg
 
 	if err != nil {
 		logger.Info(err.Error())
-		return external_models.Country{}, fmt.Errorf("Your country could not be resolved, please update your profile.")
+		return external_models.Country{}, fmt.Errorf("your country could not be resolved, please update your profile")
 	}
 	country, ok := countryInterface.(external_models.Country)
 	if !ok {
 		return external_models.Country{}, fmt.Errorf("response data format error")
 	}
 	if country.ID == 0 {
-		return external_models.Country{}, fmt.Errorf("Your country could not be resolved, please update your profile")
+		return external_models.Country{}, fmt.Errorf("your country could not be resolved, please update your profile")
 	}
 
 	return country, nil
@@ -179,7 +195,7 @@ func GetBusinessProfileByAccountID(extReq request.ExternalRequest, logger *utili
 	})
 	if err != nil {
 		logger.Info(err.Error())
-		return external_models.BusinessProfile{}, fmt.Errorf("Business lacks a profile.")
+		return external_models.BusinessProfile{}, fmt.Errorf("business lacks a profile")
 	}
 
 	businessProfile, ok := businessProfileInterface.(external_models.BusinessProfile)
@@ -188,7 +204,26 @@ func GetBusinessProfileByAccountID(extReq request.ExternalRequest, logger *utili
 	}
 
 	if businessProfile.ID == 0 {
-		return external_models.BusinessProfile{}, fmt.Errorf("Business lacks a profile.")
+		return external_models.BusinessProfile{}, fmt.Errorf("business lacks a profile")
+	}
+	return businessProfile, nil
+}
+func GetBusinessProfileByFlutterwaveMerchantID(extReq request.ExternalRequest, logger *utility.Logger, merchantID string) (external_models.BusinessProfile, error) {
+	businessProfileInterface, err := extReq.SendExternalRequest(request.GetBusinessProfile, external_models.GetBusinessProfileModel{
+		FlutterwaveMerchantID: merchantID,
+	})
+	if err != nil {
+		logger.Info(err.Error())
+		return external_models.BusinessProfile{}, err
+	}
+
+	businessProfile, ok := businessProfileInterface.(external_models.BusinessProfile)
+	if !ok {
+		return external_models.BusinessProfile{}, fmt.Errorf("response data format error")
+	}
+
+	if businessProfile.ID == 0 {
+		return external_models.BusinessProfile{}, fmt.Errorf("no business profile found")
 	}
 	return businessProfile, nil
 }
@@ -262,7 +297,7 @@ func initBusinessCharge(extReq request.ExternalRequest, businessID int, currency
 	return businessCharge, nil
 }
 
-func getCountryByCurrency(extReq request.ExternalRequest, logger *utility.Logger, currencyCode string) (external_models.Country, error) {
+func GetCountryByCurrency(extReq request.ExternalRequest, logger *utility.Logger, currencyCode string) (external_models.Country, error) {
 
 	countryInterface, err := extReq.SendExternalRequest(request.GetCountry, external_models.GetCountryModel{
 		CurrencyCode: currencyCode,
@@ -270,14 +305,14 @@ func getCountryByCurrency(extReq request.ExternalRequest, logger *utility.Logger
 
 	if err != nil {
 		logger.Info(err.Error())
-		return external_models.Country{}, fmt.Errorf("Your country could not be resolved, please update your profile.")
+		return external_models.Country{}, fmt.Errorf("your country could not be resolved, please update your profile")
 	}
 	country, ok := countryInterface.(external_models.Country)
 	if !ok {
 		return external_models.Country{}, fmt.Errorf("response data format error")
 	}
 	if country.ID == 0 {
-		return external_models.Country{}, fmt.Errorf("Your country could not be resolved, please update your profile")
+		return external_models.Country{}, fmt.Errorf("your country could not be resolved, please update your profile")
 	}
 
 	return country, nil
@@ -289,7 +324,7 @@ func GetRateByID(extReq request.ExternalRequest, rateID int) (external_models.Ra
 
 	if err != nil {
 		extReq.Logger.Info(err.Error())
-		return external_models.Rate{}, fmt.Errorf("Your country could not be resolved, please update your profile.")
+		return external_models.Rate{}, err
 	}
 	rate, ok := rateInterface.(external_models.Rate)
 	if !ok {
@@ -318,4 +353,99 @@ func CreateExchangeTransaction(extReq request.ExternalRequest, accountID, rateID
 	}
 
 	return nil
+}
+func GetUserCredentialByAccountIdAndType(extReq request.ExternalRequest, accountID int, iType string) (external_models.UsersCredential, error) {
+
+	userCredInterface, err := extReq.SendExternalRequest(request.GetUserCredential, external_models.GetUserCredentialModel{
+		AccountID:          uint(accountID),
+		IdentificationType: iType,
+	})
+
+	if err != nil {
+		extReq.Logger.Info(err.Error())
+		return external_models.UsersCredential{}, err
+	}
+
+	userCred, ok := userCredInterface.(external_models.GetUserCredentialResponse)
+	if !ok {
+		return userCred.Data, fmt.Errorf("response data format error")
+	}
+	if userCred.Data.ID == 0 {
+		return userCred.Data, fmt.Errorf("user credential not found")
+	}
+
+	return userCred.Data, nil
+}
+func GetBankDetail(extReq request.ExternalRequest, id, accountID int, country, currency string) (external_models.BankDetail, error) {
+
+	data := external_models.GetBankDetailModel{}
+
+	if id != 0 {
+		data = external_models.GetBankDetailModel{
+			ID: uint(id),
+		}
+	} else {
+		data = external_models.GetBankDetailModel{
+			AccountID: uint(accountID),
+			Country:   country,
+			Currency:  currency,
+		}
+	}
+	userBankInterface, err := extReq.SendExternalRequest(request.GetBankDetails, data)
+
+	if err != nil {
+		extReq.Logger.Info(err.Error())
+		return external_models.BankDetail{}, err
+	}
+
+	bankDetail, ok := userBankInterface.(external_models.BankDetail)
+	if !ok {
+		return bankDetail, fmt.Errorf("response data format error")
+	}
+	if bankDetail.ID == 0 {
+		return bankDetail, fmt.Errorf("bank detail not found")
+	}
+
+	return bankDetail, nil
+}
+
+func GetBank(extReq request.ExternalRequest, id int, name, code, country string) (external_models.Bank, error) {
+
+	data := external_models.GetBankRequest{
+		ID:      uint(id),
+		Name:    name,
+		Code:    code,
+		Country: country,
+	}
+	bankInterface, err := extReq.SendExternalRequest(request.GetBank, data)
+
+	if err != nil {
+		extReq.Logger.Info(err.Error())
+		return external_models.Bank{}, err
+	}
+
+	bank, ok := bankInterface.(external_models.Bank)
+	if !ok {
+		return bank, fmt.Errorf("response data format error")
+	}
+	if bank.ID == 0 {
+		return bank, fmt.Errorf("bank not found")
+	}
+
+	return bank, nil
+}
+
+func HasBvn(extReq request.ExternalRequest, accountID uint) bool {
+	userCredential, err := GetUserCredentialByAccountIdAndType(extReq, int(accountID), "bvn")
+	if err != nil {
+		return false
+	}
+	return userCredential.Bvn != ""
+}
+
+func thisOrThatStr(this, that string) string {
+	if this == "" {
+		return that
+	}
+	return this
 }

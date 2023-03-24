@@ -3,7 +3,7 @@ package payment
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -33,7 +33,7 @@ func InitWebhook(extReq request.ExternalRequest, db postgresql.Databases, uri, e
 	return nil
 }
 
-func fireWebhook(extReq request.ExternalRequest, db postgresql.Databases, webhook models.Webhook) error {
+func FireWebhook(extReq request.ExternalRequest, db postgresql.Databases, webhook models.Webhook) error {
 	var (
 		method = "POST"
 	)
@@ -77,7 +77,7 @@ func fireWebhook(extReq request.ExternalRequest, db postgresql.Databases, webhoo
 		return err
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		extReq.Logger.Error("reading body error for id: ", webhook.ID, err.Error())
 		return err

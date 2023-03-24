@@ -37,11 +37,13 @@ type BusinessProfile struct {
 	DeletedAt                         string                 `json:"deleted_at"`
 	CreatedAt                         string                 `json:"created_at"`
 	UpdatedAt                         string                 `json:"updated_at"`
+	FlutterwaveMerchantID             string                 `json:"flutterwave_merchant_id"`
 }
 
 type GetBusinessProfileModel struct {
-	ID        uint `json:"id"`
-	AccountID uint `json:"account_id"`
+	ID                    uint   `json:"id"`
+	AccountID             uint   `json:"account_id"`
+	FlutterwaveMerchantID string `json:"flutterwave_merchant_id"`
 }
 
 type GetBusinessProfileResponse struct {

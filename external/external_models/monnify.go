@@ -174,3 +174,33 @@ type GetMonnifyReserveAccountTransactionsResponseBodyContent struct {
 	AmountPaid           float64 `json:"amountPaid"`
 	Completed            bool    `json:"completed"`
 }
+
+type MonnifyInitTransferRequest struct {
+	Amount                   float64 `json:"amount"`
+	Reference                string  `json:"reference"`
+	Narration                string  `json:"narration"`
+	DestinationBankCode      string  `json:"destinationBankCode"`
+	DestinationAccountNumber string  `json:"destinationAccountNumber"`
+	Currency                 string  `json:"currency"`
+	SourceAccountNumber      string  `json:"sourceAccountNumber"`
+	DestinationAccountName   string  `json:"destinationAccountName"`
+}
+
+type MonnifyInitTransferResponse struct {
+	RequestSuccessful bool                            `json:"requestSuccessful"`
+	ResponseMessage   string                          `json:"responseMessage"`
+	ResponseCode      string                          `json:"responseCode"`
+	ResponseBody      MonnifyInitTransferResponseBody `json:"responseBody"`
+}
+type MonnifyInitTransferResponseBody struct {
+	Amount                   float64 `json:"amount"`
+	Reference                string  `json:"reference"`
+	Status                   string  `json:"status"`
+	DateCreated              string  `json:"dateCreated"`
+	TotalFee                 float64 `json:"totalFee"`
+	SessionId                string  `json:"sessionId"`
+	DestinationAccountName   string  `json:"destinationAccountName"`
+	DestinationBankName      string  `json:"destinationBankName"`
+	DestinationAccountNumber string  `json:"destinationAccountNumber"`
+	DestinationBankCode      string  `json:"destinationBankCode"`
+}

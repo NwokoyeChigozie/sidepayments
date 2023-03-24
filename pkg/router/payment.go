@@ -20,6 +20,14 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 	{
 		paymentUrl.POST("/banks", payment.ListBanks)
 		paymentUrl.POST("currency/converter", payment.ConvertCurrency)
+
+		paymentUrl.POST("webhook/rave", payment.RaveWebhook)
+		paymentUrl.POST("webhook/monnify", payment.MonnifyWebhook)
+		paymentUrl.POST("disbursement/callback", payment.MonnifyDisbursementCallback)
+		paymentUrl.GET("disbursement/callback", payment.MonnifyDisbursementCallback)
+
+		paymentUrl.GET("payment/invoice/:payment_id", payment.GetPaymentInvoice)
+		paymentUrl.GET("pay/:status", payment.RenderPayStatus)
 	}
 
 	paymentAuthUrl := r.Group(fmt.Sprintf("%v/payment", ApiVersion), middleware.Authorize(db, extReq, middleware.AuthType))
@@ -49,6 +57,7 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentAuthUrl.POST("/pay/tokenized", payment.ChargeCardInit)
 		paymentAuthUrl.POST("/pay/tokenized/headless", payment.ChargeCardHeadlessInit)
 		paymentAuthUrl.POST("/pay/tokenized/delete", payment.DeleteStoredCard)
+		paymentAuthUrl.GET("pay/status", payment.GetStatus)
 		paymentAuthUrl.POST("/pay/new-status", payment.GetPaymentStatus)
 
 		paymentAuthUrl.POST("/payment_account/list", payment.PaymentAccountMonnifyList)
@@ -56,6 +65,8 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 
 		paymentAuthUrl.GET("/disbursement/user/:account_id", payment.ListDisbursementByAccountID)
 		paymentAuthUrl.GET("/disbursement/wallet/wallet-transfer", payment.WalletTransfer)
+		paymentAuthUrl.GET("disbursement/wallet/withdraw", payment.ManualDebit)
+		paymentAuthUrl.GET("disbursement/process/refund", payment.ManualRefund)
 
 	}
 	return r

@@ -102,6 +102,11 @@ var (
 	CreateWalletTransaction   string = "create_wallet_transaction"
 	CreateExchangeTransaction string = "create_exchange_transaction"
 	GetRateByID               string = "get_rate_by_id"
+	GetBank                   string = "get_bank"
+
+	RaveInitTransfer            string = "rave_init_transfer"
+	MonnifyInitTransfer         string = "monnify_init_transfer"
+	TransactionPaidNotification string = "transaction_paid_notification"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -781,6 +786,50 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.GetRateByID()
+		case "get_bank":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/auth/get_bank", config.Microservices.Auth),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.GetBank()
+		case "rave_init_transfer":
+			obj := rave.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v3/transfers", config.Rave.BaseUrl),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.RaveInitTransfer()
+		case "monnify_init_transfer":
+			obj := monnify.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/disbursements/single", config.Monnify.MonnifyEndpoint),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.MonnifyInitTransfer()
+		case "transaction_paid_notification":
+			obj := notification.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/email/send/transaction_paid", config.Microservices.Notification),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.TransactionPaidNotification()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

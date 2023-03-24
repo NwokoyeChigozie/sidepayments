@@ -1,7 +1,10 @@
 package utility
 
 import (
+	"crypto/hmac"
 	"crypto/sha1"
+	"crypto/sha512"
+	"encoding/hex"
 	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
@@ -25,4 +28,11 @@ func ShaHash(str string) (string, error) {
 
 	getSha1 := passSha1.Sum(nil)
 	return fmt.Sprintf("%x", getSha1), nil
+}
+
+func Sha512Hmac(secret string, body []byte) string {
+	hmacSecret := []byte(secret)
+	h := hmac.New(sha512.New, hmacSecret)
+	h.Write(body)
+	return hex.EncodeToString(h.Sum(nil))
 }

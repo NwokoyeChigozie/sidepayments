@@ -34,7 +34,7 @@ func PaymentAccountMonnifyListService(c *gin.Context, extReq request.ExternalReq
 		return data, http.StatusInternalServerError, err
 	}
 
-	businessProfile, err := GetBusinessProfileByAccountID(extReq, extReq.Logger, req.AccountID)
+	businessProfile, err := GetBusinessProfileByAccountID(extReq, extReq.Logger, user.BusinessId)
 	if err != nil {
 		return data, http.StatusInternalServerError, fmt.Errorf("business profile not found for user: %v", err)
 	}
@@ -329,15 +329,15 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 		}
 		if payment.ID == 0 {
 			payment = models.Payment{
-				PaymentID:      utility.RandomString(10),
-				TotalAmount:    amountPaid,
-				EscrowCharge:   fundingCharge,
-				IsPaid:         true,
-				AccountID:      int64(user.AccountID),
-				BusinessID:     int64(user.BusinessId),
-				Currency:       "NGN",
-				Payment_method: "bank_transfer",
-				WalletFunded:   walletFunded,
+				PaymentID:     utility.RandomString(10),
+				TotalAmount:   amountPaid,
+				EscrowCharge:  fundingCharge,
+				IsPaid:        true,
+				AccountID:     int64(user.AccountID),
+				BusinessID:    int64(user.BusinessId),
+				Currency:      "NGN",
+				PaymentMethod: "bank_transfer",
+				WalletFunded:  walletFunded,
 			}
 			err := payment.CreatePayment(db.Payment)
 			if err != nil {
@@ -347,7 +347,7 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 			payment.TotalAmount = amountPaid
 			payment.EscrowCharge = fundingCharge
 			payment.IsPaid = true
-			payment.Payment_method = "bank_transfer"
+			payment.PaymentMethod = "bank_transfer"
 			payment.WalletFunded = walletFunded
 			err := payment.UpdateAllFields(db.Payment)
 			if err != nil {
@@ -405,7 +405,7 @@ func sendTransactionConfirmed(extReq request.ExternalRequest, db postgresql.Data
 	if err != nil {
 		return transaction, "", err
 	}
-	extReq.SendExternalRequest(request.TransactionUpdateStatus, external_models.UpdateTransactionStatusRequest{
+	_, err = extReq.SendExternalRequest(request.TransactionUpdateStatus, external_models.UpdateTransactionStatusRequest{
 		AccountID:     transaction.BusinessID,
 		TransactionID: transaction.TransactionID,
 		MilestoneID:   transaction.MilestoneID,
