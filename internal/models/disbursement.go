@@ -89,6 +89,17 @@ func (d *Disbursement) GetDisbursementByReferenceAndNotStatus(db *gorm.DB) (int,
 	}
 	return http.StatusOK, nil
 }
+func (d *Disbursement) GetDisbursementByReference(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &d, "reference = ?", d.Reference)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
 func (d *Disbursement) GetDisbursementByPaymentID(db *gorm.DB) (int, error) {
 	err, nilErr := postgresql.SelectOneFromDb(db, &d, "payment_id = ? ", d.PaymentID)
 	if nilErr != nil {

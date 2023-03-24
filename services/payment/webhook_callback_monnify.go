@@ -22,8 +22,6 @@ func MonnifyWebhookService(c *gin.Context, extReq request.ExternalRequest, db po
 		secret                   = config.GetConfig().Monnify.MonnifySecret
 		data                     models.MonnifyWebhookRequestEventData
 		monnifySignature         = utility.GetHeader(c, "monnify-signature")
-		monnify                  = Monnify{ExtReq: extReq}
-		paymentChannelD          = config.GetConfig().Slack.PaymentChannelID
 		transactionReference     string
 		paymentReference         string
 		generatedReference       string
@@ -50,7 +48,7 @@ func MonnifyWebhookService(c *gin.Context, extReq request.ExternalRequest, db po
 	extReq.Logger.Info("monnify webhhook log error", string(requestBody))
 	webhookLog := models.WebhookLog{
 		Log:      string(requestBody),
-		Provider: "flutterwave",
+		Provider: "monnify",
 	}
 	err = webhookLog.CreateWebhookLog(db.Payment)
 	if err != nil {
@@ -122,6 +120,21 @@ func MonnifyWebhookService(c *gin.Context, extReq request.ExternalRequest, db po
 		}
 	}
 
+	go func(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, transactionReference, generatedReference, paymentReference, paymentSourceInformation, customerEmail, accountNumber, bankCode, bankName, currency string, amountPaid float64, paidOn time.Time) {
+		code, err := handleMonnifyWebhookRequest(c, extReq, db, transactionReference, generatedReference, paymentReference, paymentSourceInformation, customerEmail, accountNumber, bankCode, bankName, currency, amountPaid, paidOn)
+		if err != nil {
+			extReq.Logger.Error("monnify webhhook log error:", err.Error(), "code:", code)
+		}
+	}(c, extReq, db, transactionReference, generatedReference, paymentReference, paymentSourceInformation, customerEmail, accountNumber, bankCode, bankName, currency, amountPaid, paidOn)
+
+	return http.StatusOK, nil
+}
+
+func handleMonnifyWebhookRequest(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, transactionReference, generatedReference, paymentReference, paymentSourceInformation, customerEmail, accountNumber, bankCode, bankName, currency string, amountPaid float64, paidOn time.Time) (int, error) {
+	var (
+		paymentChannelD = config.GetConfig().Slack.PaymentChannelID
+		monnify         = Monnify{ExtReq: extReq}
+	)
 	paymentAccount := models.PaymentAccount{PaymentAccountID: generatedReference}
 	code, err := paymentAccount.GetByPaymentAccountIDAndTransactionIDNotNull(db.Payment)
 	if code == http.StatusInternalServerError {
@@ -273,6 +286,82 @@ func MonnifyWebhookService(c *gin.Context, extReq request.ExternalRequest, db po
 		}
 
 	}
+	return http.StatusOK, nil
+}
+
+func MonnifyDisbursementCallbackService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.MonnifyWebhookRequest) (int, error) {
+	var (
+		secret             = config.GetConfig().Monnify.MonnifySecret
+		data               models.MonnifyWebhookRequestEventData
+		monnifySignature   = utility.GetHeader(c, "monnify-signature")
+		generatedReference string
+		amountPaid         float64
+		disbursementStatus string
+	)
+	requestBody, err := c.GetRawData()
+	if err != nil {
+		extReq.Logger.Error("monnify callback log error", "Failed to read request body", err.Error())
+	}
+
+	hash := utility.Sha512Hmac(secret, requestBody)
+	if hash != monnifySignature {
+		extReq.Logger.Error("monnify callback log error", "Web Hook Denied, Hash Mismatch", hash, monnifySignature, requestBody)
+		return http.StatusUnauthorized, fmt.Errorf("Web Hook Denied, Hash Mismatch")
+	}
+
+	extReq.Logger.Info("monnify callback log error", string(requestBody))
+	webhookLog := models.WebhookLog{
+		Log:      string(requestBody),
+		Provider: "monnify",
+	}
+	err = webhookLog.CreateWebhookLog(db.Payment)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	if req.EventType == "" {
+		extReq.Logger.Error("monnify callback log error", "no event type specified")
+		return http.StatusBadRequest, fmt.Errorf("no event type specified")
+	}
+
+	if req.EventType != "FAILED_DISBURSEMENT" && req.EventType != "SUCCESSFUL_DISBURSEMENT" {
+		extReq.Logger.Error("monnify callback log error", "not a disbursement event type: ", req.EventType)
+		return http.StatusBadRequest, fmt.Errorf("not a disbursement event type")
+	}
+
+	if req.EventData != nil {
+		data = *req.EventData
+	} else {
+		extReq.Logger.Error("monnify callback log error", "event data not found")
+		return http.StatusBadRequest, fmt.Errorf("event data not found")
+	}
+
+	if data.Reference != nil {
+		generatedReference = *data.Reference
+	}
+
+	if data.Amount != nil {
+		amountPaid = *data.Amount
+	}
+
+	if data.Status != nil {
+		disbursementStatus = *data.Status
+	}
+
+	if strings.EqualFold(disbursementStatus, "FAILED") && strings.EqualFold(req.EventType, "FAILED_DISBURSEMENT") {
+		disbursement := models.Disbursement{Reference: generatedReference}
+		code, err := disbursement.GetDisbursementByReference(db.Payment)
+		if err != nil {
+			extReq.Logger.Error("monnify callback log error", fmt.Sprintf("disbursement with reference %v, not found. Error: %v", generatedReference, err.Error()))
+			return code, err
+		}
+
+		_, err = CreditWallet(extReq, db, amountPaid, disbursement.Currency, disbursement.BusinessID, true, "no", "")
+		if err != nil {
+			extReq.Logger.Error("monnify callback log error", fmt.Sprintf("crediting wallet for business id: %v, amount: %v %v, Error: %v", disbursement.BusinessID, disbursement.Currency, amountPaid, err.Error()))
+		}
+	}
+
 	return http.StatusOK, nil
 }
 

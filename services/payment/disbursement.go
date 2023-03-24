@@ -323,7 +323,7 @@ func ManualDebitService(c *gin.Context, extReq request.ExternalRequest, db postg
 
 	switch strings.ToLower(gateway) {
 	case "rave":
-		resData, err := rave.InitTransfer(bankCode, bankAccountNumber, finalAmount, narration, currency, reference, callback)
+		resData, err := rave.InitTransfer(bankCode, bankAccountNumber, finalAmount, narration, currency, reference, "")
 		if err != nil {
 			return "", data, http.StatusInternalServerError, err
 		}
@@ -337,7 +337,7 @@ func ManualDebitService(c *gin.Context, extReq request.ExternalRequest, db postg
 		data.Msg = resData.ResponseMessage
 		gatewayData = resData
 	default:
-		resData, err := rave.InitTransfer(bankCode, bankAccountNumber, finalAmount, narration, currency, reference, callback)
+		resData, err := rave.InitTransfer(bankCode, bankAccountNumber, finalAmount, narration, currency, reference, "")
 		if err != nil {
 			return "", data, http.StatusInternalServerError, err
 		}
@@ -510,7 +510,7 @@ func ManualRefundService(c *gin.Context, extReq request.ExternalRequest, db post
 		return response, http.StatusInternalServerError, err
 	}
 
-	resData, err := rave.InitTransfer(bankCode, bankDetails.AccountNo, realAmount, "Vesicash Refund", currency, reference, callback)
+	resData, err := rave.InitTransfer(bankCode, bankDetails.AccountNo, realAmount, "Vesicash Refund", currency, reference, "")
 	if err != nil {
 		return "", http.StatusInternalServerError, err
 	}

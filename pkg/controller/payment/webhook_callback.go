@@ -58,3 +58,27 @@ func (base *Controller) MonnifyWebhook(c *gin.Context) {
 	c.JSON(http.StatusOK, rd)
 
 }
+func (base *Controller) MonnifyDisbursementCallback(c *gin.Context) {
+	var (
+		req models.MonnifyWebhookRequest
+	)
+
+	err := c.ShouldBind(&req)
+	if err != nil {
+		base.Logger.Error("monnify callback log error", "Failed to parse request body", err.Error())
+		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "Failed to parse request body", err, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	code, err := payment.MonnifyDisbursementCallbackService(c, base.ExtReq, base.Db, req)
+	if err != nil {
+		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
+		c.JSON(code, rd)
+		return
+	}
+
+	rd := utility.BuildSuccessResponse(http.StatusOK, "ok", nil)
+	c.JSON(http.StatusOK, rd)
+
+}
