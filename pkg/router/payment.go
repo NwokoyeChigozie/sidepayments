@@ -24,6 +24,10 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentUrl.POST("webhook/rave", payment.RaveWebhook)
 		paymentUrl.POST("webhook/monnify", payment.MonnifyWebhook)
 		paymentUrl.POST("disbursement/callback", payment.MonnifyDisbursementCallback)
+		paymentUrl.GET("disbursement/callback", payment.MonnifyDisbursementCallback)
+
+		paymentUrl.GET("payment/invoice/:payment_id", payment.GetPaymentInvoice)
+		paymentUrl.GET("pay/:status", payment.RenderPayStatus)
 	}
 
 	paymentAuthUrl := r.Group(fmt.Sprintf("%v/payment", ApiVersion), middleware.Authorize(db, extReq, middleware.AuthType))

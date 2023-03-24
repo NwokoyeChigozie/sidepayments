@@ -170,6 +170,24 @@ type GetPaymentStatusRequest struct {
 	Headless   bool   `json:"headless" validate:"required"`
 	FundWallet bool   `json:"fund_wallet"`
 }
+type PaymentInvoiceData struct {
+	Reference        string
+	PaymentID        string
+	TransactionID    string
+	TransactionType  string
+	Transaction      external_models.TransactionByID
+	Buyer            external_models.User
+	Seller           external_models.User
+	InspectionPeriod string
+	ExpectedDelivery string
+	Title            string
+	Currency         string
+	Amount           float64
+	EscrowCharge     float64
+	BrokerCharge     float64
+	ShippingFee      float64
+	TotalAmount      float64
+}
 
 func (p *Payment) CreatePayment(db *gorm.DB) error {
 	err := postgresql.CreateOneRecord(db, &p)
