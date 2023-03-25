@@ -16,7 +16,7 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 	extReq := request.ExternalRequest{Logger: logger, Test: false}
 	payment := payment.Controller{Db: db, Validator: validator, Logger: logger, ExtReq: extReq}
 
-	paymentUrl := r.Group(fmt.Sprintf("%v/payment", ApiVersion))
+	paymentUrl := r.Group(fmt.Sprintf("%v", ApiVersion))
 	{
 		paymentUrl.POST("/banks", payment.ListBanks)
 		paymentUrl.POST("currency/converter", payment.ConvertCurrency)
@@ -30,7 +30,7 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentUrl.GET("pay/:status", payment.RenderPayStatus)
 	}
 
-	paymentAuthUrl := r.Group(fmt.Sprintf("%v/payment", ApiVersion), middleware.Authorize(db, extReq, middleware.AuthType))
+	paymentAuthUrl := r.Group(fmt.Sprintf("%v", ApiVersion), middleware.Authorize(db, extReq, middleware.AuthType))
 	{
 		paymentAuthUrl.POST("/create", payment.CreatePayment)
 		paymentAuthUrl.PATCH("/edit", payment.EditPayment)
@@ -40,7 +40,7 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 
 	}
 
-	paymentApiUrl := r.Group(fmt.Sprintf("%v/payment", ApiVersion), middleware.Authorize(db, extReq, middleware.ApiType))
+	paymentApiUrl := r.Group(fmt.Sprintf("%v", ApiVersion), middleware.Authorize(db, extReq, middleware.ApiType))
 	{
 		paymentApiUrl.POST("/create/headless", payment.CreatePaymentHeadless)
 		paymentApiUrl.GET("/listByPaymentId/:payment_id", payment.GetPaymentByID)

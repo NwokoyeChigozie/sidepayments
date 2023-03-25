@@ -256,7 +256,7 @@ func TestListPaymentByTransactionID(t *testing.T) {
 
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/payment/listByTransactionId/" + test.TransactionID}
+			URI := url.URL{Path: "/v2/listByTransactionId/" + test.TransactionID}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {

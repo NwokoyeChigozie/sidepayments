@@ -22,7 +22,7 @@ func TestGetPing(t *testing.T) {
 	// getConfig := config.GetConfig()
 	validatorRef := validator.New()
 	db := postgresql.Connection()
-	requestURI := url.URL{Path: "/v2/payment/health"}
+	requestURI := url.URL{Path: "/v2/health"}
 
 	tests := []struct {
 		Name         string
@@ -43,7 +43,7 @@ func TestGetPing(t *testing.T) {
 	for _, test := range tests {
 		r := gin.Default()
 
-		r.GET("/v2/payment/health", auth.Get)
+		r.GET("/v2/health", auth.Get)
 
 		t.Run(test.Name, func(t *testing.T) {
 			var b bytes.Buffer
@@ -87,7 +87,7 @@ func TestPostPing(t *testing.T) {
 	// getConfig := config.GetConfig()
 	validatorRef := validator.New()
 	db := postgresql.Connection()
-	requestURI := url.URL{Path: "/v2/payment/health"}
+	requestURI := url.URL{Path: "/v2/health"}
 
 	tests := []struct {
 		Name         string
@@ -108,7 +108,7 @@ func TestPostPing(t *testing.T) {
 	for _, test := range tests {
 		r := gin.Default()
 
-		r.POST("/v2/payment/health", auth.Get)
+		r.POST("/v2/health", auth.Get)
 
 		t.Run(test.Name, func(t *testing.T) {
 			var b bytes.Buffer
