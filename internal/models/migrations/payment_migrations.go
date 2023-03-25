@@ -16,6 +16,7 @@ func AuthMigrationModels() []interface{} {
 		models.PendingTransferFunding{},
 		models.WalletDebitLog{},
 		models.WalletEarningLog{},
+		models.WebhookLog{},
 		models.Webhook{},
 	}
 }

@@ -13,7 +13,7 @@ func SlackNotify(channel, message string) error {
 	msg := message
 	_, _, err := api.PostMessage(channelID, slack.MsgOptionText(msg, false))
 	if err != nil {
-		return fmt.Errorf("Error sending message: %v", err)
+		return fmt.Errorf("error sending message: %v", err)
 	}
 
 	return nil

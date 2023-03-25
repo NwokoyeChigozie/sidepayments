@@ -89,11 +89,11 @@ func InitiatePaymentService(c *gin.Context, extReq request.ExternalRequest, db p
 		id, _ := uuid.NewV4()
 		reference = id.String()
 	} else {
-		reference = fmt.Sprint("VC%v", strconv.Itoa(utility.GetRandomNumbersInRange(1000000000, 9999999999)))
+		reference = fmt.Sprintf("VC%v", strconv.Itoa(utility.GetRandomNumbersInRange(1000000000, 9999999999)))
 	}
 
 	if payment.IsPaid {
-		return response, http.StatusBadRequest, fmt.Errorf("Transaction has been paid for.")
+		return response, http.StatusBadRequest, fmt.Errorf("transaction has been paid for")
 	}
 
 	finalCharge := payment.EscrowCharge
@@ -265,7 +265,7 @@ func InitiatePaymentHeadlessService(c *gin.Context, extReq request.ExternalReque
 		id, _ := uuid.NewV4()
 		reference = id.String()
 	} else {
-		reference = fmt.Sprint("VC%v", strconv.Itoa(utility.GetRandomNumbersInRange(1000000000, 9999999999)))
+		reference = fmt.Sprintf("VC%v", strconv.Itoa(utility.GetRandomNumbersInRange(1000000000, 9999999999)))
 	}
 
 	businessProfile, err := GetBusinessProfileByAccountID(extReq, extReq.Logger, accessToken.AccountID)
@@ -481,7 +481,7 @@ func ChargeCardHeadlessInitService(c *gin.Context, extReq request.ExternalReques
 	}
 
 	if req.Amount > maxAmounut {
-		return data, http.StatusBadRequest, fmt.Errorf("Amount cannot be greater than %v", maxAmounut)
+		return data, http.StatusBadRequest, fmt.Errorf("amount cannot be greater than %v", maxAmounut)
 	}
 
 	transaction, err := ListTransactionsByID(extReq, req.TransactionID)

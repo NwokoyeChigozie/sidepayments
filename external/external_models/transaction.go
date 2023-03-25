@@ -102,6 +102,10 @@ type UpdateTransactionStatusRequest struct {
 type OnlyTransactionIDRequiredRequest struct {
 	TransactionID string `json:"transaction_id"`
 }
+type OnlyTransactionIDAndAccountIDRequest struct {
+	TransactionID string `json:"transaction_id"`
+	AccountID     int    `json:"account_id"`
+}
 type CreateExchangeTransactionRequest struct {
 	AccountID     int     `json:"account_id"`
 	InitialAmount float64 `json:"initial_amount"`
