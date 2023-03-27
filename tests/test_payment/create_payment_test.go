@@ -252,7 +252,7 @@ func TestCreatePayment(t *testing.T) {
 
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/payment/create"}
+			URI := url.URL{Path: "/v2/create"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {

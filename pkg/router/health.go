@@ -15,7 +15,7 @@ func Health(r *gin.Engine, ApiVersion string, validator *validator.Validate, db 
 	extReq := request.ExternalRequest{Logger: logger, Test: false}
 	health := health.Controller{Db: db, Validator: validator, Logger: logger, ExtReq: extReq}
 
-	healthUrl := r.Group(fmt.Sprintf("%v/payment", ApiVersion))
+	healthUrl := r.Group(fmt.Sprintf("%v", ApiVersion))
 	{
 		healthUrl.POST("/health", health.Post)
 		healthUrl.GET("/health", health.Get)
