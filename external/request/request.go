@@ -734,7 +734,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "upload_file":
 			obj := upload.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/files", config.Microservices.Transactions),
+				Path:         fmt.Sprintf("%v/v2/files", config.Microservices.Upload),
 				Method:       "POST",
 				SuccessCode:  201,
 				DecodeMethod: JsonDecodeMethod,

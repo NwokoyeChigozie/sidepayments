@@ -81,18 +81,18 @@ type RaveReserveAccountResponse struct {
 	Data    RaveReserveAccountResponseData `json:"data"`
 }
 type RaveReserveAccountResponseData struct {
-	ResponseCode    string `json:"response_code"`
-	ResponseMessage string `json:"response_message"`
-	FlwRef          string `json:"flw_ref"`
-	OrderRef        string `json:"order_ref"`
-	AccountNumber   string `json:"account_number"`
-	AccountStatus   string `json:"account_status"`
-	Frequency       int    `json:"frequency"`
-	BankName        string `json:"bank_name"`
-	CreatedAt       int    `json:"created_at"`
-	ExpiryDate      int    `json:"expiry_date"`
-	Note            string `json:"note"`
-	Amount          string `json:"amount"`
+	ResponseCode    string   `json:"response_code"`
+	ResponseMessage string   `json:"response_message"`
+	FlwRef          string   `json:"flw_ref"`
+	OrderRef        string   `json:"order_ref"`
+	AccountNumber   string   `json:"account_number"`
+	AccountStatus   string   `json:"account_status"`
+	Frequency       *int     `json:"frequency"`
+	BankName        string   `json:"bank_name"`
+	CreatedAt       int      `json:"created_at"`
+	ExpiryDate      *int     `json:"expiry_date"`
+	Note            string   `json:"note"`
+	Amount          *float64 `json:"amount"`
 }
 
 type RaveVerifyTransactionResponse struct {

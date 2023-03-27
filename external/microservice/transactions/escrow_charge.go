@@ -12,7 +12,7 @@ func (r *RequestObj) GetEscrowCharge() (external_models.GetEscrowChargeResponseD
 		logger           = r.Logger
 		idata            = r.RequestData
 	)
-	data, ok := idata.(external_models.GetEscrowChargeResponse)
+	data, ok := idata.(external_models.GetEscrowChargeRequest)
 	if !ok {
 		logger.Info("get escrow charge", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
