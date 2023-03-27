@@ -246,7 +246,7 @@ func TestListPaymentByTransactionID(t *testing.T) {
 		},
 	}
 
-	paymentAuthUrl := r.Group(fmt.Sprintf("%v/payment", "v2"), middleware.Authorize(db, paymnt.ExtReq, middleware.AuthType))
+	paymentAuthUrl := r.Group(fmt.Sprintf("%v", "v2"), middleware.Authorize(db, paymnt.ExtReq, middleware.AuthType))
 	{
 		paymentAuthUrl.POST("/listByTransactionId/:transaction_id", paymnt.ListPaymentByTransactionID)
 	}
