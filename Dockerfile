@@ -9,7 +9,7 @@ RUN go mod download && go mod verify
 
 COPY . .
 
-RUN mv app-sample.env app.env && \
+RUN if test -e app.env; then echo 'found app.env'; else mv app-sample.env app.env; fi; \
     go build -v -o /dist/vesicash-payment-ms
 
 # Deployment stage
