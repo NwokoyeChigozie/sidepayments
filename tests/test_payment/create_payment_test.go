@@ -242,7 +242,7 @@ func TestCreatePayment(t *testing.T) {
 		},
 	}
 
-	paymentAuthUrl := r.Group(fmt.Sprintf("%v/payment", "v2"), middleware.Authorize(db, paymnt.ExtReq, middleware.AuthType))
+	paymentAuthUrl := r.Group(fmt.Sprintf("%v", "v2"), middleware.Authorize(db, paymnt.ExtReq, middleware.AuthType))
 	{
 		paymentAuthUrl.POST("/create", paymnt.CreatePayment)
 	}

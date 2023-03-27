@@ -118,7 +118,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_user":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_user", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_user", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -129,7 +129,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_user_credential":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_user_credentials", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_user_credentials", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -140,7 +140,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "create_user_credential":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/create_user_credentials", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/create_user_credentials", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -151,7 +151,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "update_user_credential":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/update_user_credentials", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/update_user_credentials", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -162,7 +162,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_user_profile":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_user_profile", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_user_profile", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -173,7 +173,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_business_profile":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_business_profile", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_business_profile", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -184,7 +184,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_country":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_country", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_country", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -195,7 +195,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_bank_details":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_bank_detail", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_bank_detail", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -206,7 +206,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_access_token":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_access_token", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_access_token", config.Microservices.Auth),
 				Method:       "GET",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -217,7 +217,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "validate_on_auth":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/validate_on_db", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/validate_on_db", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -228,7 +228,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "validate_authorization":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/validate_authorization", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/validate_authorization", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -360,7 +360,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_authorize":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_authorize", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_authorize", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -371,7 +371,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "create_authorize":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/create_authorize", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/create_authorize", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -382,7 +382,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "update_authorize":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/update_authorize", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/update_authorize", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -415,7 +415,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "set_user_authorization_required_status":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/set_authorization_required", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/set_authorization_required", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -426,7 +426,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "validate_on_transactions":
 			obj := transactions.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/transactions/validate_on_db", config.Microservices.Transactions),
+				Path:         fmt.Sprintf("%v/v2/validate_on_db", config.Microservices.Transactions),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -437,7 +437,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "list_transactions_by_id":
 			obj := transactions.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/transactions/listById", config.Microservices.Transactions),
+				Path:         fmt.Sprintf("%v/v2/listById", config.Microservices.Transactions),
 				Method:       "GET",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -448,7 +448,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_users_by_business_id":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_users_by_business_id", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_users_by_business_id", config.Microservices.Auth),
 				Method:       "GET",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -492,7 +492,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_business_charge":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_business_charge", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_business_charge", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  201,
 				DecodeMethod: JsonDecodeMethod,
@@ -503,7 +503,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "init_business_charge":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/init_business_charge", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/init_business_charge", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -536,7 +536,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_access_token_by_key":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_access_token_by_key", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_access_token_by_key", config.Microservices.Auth),
 				Method:       "GET",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -547,7 +547,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_escrow_charge":
 			obj := transactions.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/transactions/escrowcharge", config.Microservices.Transactions),
+				Path:         fmt.Sprintf("%v/v2/escrowcharge", config.Microservices.Transactions),
 				Method:       "GET",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -591,7 +591,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "create_wallet_balance":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/create_wallet", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/create_wallet", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -602,7 +602,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_wallet_balance_by_account_id_and_currency":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_wallet", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_wallet", config.Microservices.Auth),
 				Method:       "GET",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -613,7 +613,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "update_wallet_balance":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/update_wallet_balance", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/update_wallet_balance", config.Microservices.Auth),
 				Method:       "PATCH",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -624,7 +624,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "update_transaction_amount_paid":
 			obj := transactions.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_access_token_by_key", config.Microservices.Transactions),
+				Path:         fmt.Sprintf("%v/v2/get_access_token_by_key", config.Microservices.Transactions),
 				Method:       "PATCH",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -657,7 +657,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "create_activity_log":
 			obj := transactions.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/transactions/create_activity_log", config.Microservices.Transactions),
+				Path:         fmt.Sprintf("%v/v2/create_activity_log", config.Microservices.Transactions),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -679,7 +679,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "transaction_update_status":
 			obj := transactions.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/transactions/api/updateStatus", config.Microservices.Transactions),
+				Path:         fmt.Sprintf("%v/v2/api/updateStatus", config.Microservices.Transactions),
 				Method:       "PATCH",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -690,7 +690,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "buyer_satisfied":
 			obj := transactions.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/transactions/api/satisfied", config.Microservices.Transactions),
+				Path:         fmt.Sprintf("%v/v2/api/satisfied", config.Microservices.Transactions),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -734,7 +734,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "upload_file":
 			obj := upload.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/upload/files", config.Microservices.Transactions),
+				Path:         fmt.Sprintf("%v/v2/files", config.Microservices.Transactions),
 				Method:       "POST",
 				SuccessCode:  201,
 				DecodeMethod: JsonDecodeMethod,
@@ -745,7 +745,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "create_wallet_history":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/create_wallet_history", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/create_wallet_history", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  201,
 				DecodeMethod: JsonDecodeMethod,
@@ -756,7 +756,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "create_wallet_transaction":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/create_wallet_transaction", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/create_wallet_transaction", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  201,
 				DecodeMethod: JsonDecodeMethod,
@@ -767,7 +767,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "create_exchange_transaction":
 			obj := transactions.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/transactions/create_exchange_transaction", config.Microservices.Transactions),
+				Path:         fmt.Sprintf("%v/v2/create_exchange_transaction", config.Microservices.Transactions),
 				Method:       "POST",
 				SuccessCode:  201,
 				DecodeMethod: JsonDecodeMethod,
@@ -778,7 +778,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_rate_by_id":
 			obj := transactions.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/transactions/get_rate", config.Microservices.Transactions),
+				Path:         fmt.Sprintf("%v/v2/get_rate", config.Microservices.Transactions),
 				Method:       "GET",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -789,7 +789,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "get_bank":
 			obj := auth.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/auth/get_bank", config.Microservices.Auth),
+				Path:         fmt.Sprintf("%v/v2/get_bank", config.Microservices.Auth),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
