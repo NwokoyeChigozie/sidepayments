@@ -84,14 +84,7 @@ func (base *Controller) CreatePaymentHeadless(c *gin.Context) {
 		return
 	}
 
-	user := models.MyIdentity
-	if user == nil {
-		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "error retrieving authenticated user", err, nil)
-		c.JSON(http.StatusBadRequest, rd)
-		return
-	}
-
-	payment, code, err := payment.CreatePaymentHeadlessService(base.ExtReq, base.Db, req, *user)
+	payment, code, err := payment.CreatePaymentHeadlessService(base.ExtReq, base.Db, req)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)
@@ -144,7 +137,7 @@ func (base *Controller) EditPayment(c *gin.Context) {
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Created", nil)
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Edited", nil)
 	c.JSON(http.StatusOK, rd)
 
 }
@@ -176,14 +169,7 @@ func (base *Controller) VerifyTransactionPayment(c *gin.Context) {
 		return
 	}
 
-	user := models.MyIdentity
-	if user == nil {
-		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", "error retrieving authenticated user", err, nil)
-		c.JSON(http.StatusBadRequest, rd)
-		return
-	}
-
-	data, code, err := payment.VerifyTransactionPaymentService(base.ExtReq, base.Db, req.TransactionID, *user)
+	data, code, err := payment.VerifyTransactionPaymentService(base.ExtReq, base.Db, req.TransactionID)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)
@@ -214,7 +200,7 @@ func (base *Controller) DeletePayment(c *gin.Context) {
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Created", nil)
+	rd := utility.BuildSuccessResponse(http.StatusOK, "Deleted", nil)
 	c.JSON(http.StatusOK, rd)
 
 }

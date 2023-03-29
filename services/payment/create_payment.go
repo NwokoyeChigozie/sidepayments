@@ -70,7 +70,7 @@ func CreatePaymentService(extReq request.ExternalRequest, db postgresql.Database
 
 }
 
-func CreatePaymentHeadlessService(extReq request.ExternalRequest, db postgresql.Databases, req models.CreatePaymentHeadlessRequest, user external_models.User) (models.Payment, int, error) {
+func CreatePaymentHeadlessService(extReq request.ExternalRequest, db postgresql.Databases, req models.CreatePaymentHeadlessRequest) (models.Payment, int, error) {
 
 	if req.Currency == "" {
 		req.Currency = "NGN"
@@ -125,7 +125,7 @@ func EditPaymentService(extReq request.ExternalRequest, db postgresql.Databases,
 	return http.StatusOK, nil
 }
 
-func VerifyTransactionPaymentService(extReq request.ExternalRequest, db postgresql.Databases, transactionID string, user external_models.User) (models.VerifyTransactionPaymentResponse, int, error) {
+func VerifyTransactionPaymentService(extReq request.ExternalRequest, db postgresql.Databases, transactionID string) (models.VerifyTransactionPaymentResponse, int, error) {
 
 	var (
 		payment  = models.Payment{TransactionID: transactionID}

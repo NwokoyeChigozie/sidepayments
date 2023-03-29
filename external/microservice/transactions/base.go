@@ -34,7 +34,7 @@ func (r *RequestObj) getAccessTokenObject() *auth.RequestObj {
 	)
 	return &auth.RequestObj{
 		Name:         "get_access_token",
-		Path:         fmt.Sprintf("%v/v2/auth/get_access_token", config.Microservices.Auth),
+		Path:         fmt.Sprintf("%v/v2/get_access_token", config.Microservices.Auth),
 		Method:       "GET",
 		SuccessCode:  200,
 		DecodeMethod: JsonDecodeMethod,

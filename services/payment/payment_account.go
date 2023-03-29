@@ -130,7 +130,7 @@ func PaymentAccountMonnifyListService(c *gin.Context, extReq request.ExternalReq
 			}
 			paymentAccount.AccountNumber = accountDetails.AccountNumber
 			paymentAccount.AccountName = accountDetails.AccountName
-			paymentAccount.BankCode = accountDetails.BankCode
+			paymentAccount.BankCode = strconv.Itoa(accountDetails.BankCode)
 			paymentAccount.BankName = accountDetails.BankName
 			paymentAccount.ReservationReference = accountDetails.ReservationReference
 			paymentAccount.Status = accountDetails.Status
