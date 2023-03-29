@@ -1,7 +1,6 @@
 package payment
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/vesicash/payment-ms/external/request"
@@ -19,11 +18,6 @@ func ListPaymentByTransactionIDService(extReq request.ExternalRequest, db postgr
 		return models.ListPaymentsResponse{}, http.StatusBadRequest, err
 	}
 	resp.Transaction = transaction
-
-	_, ok := transaction.Parties["buyer"]
-	if !ok {
-		return resp, http.StatusBadRequest, fmt.Errorf("transaction lacks a Buyer Party")
-	}
 
 	payment := models.Payment{TransactionID: transactionID}
 	code, err := payment.GetPaymentByTransactionID(db.Payment)
