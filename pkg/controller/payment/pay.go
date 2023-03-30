@@ -44,7 +44,7 @@ func (base *Controller) InitiatePayment(c *gin.Context) {
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "Created", data)
+	rd := utility.BuildSuccessResponse(http.StatusOK, "initiated", data)
 	c.JSON(http.StatusOK, rd)
 
 }

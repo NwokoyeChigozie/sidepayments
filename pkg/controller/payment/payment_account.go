@@ -37,14 +37,14 @@ func (base *Controller) PaymentAccountMonnifyList(c *gin.Context) {
 		return
 	}
 
-	status, code, err := payment.PaymentAccountMonnifyListService(c, base.ExtReq, base.Db, req)
+	paymentAccount, code, err := payment.PaymentAccountMonnifyListService(c, base.ExtReq, base.Db, req)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "successful", status)
+	rd := utility.BuildSuccessResponse(http.StatusOK, "successful", paymentAccount)
 	c.JSON(http.StatusOK, rd)
 
 }

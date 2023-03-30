@@ -187,7 +187,7 @@ func InitiatePaymentService(c *gin.Context, extReq request.ExternalRequest, db p
 		Log:       string(paymentRequestByte),
 	}
 
-	err = paymentLog.CreatePaymentLog(db.Transaction)
+	err = paymentLog.CreatePaymentLog(db.Payment)
 	if err != nil {
 		return response, http.StatusInternalServerError, err
 	}
