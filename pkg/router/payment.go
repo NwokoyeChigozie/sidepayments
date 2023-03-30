@@ -54,7 +54,7 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentAuthUrl.POST("/pay/headless", payment.InitiatePaymentHeadless)
 		paymentAuthUrl.POST("/pay/tokenized", payment.ChargeCardInit)
 		paymentAuthUrl.POST("/pay/tokenized/headless", payment.ChargeCardHeadlessInit)
-		paymentAuthUrl.POST("/pay/tokenized/delete", payment.DeleteStoredCard)
+		paymentAuthUrl.DELETE("/pay/tokenized/delete", payment.DeleteStoredCard)
 		paymentAuthUrl.GET("/pay/status", payment.GetStatus)
 		paymentAuthUrl.POST("/pay/new-status", payment.GetPaymentStatus)
 

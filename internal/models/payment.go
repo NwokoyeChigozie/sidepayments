@@ -55,7 +55,7 @@ type InitiatePaymentHeadlessRequest struct {
 	PaymentGateway string  `json:"payment_gateway"`
 	SuccessUrl     string  `json:"success_url"`
 	FailUrl        string  `json:"fail_url"`
-	FundWallet     string  `json:"fund_wallet"`
+	FundWallet     bool    `json:"fund_wallet"`
 }
 
 type InitiatePaymentResponse struct {
