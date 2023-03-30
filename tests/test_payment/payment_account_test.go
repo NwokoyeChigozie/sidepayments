@@ -627,7 +627,7 @@ func TestPaymentAccountMonnifyVerify(t *testing.T) {
 		ID:               int64(utility.GetRandomNumbersInRange(1000000000, 9999999999)),
 		TransactionID:    transactionID,
 		PaymentID:        utility.RandomString(20),
-		TotalAmount:      2000,
+		TotalAmount:      200,
 		EscrowCharge:     0,
 		IsPaid:           false,
 		AccountID:        int64(accountID),
@@ -644,7 +644,7 @@ func TestPaymentAccountMonnifyVerify(t *testing.T) {
 		ID:               int64(utility.GetRandomNumbersInRange(1000000000, 9999999999)),
 		TransactionID:    transactionID,
 		PaymentID:        utility.RandomString(20),
-		TotalAmount:      2000,
+		TotalAmount:      200,
 		EscrowCharge:     0,
 		IsPaid:           false,
 		AccountID:        int64(accountID),
@@ -694,8 +694,6 @@ func TestPaymentAccountMonnifyVerify(t *testing.T) {
 
 	paymentAccount2 := models.PaymentAccount{
 		PaymentAccountID: reference2,
-		TransactionID:    transactionID,
-		PaymentID:        paymentData2.PaymentID,
 		IsUsed:           true,
 		ExpiresAfter:     strconv.Itoa(int(time.Now().Add(72 * time.Hour).Unix())),
 		BusinessID:       strconv.Itoa(int(testUser.AccountID)),
@@ -725,10 +723,21 @@ func TestPaymentAccountMonnifyVerify(t *testing.T) {
 		Message      string
 	}{
 		{
-			Name: "OK payment account monnify verify rave",
+			Name: "OK payment account monnify verify monnify",
 			RequestBody: models.PaymentAccountMonnifyVerifyRequest{
 				TransactionID: transactionID,
 				Reference:     reference,
+			},
+			ExpectedCode: http.StatusOK,
+			Headers: map[string]string{
+				"Content-Type":  "application/json",
+				"v-private-key": pvKey,
+				"v-public-key":  pbKey,
+			},
+		}, {
+			Name: "OK payment account monnify verify monnify",
+			RequestBody: models.PaymentAccountMonnifyVerifyRequest{
+				Reference: reference2,
 			},
 			ExpectedCode: http.StatusOK,
 			Headers: map[string]string{
