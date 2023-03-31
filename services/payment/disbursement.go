@@ -21,7 +21,7 @@ func WalletTransferService(c *gin.Context, extReq request.ExternalRequest, db po
 		msg string
 	)
 	if req.RateID != 0 && req.InitialAmount == 0 {
-		return msg, http.StatusBadRequest, fmt.Errorf("initial amount must be set if rate exist")
+		return msg, http.StatusBadRequest, fmt.Errorf("initial amount must be set or greater than 0 if rate exist")
 	}
 	if req.RateID == 0 && req.InitialAmount != 0 {
 		return msg, http.StatusBadRequest, fmt.Errorf("rate must be set if initial amount exist")
