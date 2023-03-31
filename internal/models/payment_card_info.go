@@ -14,7 +14,7 @@ type PaymentCardInfo struct {
 	PaymentID         string    `gorm:"column:payment_id; type:varchar(255); not null" json:"payment_id"`
 	CcExpiryMonth     string    `gorm:"column:cc_expiry_month; type:varchar(255)" json:"cc_expiry_month"`
 	CcExpiryYear      string    `gorm:"column:cc_expiry_year; type:varchar(255)" json:"cc_expiry_year"`
-	LastFourDigits    string    `gorm:"column:lastFourDigits; type:varchar(255)" json:"lastFourDigits"`
+	LastFourDigits    string    `gorm:"column:lastFourDigits; type:varchar(255)" json:"last_four_digits"`
 	Brand             string    `gorm:"column:brand; type:varchar(255)" json:"brand"`
 	IssuingCountry    string    `gorm:"column:issuing_country; type:varchar(255)" json:"issuing_country"`
 	CardToken         string    `gorm:"column:card_token; type:text" json:"card_token"`
@@ -65,7 +65,7 @@ func (p *PaymentCardInfo) GetPaymentCardInfoByAccountID(db *gorm.DB) (int, error
 	return http.StatusOK, nil
 }
 func (p *PaymentCardInfo) GetPaymentCardInfoByAccountIDLast4DigitsAndBrand(db *gorm.DB) (int, error) {
-	err, nilErr := postgresql.SelectOneFromDb(db, &p, "account_id = ? and lastFourDigits=? and brand=?", p.AccountID, p.LastFourDigits, p.Brand)
+	err, nilErr := postgresql.SelectOneFromDb(db, &p, `account_id = ? and "lastFourDigits"=? and brand=?`, p.AccountID, p.LastFourDigits, p.Brand)
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}
