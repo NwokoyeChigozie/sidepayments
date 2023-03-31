@@ -693,6 +693,7 @@ func TestPaymentAccountMonnifyVerify(t *testing.T) {
 	}
 
 	paymentAccount2 := models.PaymentAccount{
+		PaymentID:        paymentData2.PaymentID,
 		PaymentAccountID: reference2,
 		IsUsed:           true,
 		ExpiresAfter:     strconv.Itoa(int(time.Now().Add(72 * time.Hour).Unix())),
@@ -729,6 +730,7 @@ func TestPaymentAccountMonnifyVerify(t *testing.T) {
 				Reference:     reference,
 			},
 			ExpectedCode: http.StatusOK,
+			Message:      "Bank Transfer Verified",
 			Headers: map[string]string{
 				"Content-Type":  "application/json",
 				"v-private-key": pvKey,
@@ -740,6 +742,7 @@ func TestPaymentAccountMonnifyVerify(t *testing.T) {
 				Reference: reference2,
 			},
 			ExpectedCode: http.StatusOK,
+			Message:      "Transfer Verified",
 			Headers: map[string]string{
 				"Content-Type":  "application/json",
 				"v-private-key": pvKey,

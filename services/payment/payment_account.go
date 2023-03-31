@@ -284,11 +284,15 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 		}
 	}
 
-	verify, amountPaid, err := monnify.VerifyTrans(req.Reference, trans[0].AmountPaid)
+	amountToCheck := payment.TotalAmount
+	if amountToCheck == 0 {
+		amountToCheck = trans[0].AmountPaid
+	}
+	verify, amountPaid, err := monnify.VerifyTrans(req.Reference, amountToCheck)
 	if err != nil {
 		return data, msg, http.StatusBadRequest, err
 	}
-
+	fmt.Println("checking", verify, amountPaid, err, amountToCheck, trans[0].AmountPaid, payment.TotalAmount)
 	if verify {
 		paymentAccountBusinessID, _ := strconv.Atoi(paymentAccount.BusinessID)
 		user, err := GetUserWithAccountID(extReq, paymentAccountBusinessID)
