@@ -55,7 +55,7 @@ func ListPaymentByTransactionIDService(extReq request.ExternalRequest, db postgr
 func ListPaymentRecordsService(extReq request.ExternalRequest, db postgresql.Databases, transactionID string, paginator postgresql.Pagination) ([]models.Payment, postgresql.PaginationResponse, int, error) {
 
 	payment := models.Payment{TransactionID: transactionID, IsPaid: true}
-	payments, pagination, err := payment.GetPaymentsByTransactionIDAndIsPaid(db.Transaction, paginator)
+	payments, pagination, err := payment.GetPaymentsByTransactionIDAndIsPaid(db.Payment, paginator)
 	if err != nil {
 		return payments, pagination, http.StatusInternalServerError, err
 	}
@@ -93,7 +93,7 @@ func ListWithdrawalsByAccountIDService(extReq request.ExternalRequest, db postgr
 		disbursement = models.Disbursement{RecipientID: accountID}
 	)
 
-	disbursements, pagination, err := disbursement.GetDisbursementsByRecipientID(db.Transaction, paginator)
+	disbursements, pagination, err := disbursement.GetDisbursementsByRecipientID(db.Payment, paginator)
 	if err != nil {
 		return disbursements, pagination, http.StatusInternalServerError, err
 	}

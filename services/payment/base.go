@@ -166,6 +166,10 @@ func GetCountryByNameOrCode(extReq request.ExternalRequest, logger *utility.Logg
 }
 
 func isRequestIPNigerian(extReq request.ExternalRequest, c *gin.Context) (bool, error) {
+	if extReq.Test {
+		return true, nil
+	}
+
 	ip, _, err := net.SplitHostPort(c.Request.RemoteAddr)
 	if err != nil {
 		return false, err

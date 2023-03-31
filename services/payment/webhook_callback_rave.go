@@ -41,7 +41,7 @@ func RaveWebhookService(c *gin.Context, extReq request.ExternalRequest, db postg
 		paymentChannelD = config.GetConfig().Slack.PaymentChannelID
 	)
 
-	err = SlackNotify(paymentChannelD, `
+	err = SlackNotify(extReq, paymentChannelD, `
 					Web Hook Received
 					Environment: `+config.GetConfig().App.Name+`
 					Event: `+eventType+`
@@ -136,7 +136,7 @@ func handleChargeCompleted(c *gin.Context, extReq request.ExternalRequest, db po
 			payment.PaymentMadeAt = time.Now()
 			payment.UpdateAllFields(db.Payment)
 		}
-		err = SlackNotify(paymentChannelD, `
+		err = SlackNotify(extReq, paymentChannelD, `
 			Card Payment
 			Environment: `+config.GetConfig().App.Name+`
 			Reference: `+ref+`
@@ -446,7 +446,7 @@ func transactionPaid(extReq request.ExternalRequest, db postgresql.Databases, pa
 		}
 	}
 
-	err = SlackNotify(paymentChannelD, `
+	err = SlackNotify(extReq, paymentChannelD, `
 			Payment Status For Transaction #`+payment.PaymentID+`
 			Environment: `+config.GetConfig().App.Name+`
 			Payment ID: `+payment.PaymentID+`

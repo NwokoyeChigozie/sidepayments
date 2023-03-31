@@ -295,7 +295,7 @@ func ManualDebitService(c *gin.Context, extReq request.ExternalRequest, db postg
 
 	if req.EscrowWallet != "yes" {
 		if (currency == "NGN" && amount >= config.GetConfig().ONLINE_PAYMENT.NairaThreshold) || currency == "USD" || currency == "GBP" {
-			err = SlackNotify(disbursementChannelD, `
+			err = SlackNotify(extReq, disbursementChannelD, `
 				Wallet Debit To Bank Account #`+strconv.Itoa(req.AccountID)+`
                 Environment: `+config.GetConfig().App.Name+`
                 Disbursement ID: `+strconv.Itoa(disbursementID)+`
@@ -348,7 +348,7 @@ func ManualDebitService(c *gin.Context, extReq request.ExternalRequest, db postg
 
 	LogDisbursement(db, disbursementID, gatewayData)
 	data.Response = gatewayData
-	err = SlackNotify(disbursementChannelD, `
+	err = SlackNotify(extReq, disbursementChannelD, `
 				Wallet Debit To Bank Account #`+strconv.Itoa(req.AccountID)+`
                 Environment: `+config.GetConfig().App.Name+`
                 Disbursement ID: `+strconv.Itoa(disbursementID)+`
@@ -489,7 +489,7 @@ func ManualRefundService(c *gin.Context, extReq request.ExternalRequest, db post
 			return response, http.StatusInternalServerError, err
 		}
 
-		err = SlackNotify(disbursementChannelD, `
+		err = SlackNotify(extReq, disbursementChannelD, `
 				Wallet Disbursement Re-Fund For Buyer #`+strconv.Itoa(buyerParty.AccountID)+`
                 Environment: `+config.GetConfig().App.Name+`
                 Disbursement ID: `+strconv.Itoa(disbursementID)+`
@@ -519,7 +519,7 @@ func ManualRefundService(c *gin.Context, extReq request.ExternalRequest, db post
 	disbursement.UpdateAllFields(db.Payment)
 	LogDisbursement(db, disbursementID, resData)
 
-	err = SlackNotify(disbursementChannelD, `
+	err = SlackNotify(extReq, disbursementChannelD, `
 				Bank Account Disbursement Re-Fund For Buyer #`+strconv.Itoa(buyerParty.AccountID)+`
                 Environment: `+config.GetConfig().App.Name+`
                 Disbursement ID: `+strconv.Itoa(disbursementID)+`

@@ -143,7 +143,7 @@ func PaymentAccountMonnifyListService(c *gin.Context, extReq request.ExternalReq
 		if err != nil {
 			return data, http.StatusInternalServerError, err
 		}
-		err = SlackNotify(paymentChannelD, `
+		err = SlackNotify(extReq, paymentChannelD, `
 					Virtual Bank Account Generated
                     Environment: `+config.GetConfig().App.Name+`
                     Account Number: `+paymentAccount.AccountNumber+`
@@ -234,9 +234,12 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 				return data, msg, http.StatusInternalServerError, err
 			}
 			chargeBearer := transaction.Parties["charge_bearer"]
-			paymentAccount.Delete(db.Payment)
+			err = paymentAccount.Delete(db.Payment)
+			if err != nil {
+				return data, msg, http.StatusBadRequest, err
+			}
 
-			err = SlackNotify(paymentChannelD, `
+			err = SlackNotify(extReq, paymentChannelD, `
 					Bank Transfer Payment
 					Environment: `+config.GetConfig().App.Name+`
 					Reference: `+trans[0].TransactionReference+`
@@ -281,11 +284,14 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 		}
 	}
 
-	verify, amountPaid, err := monnify.VerifyTrans(req.Reference, trans[0].AmountPaid)
+	amountToCheck := payment.TotalAmount
+	if amountToCheck == 0 {
+		amountToCheck = trans[0].AmountPaid
+	}
+	verify, amountPaid, err := monnify.VerifyTrans(req.Reference, amountToCheck)
 	if err != nil {
 		return data, msg, http.StatusBadRequest, err
 	}
-
 	if verify {
 		paymentAccountBusinessID, _ := strconv.Atoi(paymentAccount.BusinessID)
 		user, err := GetUserWithAccountID(extReq, paymentAccountBusinessID)
@@ -293,8 +299,13 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 			return data, msg, http.StatusInternalServerError, fmt.Errorf("user with businessID %v not found : %v", paymentAccountBusinessID, err.Error())
 		}
 		pendingTransferFunding := models.PendingTransferFunding{Reference: req.Reference}
-		pendingTransferFunding.GetPendingTransferFundingByReference(db.Payment)
-		pendingTransferFunding.Delete(db.Payment)
+		_, err = pendingTransferFunding.GetPendingTransferFundingByReference(db.Payment)
+		if err == nil {
+			err = pendingTransferFunding.Delete(db.Payment)
+			if err != nil {
+				return data, msg, http.StatusBadRequest, err
+			}
+		}
 
 		paymentAccount.PaymentReference = req.Reference
 		payment.UpdateAllFields(db.Payment)
@@ -355,7 +366,7 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 			}
 		}
 
-		err = SlackNotify(paymentChannelD, `
+		err = SlackNotify(extReq, paymentChannelD, `
 
 					Bank Transfer Payment
 					Environment: `+config.GetConfig().App.Name+`

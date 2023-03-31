@@ -227,7 +227,7 @@ func handleMonnifyWebhookRequest(c *gin.Context, extReq request.ExternalRequest,
 			payment.UpdateAllFields(db.Payment)
 			sendTransactionConfirmed(extReq, db, &payment, paymentReference, amountPaid)
 
-			err = SlackNotify(paymentChannelD, `
+			err = SlackNotify(extReq, paymentChannelD, `
 			Bank Transfer Payment | WEB HOOK
 			Environment: `+config.GetConfig().App.Name+`
 			Transaction ID: `+transaction.TransactionID+`
@@ -418,7 +418,7 @@ func fundAccount(extReq request.ExternalRequest, db postgresql.Databases, amount
 			return err
 		}
 
-		err = SlackNotify(paymentChannelD, `
+		err = SlackNotify(extReq, paymentChannelD, `
 			[Web Hook] Wallet Funding For Customer #`+strconv.Itoa(int(user.AccountID))+`
 			Environment: `+config.GetConfig().App.Name+`
 			Account ID: `+strconv.Itoa(int(user.AccountID))+`

@@ -187,7 +187,7 @@ func InitiatePaymentService(c *gin.Context, extReq request.ExternalRequest, db p
 		Log:       string(paymentRequestByte),
 	}
 
-	err = paymentLog.CreatePaymentLog(db.Transaction)
+	err = paymentLog.CreatePaymentLog(db.Payment)
 	if err != nil {
 		return response, http.StatusInternalServerError, err
 	}
@@ -316,7 +316,7 @@ func InitiatePaymentHeadlessService(c *gin.Context, extReq request.ExternalReque
 		req.PaymentGateway = "rave"
 	}
 
-	callback := utility.GenerateGroupByURL(c, "pay/status", map[string]string{"reference": reference, "success_page": successPage, "failure_page": failPage, "fund_wallet": req.FundWallet})
+	callback := utility.GenerateGroupByURL(c, "pay/status", map[string]string{"reference": reference, "success_page": successPage, "failure_page": failPage, "fund_wallet": fmt.Sprintf("%v", req.FundWallet)})
 
 	switch strings.ToLower(paymentGateway) {
 	case "rave":

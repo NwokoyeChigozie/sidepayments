@@ -181,7 +181,7 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 				}
 			}
 
-			err = SlackNotify(paymentChannelD, `
+			err = SlackNotify(extReq, paymentChannelD, `
  					Payment Status For Transaction #`+payment.TransactionID+`
                      Environment: `+config.GetConfig().App.Name+`
                      Payment ID: `+paymentInfo.PaymentID+`
@@ -199,7 +199,7 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 					return "error", http.StatusInternalServerError, err
 				}
 				beneficiary, _ := GetUserWithAccountID(extReq, int(payment.AccountID))
-				err = SlackNotify(paymentChannelD, `
+				err = SlackNotify(extReq, paymentChannelD, `
  					Wallet Disbursement/Funding For Customer #`+fmt.Sprintf("%v", payment.AccountID)+`
                      Environment: `+config.GetConfig().App.Name+`
                      Account ID: `+fmt.Sprintf("%v", payment.AccountID)+`
@@ -211,7 +211,7 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 					extReq.Logger.Error("error sending notification to slack: ", err.Error())
 				}
 
-				err = SlackNotify(paymentChannelD, `
+				err = SlackNotify(extReq, paymentChannelD, `
  					Payment Status For Headless Payment #`+payment.PaymentID+`
  					Environment: `+config.GetConfig().App.Name+`
  					Payment ID: `+payment.PaymentID+`
@@ -281,7 +281,7 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 				}, businessProfileData.AccountID)
 			}
 
-			err = SlackNotify(paymentChannelD, `
+			err = SlackNotify(extReq, paymentChannelD, `
  					Payment Status For Transaction #`+payment.TransactionID+`
                      Environment: `+config.GetConfig().App.Name+`
                      Payment ID: `+paymentInfo.PaymentID+`
@@ -293,7 +293,7 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 				extReq.Logger.Error("error sending notification to slack: ", err.Error())
 			}
 		} else {
-			err = SlackNotify(paymentChannelD, `
+			err = SlackNotify(extReq, paymentChannelD, `
  					Payment Status For Headless Payment #`+payment.PaymentID+`
                      Environment: `+config.GetConfig().App.Name+`
                      Payment ID: `+paymentInfo.PaymentID+`
@@ -426,7 +426,7 @@ func GetPaymentStatusService(c *gin.Context, extReq request.ExternalRequest, db 
 				Description:   fmt.Sprintf("A sum of %v has been paid for this transaction", buyerAmount),
 			})
 
-			err = SlackNotify(paymentChannelD, `
+			err = SlackNotify(extReq, paymentChannelD, `
 					Payment Status For Transaction #`+payment.TransactionID+`
                     Environment: `+config.GetConfig().App.Name+`
                     Payment ID: `+paymentInfo.PaymentID+`
@@ -444,7 +444,7 @@ func GetPaymentStatusService(c *gin.Context, extReq request.ExternalRequest, db 
 				}
 				businessID = int(payment.BusinessID)
 				user, _ := GetUserWithAccountID(extReq, int(payment.AccountID))
-				err = SlackNotify(paymentChannelD, `
+				err = SlackNotify(extReq, paymentChannelD, `
 					Wallet Funding For Customer #`+fmt.Sprintf("%v", payment.AccountID)+` 
                     Environment: `+config.GetConfig().App.Name+`
                     Account ID: `+fmt.Sprintf("%v", payment.AccountID)+`
@@ -472,7 +472,7 @@ func GetPaymentStatusService(c *gin.Context, extReq request.ExternalRequest, db 
 					BrokerCharge:              payment.BrokerCharge,
 				})
 
-				err = SlackNotify(paymentChannelD, `
+				err = SlackNotify(extReq, paymentChannelD, `
 					Payment Status For Headless Payment #`+payment.PaymentID+`                          
 					Environment: `+config.GetConfig().App.Name+`
 					Payment ID: `+payment.PaymentID+`
