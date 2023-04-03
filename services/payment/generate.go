@@ -12,6 +12,7 @@ import (
 	"github.com/vesicash/payment-ms/external/external_models"
 	"github.com/vesicash/payment-ms/external/request"
 	"github.com/vesicash/payment-ms/internal/models"
+	"github.com/vesicash/payment-ms/utility"
 )
 
 type PdfData struct {
@@ -117,17 +118,42 @@ func GeneratePDFFromTemplate(templatePath string, data interface{}) (gopdf.GoPdf
 	// Create a new PDF document
 	pdf := gopdf.GoPdf{}
 
+	// Define the page size
+	pageSize := gopdf.Rect{
+		W: gopdf.PageSizeA4.W, // 8.5 inches
+		H: gopdf.PageSizeA4.H,
+	}
+
 	// Initialize the document
-	pdf.Start(gopdf.Config{PageSize: *gopdf.PageSizeA4})
+	pdf.Start(gopdf.Config{PageSize: pageSize})
+
+	// Define the cell rectangle based on the page size and margins
+	margin := 72.0 // 1 inch = 72 points
+	cellRect := gopdf.Rect{
+		W: pageSize.W - 2*margin,
+		H: pageSize.H - 2*margin,
+	}
 
 	// Add a new page
 	pdf.AddPage()
+
+	templateDir, err := utility.FindTemplateFilePath("arial.ttf")
+	if err != nil {
+		return gopdf.GoPdf{}, err
+	}
+	err = pdf.AddTTFFont("Arial", templateDir)
+	if err != nil {
+		return gopdf.GoPdf{}, err
+	}
 
 	// Set the font
 	pdf.SetFont("Arial", "", 16)
 
 	// Write the rendered template to the PDF
-	pdf.Cell(nil, renderedTemplate.String())
+	err = pdf.Cell(&cellRect, renderedTemplate.String())
+	if err != nil {
+		return gopdf.GoPdf{}, err
+	}
 	return pdf, nil
 }
 

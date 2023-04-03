@@ -16,22 +16,19 @@ import (
 	"github.com/vesicash/payment-ms/utility"
 )
 
-func RaveWebhookService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.RaveWebhookRequest) (int, error) {
+func RaveWebhookService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.RaveWebhookRequest, requestBody []byte) (int, error) {
 
 	if config.GetConfig().Rave.WebhookSecret != utility.GetHeader(c, "verif-hash") {
 		return http.StatusUnauthorized, fmt.Errorf("invalid webhook secret")
 	}
-	requestBody, err := c.GetRawData()
-	if err != nil {
-		extReq.Logger.Error("rave webhhook log error", "Failed to read request body", err.Error())
-	}
-	extReq.Logger.Info("rave webhhook log error", string(requestBody))
+
+	extReq.Logger.Info("rave webhhook log info", string(requestBody))
 
 	webhookLog := models.WebhookLog{
 		Log:      string(requestBody),
 		Provider: "flutterwave",
 	}
-	err = webhookLog.CreateWebhookLog(db.Payment)
+	err := webhookLog.CreateWebhookLog(db.Payment)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
@@ -42,7 +39,7 @@ func RaveWebhookService(c *gin.Context, extReq request.ExternalRequest, db postg
 	)
 
 	err = SlackNotify(extReq, paymentChannelD, `
-					Web Hook Received
+					Web Hook Received RAVE
 					Environment: `+config.GetConfig().App.Name+`
 					Event: `+eventType+`
 					Reference: `+eventType+`
@@ -107,6 +104,7 @@ func handleChargeCompleted(c *gin.Context, extReq request.ExternalRequest, db po
 	}
 
 	sts, err := rave.VerifyTrans(ref, amount, currency)
+	extReq.Logger.Info(fmt.Sprintf("checking issue: %v, %v, %v", sts, err, amount))
 	if err != nil {
 		return http.StatusBadRequest, fmt.Errorf("payment verification failed")
 	}
@@ -137,7 +135,7 @@ func handleChargeCompleted(c *gin.Context, extReq request.ExternalRequest, db po
 			payment.UpdateAllFields(db.Payment)
 		}
 		err = SlackNotify(extReq, paymentChannelD, `
-			Card Payment
+			[WEBHOOK RAVE] Card Payment
 			Environment: `+config.GetConfig().App.Name+`
 			Reference: `+ref+`
 			Transaction ID: `+payment.TransactionID+`
@@ -220,7 +218,7 @@ func handleTransfer(c *gin.Context, extReq request.ExternalRequest, db postgresq
 	paymentAccount := models.PaymentAccount{BusinessID: strconv.Itoa(businessID), BankCode: "flutterwave", BankName: "flutterwave"}
 	_, err = paymentAccount.GetBybusinessIDBankNameAndCodeAndTransactionIDNotNull(db.Payment)
 	if err != nil {
-		return http.StatusBadRequest, fmt.Errorf("can't find associated transaction")
+		return http.StatusBadRequest, fmt.Errorf("can't find associated transaction:%v", err.Error())
 	}
 	transaction, err := ListTransactionsByID(extReq, paymentAccount.TransactionID)
 	if err != nil {
@@ -447,7 +445,7 @@ func transactionPaid(extReq request.ExternalRequest, db postgresql.Databases, pa
 	}
 
 	err = SlackNotify(extReq, paymentChannelD, `
-			Payment Status For Transaction #`+payment.PaymentID+`
+			[WEBHOOK RAVE] Payment Status For Transaction #`+payment.PaymentID+`
 			Environment: `+config.GetConfig().App.Name+`
 			Payment ID: `+payment.PaymentID+`
 			Amount: `+fmt.Sprintf("%v %v", payment.Currency, payment.TotalAmount)+`

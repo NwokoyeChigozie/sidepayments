@@ -17,7 +17,7 @@ import (
 	"github.com/vesicash/payment-ms/utility"
 )
 
-func MonnifyWebhookService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.MonnifyWebhookRequest) (int, error) {
+func MonnifyWebhookService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.MonnifyWebhookRequest, requestBody []byte) (int, error) {
 	var (
 		secret                   = config.GetConfig().Monnify.MonnifySecret
 		data                     models.MonnifyWebhookRequestEventData
@@ -33,11 +33,8 @@ func MonnifyWebhookService(c *gin.Context, extReq request.ExternalRequest, db po
 		paymentSourceInformation string
 		bankCode                 string
 		bankName                 string
+		paymentChannelD          = config.GetConfig().Slack.PaymentChannelID
 	)
-	requestBody, err := c.GetRawData()
-	if err != nil {
-		extReq.Logger.Error("monnify webhhook log error", "Failed to read request body", err.Error())
-	}
 
 	hash := utility.Sha512Hmac(secret, requestBody)
 	if hash != monnifySignature {
@@ -45,12 +42,12 @@ func MonnifyWebhookService(c *gin.Context, extReq request.ExternalRequest, db po
 		return http.StatusUnauthorized, fmt.Errorf("Web Hook Denied, Hash Mismatch")
 	}
 
-	extReq.Logger.Info("monnify webhhook log error", string(requestBody))
+	extReq.Logger.Info("monnify webhhook log info", string(requestBody))
 	webhookLog := models.WebhookLog{
 		Log:      string(requestBody),
 		Provider: "monnify",
 	}
-	err = webhookLog.CreateWebhookLog(db.Payment)
+	err := webhookLog.CreateWebhookLog(db.Payment)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
@@ -118,6 +115,17 @@ func MonnifyWebhookService(c *gin.Context, extReq request.ExternalRequest, db po
 			arr := *data.PaymentSourceInformation
 			paymentSourceInformation = *arr[0].AccountName
 		}
+	}
+
+	err = SlackNotify(extReq, paymentChannelD, `
+					Web Hook Received Monnify
+					Environment: `+config.GetConfig().App.Name+`
+					Event: `+req.EventType+`
+					Reference: `+fmt.Sprintf("transaction reference:%v, generated reference: %v, payment reference:%v", transactionReference, generatedReference, paymentReference)+`
+					Status: SUCCESSFUL
+			`)
+	if err != nil && !extReq.Test {
+		extReq.Logger.Error("error sending notification to slack: ", err.Error())
 	}
 
 	go func(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, transactionReference, generatedReference, paymentReference, paymentSourceInformation, customerEmail, accountNumber, bankCode, bankName, currency string, amountPaid float64, paidOn time.Time) {
@@ -228,7 +236,7 @@ func handleMonnifyWebhookRequest(c *gin.Context, extReq request.ExternalRequest,
 			sendTransactionConfirmed(extReq, db, &payment, paymentReference, amountPaid)
 
 			err = SlackNotify(extReq, paymentChannelD, `
-			Bank Transfer Payment | WEB HOOK
+			Bank Transfer Payment | WEB HOOK MONNIFY
 			Environment: `+config.GetConfig().App.Name+`
 			Transaction ID: `+transaction.TransactionID+`
 			Payment ID: `+payment.PaymentID+`
@@ -289,19 +297,16 @@ func handleMonnifyWebhookRequest(c *gin.Context, extReq request.ExternalRequest,
 	return http.StatusOK, nil
 }
 
-func MonnifyDisbursementCallbackService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.MonnifyWebhookRequest) (int, error) {
+func MonnifyDisbursementCallbackService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.MonnifyWebhookRequest, requestBody []byte) (int, error) {
 	var (
-		secret             = config.GetConfig().Monnify.MonnifySecret
-		data               models.MonnifyWebhookRequestEventData
-		monnifySignature   = utility.GetHeader(c, "monnify-signature")
-		generatedReference string
-		amountPaid         float64
-		disbursementStatus string
+		secret               = config.GetConfig().Monnify.MonnifySecret
+		data                 models.MonnifyWebhookRequestEventData
+		monnifySignature     = utility.GetHeader(c, "monnify-signature")
+		generatedReference   string
+		amountPaid           float64
+		disbursementStatus   string
+		disbursementChannelD = config.GetConfig().Slack.DisbursementChannelID
 	)
-	requestBody, err := c.GetRawData()
-	if err != nil {
-		extReq.Logger.Error("monnify callback log error", "Failed to read request body", err.Error())
-	}
 
 	hash := utility.Sha512Hmac(secret, requestBody)
 	if hash != monnifySignature {
@@ -314,7 +319,7 @@ func MonnifyDisbursementCallbackService(c *gin.Context, extReq request.ExternalR
 		Log:      string(requestBody),
 		Provider: "monnify",
 	}
-	err = webhookLog.CreateWebhookLog(db.Payment)
+	err := webhookLog.CreateWebhookLog(db.Payment)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
@@ -346,6 +351,17 @@ func MonnifyDisbursementCallbackService(c *gin.Context, extReq request.ExternalR
 
 	if data.Status != nil {
 		disbursementStatus = *data.Status
+	}
+
+	err = SlackNotify(extReq, disbursementChannelD, `
+					CallBack Received Monnify
+					Environment: `+config.GetConfig().App.Name+`
+					Event: `+req.EventType+`
+					Reference: `+fmt.Sprintf("generated reference: %v", generatedReference)+`
+					Status: SUCCESSFUL
+			`)
+	if err != nil && !extReq.Test {
+		extReq.Logger.Error("error sending notification to slack: ", err.Error())
 	}
 
 	if strings.EqualFold(disbursementStatus, "FAILED") && strings.EqualFold(req.EventType, "FAILED_DISBURSEMENT") {
@@ -419,7 +435,7 @@ func fundAccount(extReq request.ExternalRequest, db postgresql.Databases, amount
 		}
 
 		err = SlackNotify(extReq, paymentChannelD, `
-			[Web Hook] Wallet Funding For Customer #`+strconv.Itoa(int(user.AccountID))+`
+			[Web Hook MONNIFY] Wallet Funding For Customer #`+strconv.Itoa(int(user.AccountID))+`
 			Environment: `+config.GetConfig().App.Name+`
 			Account ID: `+strconv.Itoa(int(user.AccountID))+`
 			Amount: `+fmt.Sprintf("%v %v", currency, amountPaid)+`
