@@ -9,6 +9,10 @@ import (
 )
 
 func SlackNotify(extReq request.ExternalRequest, channel, message string) error {
+	if extReq.Test {
+		return nil
+	}
+
 	api := slack.New(config.GetConfig().Slack.OauthToken)
 	channelID := channel
 	msg := message
