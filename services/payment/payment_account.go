@@ -479,7 +479,11 @@ func sendTransactionConfirmed(extReq request.ExternalRequest, db postgresql.Data
 	}
 	// TODO: generate pdflink
 	pdfData := NewPdfData(extReq, transaction, *payment, reference, "")
-	pdflink, err := GetPdfLink(extReq, "./templates/invoice_pdf.html", pdfData)
+	templateDir, err := utility.FindTemplateFilePath("invoice_pdf.html")
+	if err != nil {
+		extReq.Logger.Error("payment account ", err.Error())
+	}
+	pdflink, err := GetPdfLink(extReq, templateDir, pdfData)
 	if err != nil {
 		extReq.Logger.Error("error generating pdf ", err.Error())
 	}

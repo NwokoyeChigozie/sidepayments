@@ -24,6 +24,6 @@ func GetBank(logger *utility.Logger, idata interface{}) (external_models.Bank, e
 		ID:      data.ID,
 		Code:    "221",
 		Name:    "vesicash bank",
-		Country: "NGN",
+		Country: "NG",
 	}, nil
 }

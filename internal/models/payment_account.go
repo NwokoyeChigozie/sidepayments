@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/vesicash/payment-ms/pkg/repository/storage/postgresql"
@@ -82,7 +83,7 @@ func (p *PaymentAccount) GetPaymentAccountByPaymentID(db *gorm.DB) (int, error) 
 }
 
 func (p *PaymentAccount) GetBybusinessIDBankNameAndCodeAndTransactionIDNotNull(db *gorm.DB) (int, error) {
-	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "business_id = ? and bank_name = ? and bank_code=? and transaction_id <> NULL", p.BusinessID, p.BankName, p.BankCode)
+	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "business_id = ? and LOWER(bank_name) = ? and LOWER(bank_code)=? and transaction_id is not NULL", p.BusinessID, strings.ToLower(p.BankName), strings.ToLower(p.BankCode))
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}
@@ -93,7 +94,7 @@ func (p *PaymentAccount) GetBybusinessIDBankNameAndCodeAndTransactionIDNotNull(d
 	return http.StatusOK, nil
 }
 func (p *PaymentAccount) GetByPaymentAccountIDAndTransactionIDNotNull(db *gorm.DB) (int, error) {
-	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "payment_account_id=? and transaction_id <> NULL", p.PaymentAccountID)
+	err, nilErr := postgresql.SelectLatestFromDb(db, &p, "payment_account_id=? and transaction_id is not NULL", p.PaymentAccountID)
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}

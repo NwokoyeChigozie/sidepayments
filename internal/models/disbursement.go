@@ -42,7 +42,7 @@ type Disbursement struct {
 type WalletTransferRequest struct {
 	SenderAccountID    int     `json:"sender_account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
 	RecipientAccountID int     `json:"recipient_account_id"  validate:"required" pgvalidate:"exists=auth$users$account_id"`
-	InitialAmount      float64 `json:"initial_amount" validate:"gt=0"`
+	InitialAmount      float64 `json:"initial_amount"`
 	FinalAmount        float64 `json:"final_amount" validate:"required,gt=0"`
 	RateID             int     `json:"rate_id" pgvalidate:"exists=transaction$rates$id"`
 	SenderCurrency     string  `json:"sender_currency" validate:"required"`
@@ -123,7 +123,7 @@ func (d *Disbursement) GetDisbursementsByRecipientID(db *gorm.DB, paginator post
 
 func (d *Disbursement) GetDisbursementsByAccountID(db *gorm.DB, paginator postgresql.Pagination) ([]Disbursement, postgresql.PaginationResponse, error) {
 	details := []Disbursement{}
-	pagination, err := postgresql.SelectAllFromDbOrderByPaginated(db, "id", "desc", paginator, &details, "account_id = ?", d.BusinessID)
+	pagination, err := postgresql.SelectAllFromDbOrderByPaginated(db, "id", "desc", paginator, &details, "business_id = ?", d.BusinessID)
 	if err != nil {
 		return details, pagination, err
 	}

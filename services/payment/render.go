@@ -11,6 +11,7 @@ import (
 	"github.com/vesicash/payment-ms/external/request"
 	"github.com/vesicash/payment-ms/internal/models"
 	"github.com/vesicash/payment-ms/pkg/repository/storage/postgresql"
+	"github.com/vesicash/payment-ms/utility"
 )
 
 func GetPaymentInvoiceService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, paymentID string) (*template.Template, models.PaymentInvoiceData, int, error) {
@@ -62,7 +63,11 @@ func GetPaymentInvoiceService(c *gin.Context, extReq request.ExternalRequest, db
 		invoiceData.ShippingFee = payment.ShippingFee
 	}
 
-	parsedTemplate, err := template.ParseFiles("./templates/invoice.html")
+	templateDir, err := utility.FindTemplateFilePath("invoice.html")
+	if err != nil {
+		return &template.Template{}, models.PaymentInvoiceData{}, http.StatusInternalServerError, err
+	}
+	parsedTemplate, err := template.ParseFiles(templateDir)
 	if err != nil {
 		return &template.Template{}, models.PaymentInvoiceData{}, http.StatusInternalServerError, err
 	}

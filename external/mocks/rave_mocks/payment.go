@@ -88,6 +88,7 @@ func RaveVerifyTransactionByTxRef(logger *utility.Logger, idata interface{}) (ex
 			Expiry:       "09/22",
 			Country:      "NIGERIA NG",
 		},
+		Status: "successful",
 	}, nil
 }
 
