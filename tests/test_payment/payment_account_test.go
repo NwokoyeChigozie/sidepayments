@@ -737,7 +737,7 @@ func TestPaymentAccountMonnifyVerify(t *testing.T) {
 				"v-public-key":  pbKey,
 			},
 		}, {
-			Name: "OK payment account monnify verify monnify",
+			Name: "OK payment account monnify verify monnify 1",
 			RequestBody: models.PaymentAccountMonnifyVerifyRequest{
 				Reference: reference2,
 			},

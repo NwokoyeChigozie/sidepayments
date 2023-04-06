@@ -130,6 +130,9 @@ func GeneratePDFFromTemplate(templatePath string, data interface{}) ([]byte, err
 }
 
 func GetPdfLink(extReq request.ExternalRequest, templatePath string, data interface{}) (string, error) {
+	if extReq.Test {
+		return "http://link.to.file", nil
+	}
 	pdf, err := GeneratePDFFromTemplate(templatePath, data)
 	if err != nil {
 		return "", err

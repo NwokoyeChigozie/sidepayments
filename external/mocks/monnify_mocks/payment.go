@@ -92,6 +92,7 @@ func GetMonnifyReserveAccountTransactions(logger *utility.Logger, idata interfac
 				TransactionReference: data,
 				Amount:               200,
 				AmountPaid:           200,
+				PaymentStatus:        "PAID",
 			},
 		},
 	}, nil
