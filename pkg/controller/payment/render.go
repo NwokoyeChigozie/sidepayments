@@ -13,6 +13,9 @@ func (base *Controller) GetPaymentInvoice(c *gin.Context) {
 	var (
 		paymentID = c.Param("payment_id")
 	)
+	c.Header("Content-Type", "text/html")
+
+	c.Header("Content-Disposition", "inline")
 
 	base.ExtReq.Logger.Error("info getting payment invoice", "payment id "+paymentID)
 	template, data, code, err := payment.GetPaymentInvoiceService(c, base.ExtReq, base.Db, paymentID)
@@ -32,13 +35,43 @@ func (base *Controller) GetPaymentInvoice(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func (base *Controller) RenderPayStatus(c *gin.Context) {
+func (base *Controller) RenderPaySuccessful(c *gin.Context) {
 	var (
-		status  = c.Param("status")
+		status  = "success"
 		website = c.Query("website")
+		invoice = c.Query("invoice")
 	)
 	if website != "" {
 		url, err := utility.URLDecode(website)
+		if err == nil {
+			c.Redirect(http.StatusFound, url)
+			return
+		}
+	}
+	if invoice != "" {
+		url, err := utility.URLDecode(invoice)
+		if err == nil {
+			c.Redirect(http.StatusFound, url)
+			return
+		}
+	}
+	c.String(http.StatusOK, status)
+}
+func (base *Controller) RenderPayFailed(c *gin.Context) {
+	var (
+		status  = "failed"
+		website = c.Query("website")
+		invoice = c.Query("invoice")
+	)
+	if website != "" {
+		url, err := utility.URLDecode(website)
+		if err == nil {
+			c.Redirect(http.StatusFound, url)
+			return
+		}
+	}
+	if invoice != "" {
+		url, err := utility.URLDecode(invoice)
 		if err == nil {
 			c.Redirect(http.StatusFound, url)
 			return

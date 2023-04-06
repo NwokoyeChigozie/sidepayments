@@ -87,7 +87,8 @@ func WalletTransferService(c *gin.Context, extReq request.ExternalRequest, db po
 			return msg, http.StatusBadRequest, err
 		}
 
-		convertedAmount := (rate.Amount / req.InitialAmount) * amount
+		multiplier := rate.Amount / rate.InitialAmount
+		convertedAmount := multiplier * amount
 		recipientAmount = convertedAmount
 	} else {
 		recipientAmount = amount
@@ -244,7 +245,7 @@ func ManualDebitService(c *gin.Context, extReq request.ExternalRequest, db postg
 		return "", data, http.StatusInternalServerError, fmt.Errorf("debit failed")
 	}
 
-	callback := utility.GenerateGroupByURL(c, "disbursement/callback", map[string]string{})
+	callback := utility.GenerateGroupByURL(config.GetConfig().App.Url, "/disbursement/callback", map[string]string{})
 	disbursement := models.Disbursement{Reference: reference, Status: "new"}
 	code, err := disbursement.GetDisbursementByReferenceAndNotStatus(db.Payment)
 	if err != nil {
@@ -396,9 +397,24 @@ func ManualRefundService(c *gin.Context, extReq request.ExternalRequest, db post
 	}
 	businessID := transaction.BusinessID
 
-	businessCharges, err := getBusinessChargeWithBusinessIDAndCountry(extReq, businessID, transaction.Country.CountryCode)
+	countryCode := transaction.Country.CountryCode
+	currencyCode := transaction.Country.CurrencyCode
+
+	if countryCode == "" {
+		country, err := GetCountryByCurrency(extReq, extReq.Logger, payment.Currency)
+		if err != nil {
+			return response, http.StatusBadRequest, fmt.Errorf("error retreiving country: %v", err.Error())
+		}
+		countryCode = country.CountryCode
+		currencyCode = country.CurrencyCode
+	}
+
+	businessCharges, err := getBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, countryCode)
 	if err != nil {
-		return response, http.StatusBadRequest, fmt.Errorf("business Charge Settings Does Not Exist")
+		businessCharges, err = initBusinessCharge(extReq, transaction.BusinessID, currencyCode)
+		if err != nil {
+			return response, http.StatusInternalServerError, err
+		}
 	}
 
 	disbursement := models.Disbursement{PaymentID: payment.PaymentID}
@@ -411,7 +427,7 @@ func ManualRefundService(c *gin.Context, extReq request.ExternalRequest, db post
 		return response, http.StatusBadRequest, fmt.Errorf("disbursement already exists")
 	}
 
-	disbursementGateway := businessCharges.DisbursementGateway
+	// disbursementGateway := businessCharges.DisbursementGateway
 	cancellationFee, _ := strconv.ParseFloat(businessCharges.CancellationFee, 64)
 
 	sellerInfo, err := GetUserWithAccountID(extReq, sellerParty.AccountID)
@@ -438,9 +454,9 @@ func ManualRefundService(c *gin.Context, extReq request.ExternalRequest, db post
 	}
 	bankCode := bank.Code
 
-	if strings.EqualFold(disbursementGateway, "rave_momo") {
-		bankCode = bankDetails.MobileMoneyOperator
-	}
+	// if strings.EqualFold(disbursementGateway, "rave_momo") {
+	// 	bankCode = bankDetails.MobileMoneyOperator
+	// }
 
 	businessProfile, err := GetBusinessProfileByAccountID(extReq, extReq.Logger, businessID)
 	if err != nil {
@@ -454,13 +470,13 @@ func ManualRefundService(c *gin.Context, extReq request.ExternalRequest, db post
 	if cancellationFee != 0 {
 		realAmount = payment.TotalAmount - cancellationFee
 	} else {
-		if payment.TotalAmount == transaction.Amount {
+		if payment.TotalAmount == transaction.TotalAmount {
 			realAmount = payment.TotalAmount
 		} else {
 			realAmount = payment.TotalAmount - payment.EscrowCharge
 		}
 	}
-	callback := utility.GenerateGroupByURL(c, "disbursement/callback", map[string]string{})
+	callback := utility.GenerateGroupByURL(config.GetConfig().App.Url, "/disbursement/callback", map[string]string{})
 	disbursement = models.Disbursement{
 		RecipientID:           buyerParty.AccountID,
 		PaymentID:             payment.PaymentID,

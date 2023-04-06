@@ -283,7 +283,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "monnify_login":
 			obj := monnify.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/api/v1/auth/login", config.Monnify.MonnifyApi),
+				Path:         fmt.Sprintf("%v/v1/auth/login", config.Monnify.MonnifyEndpoint),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -548,7 +548,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 			obj := transactions.RequestObj{
 				Name:         name,
 				Path:         fmt.Sprintf("%v/v2/escrowcharge", config.Microservices.Transactions),
-				Method:       "GET",
+				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
 				RequestData:  data,
@@ -624,7 +624,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "update_transaction_amount_paid":
 			obj := transactions.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v2/get_access_token_by_key", config.Microservices.Transactions),
+				Path:         fmt.Sprintf("%v/v2/update_transaction_amount_paid", config.Microservices.Transactions),
 				Method:       "PATCH",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,

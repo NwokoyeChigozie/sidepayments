@@ -66,7 +66,7 @@ func MonnifyReserveAccount(logger *utility.Logger, idata interface{}) (external_
 		AccountNumber:        "7727632865",
 		AccountName:          "test",
 		BankName:             "vesicash bank",
-		BankCode:             221,
+		BankCode:             "221",
 		ReservationReference: data.AccountReference,
 		CustomerEmail:        data.CustomerEmail,
 		CurrencyCode:         data.CurrencyCode,
@@ -92,6 +92,7 @@ func GetMonnifyReserveAccountTransactions(logger *utility.Logger, idata interfac
 				TransactionReference: data,
 				Amount:               200,
 				AmountPaid:           200,
+				PaymentStatus:        "PAID",
 			},
 		},
 	}, nil

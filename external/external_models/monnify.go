@@ -105,7 +105,7 @@ type MonnifyReserveAccountResponseBody struct {
 	CustomerName          string        `json:"customerName"`
 	AccountNumber         string        `json:"accountNumber"`
 	BankName              string        `json:"bankName"`
-	BankCode              int           `json:"bankCode"`
+	BankCode              string        `json:"bankCode"`
 	CollectionChannel     string        `json:"collectionChannel"`
 	ReservationReference  string        `json:"reservationReference"`
 	ReservedAccountType   string        `json:"reservedAccountType"`

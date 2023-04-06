@@ -53,7 +53,7 @@ func PaymentAccountMonnifyListService(c *gin.Context, extReq request.ExternalReq
 		if err != nil {
 			return data, http.StatusInternalServerError, err
 		}
-		amount, charge = transaction.Amount, transaction.EscrowCharge
+		amount, charge = transaction.TotalAmount, transaction.EscrowCharge
 		paymentAccount = models.PaymentAccount{BusinessID: strconv.Itoa(int(user.AccountID)), TransactionID: req.TransactionID}
 		code, err := paymentAccount.GetPaymentAccountByBusinessIDAndTransactionID(db.Payment)
 		if err != nil && code == http.StatusInternalServerError {
@@ -67,7 +67,7 @@ func PaymentAccountMonnifyListService(c *gin.Context, extReq request.ExternalReq
 		}
 	}
 
-	if paymentAccount.ID == 0 {
+	if paymentAccount.ID == 0 || paymentAccount.AccountNumber == "" {
 		if req.GeneratedReference != "" {
 			generatedReference = req.GeneratedReference
 		} else {
@@ -111,7 +111,7 @@ func PaymentAccountMonnifyListService(c *gin.Context, extReq request.ExternalReq
 			}
 		}
 
-		paymentAccount := models.PaymentAccount{
+		paymentAccount = models.PaymentAccount{
 			PaymentAccountID: generatedReference,
 			TransactionID:    req.TransactionID,
 			PaymentID:        paymentInfo.PaymentID,
@@ -130,7 +130,7 @@ func PaymentAccountMonnifyListService(c *gin.Context, extReq request.ExternalReq
 			}
 			paymentAccount.AccountNumber = accountDetails.AccountNumber
 			paymentAccount.AccountName = accountDetails.AccountName
-			paymentAccount.BankCode = strconv.Itoa(accountDetails.BankCode)
+			paymentAccount.BankCode = accountDetails.BankCode
 			paymentAccount.BankName = accountDetails.BankName
 			paymentAccount.ReservationReference = accountDetails.ReservationReference
 			paymentAccount.Status = accountDetails.Status
@@ -183,6 +183,7 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 		paymentChannelD = config.GetConfig().Slack.PaymentChannelID
 		paymentAccount  = models.PaymentAccount{PaymentAccountID: req.Reference}
 		transaction     external_models.TransactionByID
+		pdfLink         = ""
 	)
 
 	code, err := paymentAccount.GetPaymentAccountByPaymentAccountID(db.Payment)
@@ -194,6 +195,10 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 	code, err = payment.GetPaymentByPaymentID(db.Payment)
 	if err != nil && code == http.StatusInternalServerError {
 		return data, msg, code, err
+	}
+
+	if payment.IsPaid {
+		return map[string]interface{}{"reference": req.Reference, "amount": payment.TotalAmount, "pdf_link": "", "status": true}, "Bank Transfer Already Verified", http.StatusOK, nil
 	}
 
 	trans, err := monnify.FetchAccountTrans(req.Reference)
@@ -210,6 +215,7 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 	}
 
 	if paymentAccount.TransactionID != "" && paymentAccount.PaymentID != "" && paymentAccount.PaymentID != "0" {
+		fmt.Println("first")
 		payment.TransactionID = paymentAccount.TransactionID
 		paymentAmount, charge := payment.TotalAmount, payment.EscrowCharge
 		if paymentAmount > charge {
@@ -227,9 +233,10 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 		if err != nil {
 			return data, msg, http.StatusBadRequest, err
 		}
+		fmt.Println("verification data first", verify, amountPaid, paymentAmount, payment.TotalAmount, charge)
 
 		if verify {
-			transaction, pdfLink, err := sendTransactionConfirmed(extReq, db, &payment, req.Reference, amountPaid)
+			transaction, err := sendTransactionConfirmed(extReq, db, &payment, req.Reference, amountPaid)
 			if err != nil {
 				return data, msg, http.StatusInternalServerError, err
 			}
@@ -238,6 +245,7 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 			if err != nil {
 				return data, msg, http.StatusBadRequest, err
 			}
+			pdfLink, _ = GetPdfUrl(extReq, transaction, &payment, req.Reference)
 
 			err = SlackNotify(extReq, paymentChannelD, `
 					Bank Transfer Payment
@@ -268,7 +276,7 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 
 			return map[string]interface{}{"reference": req.Reference, "amount": payment.TotalAmount, "pdf_link": pdfLink, "status": verify}, "Bank Transfer Verified", http.StatusOK, nil
 		} else {
-			return map[string]interface{}{"reference": req.Reference, "amount": payment.TotalAmount, "pdf_link": "", "status": verify}, "Bank Transfer Not Verified", http.StatusOK, nil
+			return map[string]interface{}{"reference": req.Reference, "amount": payment.TotalAmount, "pdf_link": pdfLink, "status": verify}, "Bank Transfer Not Verified", http.StatusOK, nil
 		}
 
 	}
@@ -284,6 +292,8 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 		}
 	}
 
+	pdfLink, _ = GetPdfUrl(extReq, transaction, &payment, req.Reference)
+
 	amountToCheck := payment.TotalAmount
 	if amountToCheck == 0 {
 		amountToCheck = trans[0].AmountPaid
@@ -292,6 +302,7 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 	if err != nil {
 		return data, msg, http.StatusBadRequest, err
 	}
+	fmt.Println("verification data first", verify, amountPaid, amountToCheck)
 	if verify {
 		paymentAccountBusinessID, _ := strconv.Atoi(paymentAccount.BusinessID)
 		user, err := GetUserWithAccountID(extReq, paymentAccountBusinessID)
@@ -393,13 +404,13 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 			}, businessProfileData.AccountID)
 		}
 
-		return map[string]interface{}{"reference": req.Reference, "amount": payment.TotalAmount, "pdf_link": "", "status": verify}, "Transfer Verified", http.StatusOK, nil
+		return map[string]interface{}{"reference": req.Reference, "amount": payment.TotalAmount, "pdf_link": pdfLink, "status": verify}, "Transfer Verified", http.StatusOK, nil
 	}
 
-	return map[string]interface{}{"reference": req.Reference, "amount": payment.TotalAmount, "pdf_link": "", "status": verify}, "Bank Transfer Not Verified", http.StatusOK, nil
+	return map[string]interface{}{"reference": req.Reference, "amount": payment.TotalAmount, "pdf_link": pdfLink, "status": verify}, "Bank Transfer Not Verified", http.StatusOK, nil
 }
 
-func sendTransactionConfirmed(extReq request.ExternalRequest, db postgresql.Databases, payment *models.Payment, reference string, amountPaid float64) (external_models.TransactionByID, string, error) {
+func sendTransactionConfirmed(extReq request.ExternalRequest, db postgresql.Databases, payment *models.Payment, reference string, amountPaid float64) (external_models.TransactionByID, error) {
 	var (
 		amount = payment.TotalAmount
 	)
@@ -409,12 +420,12 @@ func sendTransactionConfirmed(extReq request.ExternalRequest, db postgresql.Data
 	paymentInfo := models.PaymentInfo{PaymentID: payment.PaymentID}
 	code, err := paymentInfo.GetPaymentInfoByPaymentID(db.Payment)
 	if err != nil && code == http.StatusInternalServerError {
-		return external_models.TransactionByID{}, "", err
+		return external_models.TransactionByID{}, err
 	}
 
 	transaction, err := ListTransactionsByID(extReq, payment.TransactionID)
 	if err != nil {
-		return transaction, "", err
+		return transaction, err
 	}
 	_, err = extReq.SendExternalRequest(request.TransactionUpdateStatus, external_models.UpdateTransactionStatusRequest{
 		AccountID:     transaction.BusinessID,
@@ -428,7 +439,7 @@ func sendTransactionConfirmed(extReq request.ExternalRequest, db postgresql.Data
 	chargeBearer := transaction.Parties["charge_bearer"]
 	seller, ok := transaction.Parties["seller"]
 	if !ok {
-		return transaction, "", fmt.Errorf("seller not found for transaction")
+		return transaction, fmt.Errorf("seller not found for transaction")
 	}
 
 	if chargeBearer.AccountID == seller.AccountID {
@@ -440,7 +451,7 @@ func sendTransactionConfirmed(extReq request.ExternalRequest, db postgresql.Data
 		payment.TotalAmount = amount
 		err = payment.UpdateAllFields(db.Payment)
 		if err != nil {
-			return transaction, "", err
+			return transaction, err
 		}
 	}
 
@@ -452,12 +463,12 @@ func sendTransactionConfirmed(extReq request.ExternalRequest, db postgresql.Data
 		// credit vesicash
 		_, err = CreditWallet(extReq, db, utility.PercentageOf(amount, vesicashCharge), transaction.Currency, 1, false, "no", transaction.TransactionID)
 		if err != nil {
-			return transaction, "", err
+			return transaction, err
 		}
 
 		_, err = CreditWallet(extReq, db, utility.PercentageOf(amount, businessPerc), transaction.Currency, transaction.BusinessID, false, transaction.EscrowWallet, transaction.TransactionID)
 		if err != nil {
-			return transaction, "", err
+			return transaction, err
 		}
 	}
 
@@ -467,25 +478,57 @@ func sendTransactionConfirmed(extReq request.ExternalRequest, db postgresql.Data
 	payment.PaymentType = "transaction"
 	err = payment.UpdateAllFields(db.Payment)
 	if err != nil {
-		return transaction, "", err
+		return transaction, err
 	}
 
 	if paymentInfo.ID != 0 {
 		paymentInfo.Status = "paid"
 		err = paymentInfo.UpdateAllFields(db.Payment)
 		if err != nil {
-			return transaction, "", err
+			return transaction, err
 		}
 	}
-	// TODO: generate pdflink
+
+	return transaction, nil
+}
+
+func GetPdfUrl(extReq request.ExternalRequest, transaction external_models.TransactionByID, payment *models.Payment, reference string) (string, error) {
 	pdfData := NewPdfData(extReq, transaction, *payment, reference, "")
 	templateDir, err := utility.FindTemplateFilePath("invoice_pdf.html")
 	if err != nil {
 		extReq.Logger.Error("payment account ", err.Error())
+		return "", err
 	}
 	pdflink, err := GetPdfLink(extReq, templateDir, pdfData)
 	if err != nil {
 		extReq.Logger.Error("error generating pdf ", err.Error())
+		return "", err
 	}
-	return transaction, pdflink, nil
+	return pdflink, nil
+}
+
+func GetPdfUrl2(extReq request.ExternalRequest, db postgresql.Databases, transactionID string, paymentID string, reference string) (string, error) {
+	transaction, err := ListTransactionsByID(extReq, transactionID)
+	if err != nil {
+		return "", err
+	}
+
+	payment := models.Payment{PaymentID: paymentID}
+	_, err = payment.GetPaymentByPaymentID(db.Payment)
+	if err != nil {
+		return "", err
+	}
+
+	pdfData := NewPdfData(extReq, transaction, payment, reference, "")
+	templateDir, err := utility.FindTemplateFilePath("invoice_pdf.html")
+	if err != nil {
+		extReq.Logger.Error("payment account ", err.Error())
+		return "", err
+	}
+	pdflink, err := GetPdfLink(extReq, templateDir, pdfData)
+	if err != nil {
+		extReq.Logger.Error("error generating pdf ", err.Error())
+		return "", err
+	}
+	return pdflink, nil
 }

@@ -115,12 +115,14 @@ type CreateExchangeTransactionRequest struct {
 }
 
 type Rate struct {
-	ID           int64   `json:"id"`
-	FromCurrency string  `json:"from_currency"`
-	ToCurrency   string  `json:"to_currency"`
-	From_symbol  string  `json:"from_symbol"`
-	ToSymbol     string  `json:"to_symbol"`
-	Amount       float64 `json:"amount"`
+	ID            int64   `json:"id"`
+	FromCurrency  string  `json:"from_currency"`
+	ToCurrency    string  `json:"to_currency"`
+	From_symbol   string  `json:"from_symbol"`
+	ToSymbol      string  `json:"to_symbol"`
+	Amount        float64 `json:"amount"`
+	Uid           string  `json:"uid"`
+	InitialAmount float64 `json:"initial_amount"`
 }
 type RateResponse struct {
 	Status  string `json:"status"`

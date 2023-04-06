@@ -17,6 +17,7 @@ type RequestObj struct {
 	RequestData  interface{}
 	DecodeMethod string
 	Logger       *utility.Logger
+	IsLiveMust   bool
 }
 
 var (
@@ -28,7 +29,7 @@ func (r *RequestObj) getNewSendRequestObject(data interface{}, headers map[strin
 	return external.GetNewSendRequestObject(r.Logger, r.Name, r.Path, r.Method, urlprefix, r.DecodeMethod, headers, r.SuccessCode, data)
 }
 
-func (r *RequestObj) getMonnifyLoginObject() *RequestObj {
+func (r *RequestObj) getMonnifyLoginObject(isLiveMust bool) *RequestObj {
 	var (
 		config = config.GetConfig()
 	)
@@ -40,12 +41,16 @@ func (r *RequestObj) getMonnifyLoginObject() *RequestObj {
 		DecodeMethod: JsonDecodeMethod,
 		RequestData:  nil,
 		Logger:       r.Logger,
+		IsLiveMust:   isLiveMust,
 	}
 }
-func getBase64Token() string {
+func getBase64Token(isLiveMust bool) string {
 	var (
 		monnifyConfig = config.GetConfig().Monnify
 		token         = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", monnifyConfig.MonnifyApiKey, monnifyConfig.MonnifySecret)))
 	)
+	if isLiveMust {
+		return config.GetConfig().Monnify.MonnifyBase64Key
+	}
 	return token
 }

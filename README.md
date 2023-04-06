@@ -4,6 +4,7 @@
 
 1. **Go 1.17** or **lastest version** already installed on your local machine.
 2. 2 Postgresql servers (one serves as normal database server, and another for running tests). You can use a disposable docker instance for tests
+3. install wkhtmltopdf
 
 ### Run Project from Root
 

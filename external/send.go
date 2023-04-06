@@ -72,12 +72,13 @@ func (r *SendRequestObject) SendRequest(response interface{}) error {
 			logger.Error("encoding error", name, err.Error())
 		}
 
-		logger.Info("before prefix", name, r.Path, data, buf)
-		if r.UrlPrefix != "" {
-			r.Path += r.UrlPrefix
-		}
-		logger.Info("after prefix", name, r.Path, data, buf)
 	}
+
+	logger.Info("before prefix", name, r.Path, data, buf)
+	if r.UrlPrefix != "" {
+		r.Path += r.UrlPrefix
+	}
+	logger.Info("after prefix", name, r.Path, data, buf)
 
 	client := &http.Client{}
 	req, err := http.NewRequest(r.Method, r.Path, buf)
@@ -98,18 +99,18 @@ func (r *SendRequestObject) SendRequest(response interface{}) error {
 		return err
 	}
 
-	if r.DecodeMethod != PhpSerializerMethod {
-		err = json.NewDecoder(res.Body).Decode(response)
-		if err != nil {
-			logger.Error("json decoding error", name, err.Error())
-			return err
-		}
-	}
-
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		logger.Error("readin body error", name, err.Error())
 		return err
+	}
+
+	if r.DecodeMethod != PhpSerializerMethod {
+		err = json.Unmarshal(body, &response)
+		if err != nil {
+			logger.Error("json decoding error", name, err.Error())
+			return err
+		}
 	}
 
 	logger.Info("response body", name, r.Path, string(body))
@@ -129,7 +130,7 @@ func (r *SendRequestObject) SendRequest(response interface{}) error {
 		return nil
 	}
 
-	if res.StatusCode < 200 && res.StatusCode > 299 {
+	if res.StatusCode < 200 || res.StatusCode > 299 {
 		return fmt.Errorf("Error " + strconv.Itoa(res.StatusCode))
 	}
 

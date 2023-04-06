@@ -521,7 +521,7 @@ func TestRenderPayStatus(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Status: "success",
+			Status: "successful",
 		}, {
 			Name:         "OK render pay status failed",
 			ExpectedCode: http.StatusOK,
@@ -535,14 +535,15 @@ func TestRenderPayStatus(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Status:  "success",
+			Status:  "successful",
 			Website: "https://link.to.website.com",
 		},
 	}
 
 	paymentApiUrl := r.Group(fmt.Sprintf("%v", "v2"))
 	{
-		paymentApiUrl.GET("/pay/:status", paymnt.RenderPayStatus)
+		paymentApiUrl.GET("/pay/successful", paymnt.RenderPaySuccessful)
+		paymentApiUrl.GET("/pay/failed", paymnt.RenderPayFailed)
 	}
 
 	for _, test := range tests {
@@ -550,7 +551,7 @@ func TestRenderPayStatus(t *testing.T) {
 
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/pay/:status" + test.Status, RawQuery: fmt.Sprintf("website=%v", test.Website)}
+			URI := url.URL{Path: "/v2/pay/" + test.Status, RawQuery: fmt.Sprintf("website=%v", test.Website)}
 
 			req, err := http.NewRequest(http.MethodGet, URI.String(), &b)
 			if err != nil {

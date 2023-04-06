@@ -64,31 +64,34 @@ func (m *Monnify) Status(reference string) (bool, float64, error) {
 
 	return status, amount, nil
 }
-func (m *Monnify) VerifyTrans(reference string, amount float64) (bool, float64, error) {
+
+func (m *Monnify) VerifyTrans(accountReference string, amount float64) (bool, float64, error) {
 	var (
-		status bool
+		status     bool
+		paidAmount float64
 	)
-	paymentItf, err := m.ExtReq.SendExternalRequest(request.MonnifyVerifyTransactionByReference, reference)
+
+	transactions, err := m.FetchAccountTrans(accountReference)
 	if err != nil {
 		return status, 0, err
 	}
 
-	data, ok := paymentItf.(external_models.MonnifyVerifyByReferenceResponseBody)
-	if !ok {
-		return status, 0, fmt.Errorf("response data format error")
+	for _, v := range transactions {
+		if strings.ToUpper(v.PaymentStatus) == "PAID" {
+			paidAmount += v.AmountPaid
+		}
 	}
 
-	if strings.ToUpper(data.PaymentStatus) == "PAID" && data.Amount >= amount && data.Amount > 0 {
+	if paidAmount >= amount && paidAmount > 0 {
 		status = true
 	} else {
 		status = false
 	}
 
-	return status, data.Amount, nil
+	return status, paidAmount, nil
 }
 
 func (m *Monnify) ReserveAccount(reference, accountName, currencyCode, customerEmail string) (external_models.MonnifyReserveAccountResponseBody, error) {
-
 	paymentItf, err := m.ExtReq.SendExternalRequest(request.MonnifyReserveAccount, external_models.MonnifyReserveAccountRequest{
 		AccountReference: reference,
 		AccountName:      accountName,
@@ -107,6 +110,7 @@ func (m *Monnify) ReserveAccount(reference, accountName, currencyCode, customerE
 
 	return data, nil
 }
+
 func (m *Monnify) FetchAccountTrans(reference string) ([]external_models.GetMonnifyReserveAccountTransactionsResponseBodyContent, error) {
 
 	paymentItf, err := m.ExtReq.SendExternalRequest(request.GetMonnifyReserveAccountTransactions, reference)

@@ -217,7 +217,7 @@ func handleMonnifyWebhookRequest(c *gin.Context, extReq request.ExternalRequest,
 		return http.StatusOK, nil
 	}
 
-	verified, _, err := monnify.VerifyTrans(transactionReference, amountPaid)
+	verified, _, err := monnify.VerifyTrans(generatedReference, amountPaid)
 	if err != nil {
 		extReq.Logger.Error("monnify webhhook log error", "error verifying transaction", err.Error())
 		return http.StatusInternalServerError, fmt.Errorf("error verifying transaction")
@@ -314,7 +314,7 @@ func MonnifyDisbursementCallbackService(c *gin.Context, extReq request.ExternalR
 		return http.StatusUnauthorized, fmt.Errorf("Web Hook Denied, Hash Mismatch")
 	}
 
-	extReq.Logger.Info("monnify callback log error", string(requestBody))
+	extReq.Logger.Info("monnify callback log info", string(requestBody))
 	webhookLog := models.WebhookLog{
 		Log:      string(requestBody),
 		Provider: "monnify",

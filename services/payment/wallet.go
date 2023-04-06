@@ -110,13 +110,13 @@ func DebitWallet(extReq request.ExternalRequest, db postgresql.Databases, amount
 		extReq.Logger.Info("debit-wallet-u", "new balance:", fmt.Sprintf("%v %v", currency, availableBalance))
 	}
 
-	walletDebitLog := models.WalletDebitLog{
-		AccountID: businessID,
-		Amount:    amount,
-		Currency:  currency,
-	}
+	// walletDebitLog := models.WalletDebitLog{
+	// 	AccountID: businessID,
+	// 	Amount:    amount,
+	// 	Currency:  currency,
+	// }
 
-	walletDebitLog.CreateWalletDebitLog(db.Payment)
+	// walletDebitLog.CreateWalletDebitLog(db.Payment)
 	extReq.SendExternalRequest(request.WalletDebitNotification, external_models.WalletDebitNotificationRequest{
 		AccountID:     uint(businessID),
 		Amount:        amount,

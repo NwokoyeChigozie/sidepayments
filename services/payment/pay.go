@@ -68,14 +68,30 @@ func InitiatePaymentService(c *gin.Context, extReq request.ExternalRequest, db p
 		}
 	}
 
-	_, err = GetBusinessProfileByAccountID(extReq, extReq.Logger, transaction.BusinessID)
+	businessProfile, err := GetBusinessProfileByAccountID(extReq, extReq.Logger, transaction.BusinessID)
 	if err != nil {
 		return response, http.StatusInternalServerError, fmt.Errorf("business profile not found: %v", err.Error())
 	}
 
-	businessCharge, err := getBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, transaction.Country.CountryCode)
+	countryCode := transaction.Country.CountryCode
+	currencyCode := transaction.Country.CurrencyCode
+
+	if countryCode == "" {
+		countryCode = businessProfile.Country
+		if countryCode == "" {
+			countryCode = "NG"
+		}
+
+		country, err := GetCountryByNameOrCode(extReq, extReq.Logger, countryCode)
+		if err != nil {
+			return response, http.StatusBadRequest, fmt.Errorf("error retreiving country: %v", err.Error())
+		}
+		currencyCode = country.CurrencyCode
+	}
+
+	businessCharge, err := getBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, countryCode)
 	if err != nil {
-		businessCharge, err = initBusinessCharge(extReq, transaction.BusinessID, transaction.Country.CurrencyCode)
+		businessCharge, err = initBusinessCharge(extReq, transaction.BusinessID, currencyCode)
 		if err != nil {
 			return response, http.StatusInternalServerError, err
 		}
@@ -296,13 +312,13 @@ func InitiatePaymentHeadlessService(c *gin.Context, extReq request.ExternalReque
 	}
 
 	if req.SuccessUrl == "" {
-		successPage = utility.GenerateGroupByURL(c, "pay/successful", map[string]string{"website": businessProfile.Website})
+		successPage = utility.GenerateGroupByURL(config.GetConfig().App.Url, "/pay/successful", map[string]string{"website": businessProfile.Website})
 	} else {
 		successPage = req.SuccessUrl
 	}
 
 	if req.FailUrl == "" {
-		failPage = utility.GenerateGroupByURL(c, "pay/failed", map[string]string{"website": businessProfile.Website})
+		failPage = utility.GenerateGroupByURL(config.GetConfig().App.Url, "/pay/failed", map[string]string{"website": businessProfile.Website})
 	} else {
 		failPage = req.FailUrl
 	}
@@ -316,27 +332,24 @@ func InitiatePaymentHeadlessService(c *gin.Context, extReq request.ExternalReque
 		req.PaymentGateway = "rave"
 	}
 
-	callback := utility.GenerateGroupByURL(c, "pay/status", map[string]string{"reference": reference, "success_page": successPage, "failure_page": failPage, "fund_wallet": fmt.Sprintf("%v", req.FundWallet)})
+	callback := utility.GenerateGroupByURL(config.GetConfig().App.Url, "/pay/status", map[string]string{"reference": reference, "success_page": successPage, "failure_page": failPage, "fund_wallet": fmt.Sprintf("%v", req.FundWallet)})
 
 	switch strings.ToLower(paymentGateway) {
 	case "rave":
-		url, reqData, err := rave.InitPayment(reference, user.EmailAddress, strings.ToUpper(req.Currency), callback, amount)
+		paymentUrl, paymentRequest, err = rave.InitPayment(reference, user.EmailAddress, strings.ToUpper(req.Currency), callback, amount)
 		if err != nil {
 			return response, http.StatusInternalServerError, fmt.Errorf("initiating payment failed: %v", err.Error())
 		}
-		paymentUrl, paymentRequest = url, reqData
 	case "monnify":
-		url, reqData, err := monnify.InitPayment(amount, fmt.Sprintf("%v %v", user.Lastname, user.Firstname), user.EmailAddress, reference, "Payment For Vesicash", req.Currency, callback)
+		paymentUrl, paymentRequest, err = monnify.InitPayment(amount, fmt.Sprintf("%v %v", user.Lastname, user.Firstname), user.EmailAddress, reference, "Payment For Vesicash", req.Currency, callback)
 		if err != nil {
 			return response, http.StatusInternalServerError, fmt.Errorf("initiating payment failed: %v", err.Error())
 		}
-		paymentUrl, paymentRequest = url, reqData
 	default:
-		url, reqData, err := rave.InitPayment(reference, user.EmailAddress, strings.ToUpper(req.Currency), callback, amount)
+		paymentUrl, paymentRequest, err = rave.InitPayment(reference, user.EmailAddress, strings.ToUpper(req.Currency), callback, amount)
 		if err != nil {
 			return response, http.StatusInternalServerError, fmt.Errorf("initiating payment failed: %v", err.Error())
 		}
-		paymentUrl, paymentRequest = url, reqData
 	}
 
 	payment := models.Payment{

@@ -4,13 +4,12 @@ import (
 	"fmt"
 
 	"github.com/vesicash/payment-ms/external/external_models"
-	"github.com/vesicash/payment-ms/internal/config"
 )
 
 func (r *RequestObj) MonnifyLogin() (string, error) {
 
 	var (
-		base64Key        = config.GetConfig().Monnify.MonnifyBase64Key
+		base64Key        = getBase64Token(r.IsLiveMust)
 		outBoundResponse external_models.MonnifyLoginResponse
 		logger           = r.Logger
 	)
@@ -38,7 +37,7 @@ func (r *RequestObj) MonnifyMatchBvnDetails() (bool, error) {
 		idata            = r.RequestData
 	)
 
-	token, err := r.getMonnifyLoginObject().MonnifyLogin()
+	token, err := r.getMonnifyLoginObject(true).MonnifyLogin()
 	if err != nil {
 		logger.Info("monnify match bvn details", outBoundResponse, err.Error())
 		return false, err
