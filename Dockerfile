@@ -1,6 +1,9 @@
 # Build stage
 FROM golang:1.20.1-alpine3.17 as build
 
+# Install wkhtmltopdf dependencies
+RUN apk add --no-cache wkhtmltopdf
+
 WORKDIR /usr/src/app
 
 COPY go.mod go.sum ./

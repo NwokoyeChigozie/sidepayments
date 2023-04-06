@@ -15,7 +15,7 @@ func AuthMigrationModels() []interface{} {
 		models.PaymentLog{},
 		models.Payment{},
 		models.PendingTransferFunding{},
-		models.WalletDebitLog{},
+		// models.WalletDebitLog{},
 		models.WalletEarningLog{},
 		models.WebhookLog{},
 		models.Webhook{},

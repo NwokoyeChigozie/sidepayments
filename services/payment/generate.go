@@ -8,11 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/signintech/gopdf"
+	wkhtmltopdf "github.com/SebastiaanKlippert/go-wkhtmltopdf"
 	"github.com/vesicash/payment-ms/external/external_models"
 	"github.com/vesicash/payment-ms/external/request"
 	"github.com/vesicash/payment-ms/internal/models"
-	"github.com/vesicash/payment-ms/utility"
 )
 
 type PdfData struct {
@@ -91,7 +90,7 @@ func NewPdfData(extReq request.ExternalRequest, transaction external_models.Tran
 		}
 	}
 
-	data.Currency = currency
+	data.Currency = thisOrThatStr(currency, payment.Currency)
 	data.TotalAmount = payment.EscrowCharge + brokerCharge + shippingCharge + payment.TotalAmount
 	data.AmountPaid = payment.TotalAmount
 	data.FeesPaid = payment.EscrowCharge
@@ -102,59 +101,32 @@ func NewPdfData(extReq request.ExternalRequest, transaction external_models.Tran
 	return data
 }
 
-func GeneratePDFFromTemplate(templatePath string, data interface{}) (gopdf.GoPdf, error) {
-	// Load the template
+func GeneratePDFFromTemplate(templatePath string, data interface{}) ([]byte, error) {
+
 	tpl, err := template.ParseFiles(templatePath)
 	if err != nil {
-		return gopdf.GoPdf{}, err
+		return nil, err
 	}
 
-	// Render the template to a string
 	var renderedTemplate bytes.Buffer
 	if err := tpl.Execute(&renderedTemplate, data); err != nil {
-		return gopdf.GoPdf{}, err
+		return nil, err
 	}
 
-	// Create a new PDF document
-	pdf := gopdf.GoPdf{}
+	html := renderedTemplate.String()
 
-	// Define the page size
-	pageSize := gopdf.Rect{
-		W: gopdf.PageSizeA4.W, // 8.5 inches
-		H: gopdf.PageSizeA4.H,
-	}
-
-	// Initialize the document
-	pdf.Start(gopdf.Config{PageSize: pageSize})
-
-	// Define the cell rectangle based on the page size and margins
-	margin := 72.0 // 1 inch = 72 points
-	cellRect := gopdf.Rect{
-		W: pageSize.W - 2*margin,
-		H: pageSize.H - 2*margin,
-	}
-
-	// Add a new page
-	pdf.AddPage()
-
-	templateDir, err := utility.FindTemplateFilePath("arial.ttf")
+	pdfg, err := wkhtmltopdf.NewPDFGenerator()
 	if err != nil {
-		return gopdf.GoPdf{}, err
-	}
-	err = pdf.AddTTFFont("Arial", templateDir)
-	if err != nil {
-		return gopdf.GoPdf{}, err
+		return nil, err
 	}
 
-	// Set the font
-	pdf.SetFont("Arial", "", 16)
+	pdfg.AddPage(wkhtmltopdf.NewPageReader(strings.NewReader(html)))
 
-	// Write the rendered template to the PDF
-	err = pdf.Cell(&cellRect, renderedTemplate.String())
-	if err != nil {
-		return gopdf.GoPdf{}, err
+	if err := pdfg.Create(); err != nil {
+		return nil, err
 	}
-	return pdf, nil
+
+	return pdfg.Bytes(), nil
 }
 
 func GetPdfLink(extReq request.ExternalRequest, templatePath string, data interface{}) (string, error) {
@@ -163,15 +135,9 @@ func GetPdfLink(extReq request.ExternalRequest, templatePath string, data interf
 		return "", err
 	}
 
-	// Save the PDF to a bytes buffer
-	var pdfBuf bytes.Buffer
-	if err := pdf.Write(&pdfBuf); err != nil {
-		return "", err
-	}
-
 	pdfItf, err := extReq.SendExternalRequest(request.UploadFile, external_models.UploadFileRequest{
 		PlaceHolderName: "output.pdf",
-		File:            pdfBuf.Bytes(),
+		File:            pdf,
 	})
 	if err != nil {
 		return "", err

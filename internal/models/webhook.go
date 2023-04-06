@@ -21,7 +21,7 @@ type Webhook struct {
 	IsAbandoned     bool      `gorm:"column:is_abandoned; default: false" json:"is_abandoned"`
 	CreatedAt       time.Time `gorm:"column:created_at; autoCreateTime" json:"created_at"`
 	UpdatedAt       time.Time `gorm:"column:updated_at; autoUpdateTime" json:"updated_at"`
-	RetryAt         time.Time `gorm:"column:retry_at" json:"retry_at"`
+	RetryAt         string    `gorm:"column:retry_at; type:varchar(255)" json:"retry_at"`
 }
 
 func (w *Webhook) CreateWebhook(db *gorm.DB) error {

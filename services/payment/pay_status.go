@@ -224,12 +224,13 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 			}
 		}
 
-		pdfLink, _ := utility.URLDecode(utility.GenerateGroupByURL(c, fmt.Sprintf("payment/invoice/%v", payment.PaymentID), map[string]string{}))
+		pdfLink, _ := utility.URLDecode(utility.GenerateGroupByURL(config.GetConfig().App.Url, fmt.Sprintf("/payment/invoice/%v", payment.PaymentID), map[string]string{}))
 		businessProfileData, _ := GetBusinessProfileByAccountID(extReq, extReq.Logger, businessID)
 		if successPage != "" {
 			utility.AddQueryParam(&successPage, "invoice", pdfLink)
 			utility.AddQueryParam(&successPage, "transaction_id", transactionID)
 			utility.AddQueryParam(&successPage, "reference", paymentInfo.Reference)
+			uri = successPage
 		} else {
 			if businessProfileData.RedirectUrl != "" {
 				uri = businessProfileData.RedirectUrl
@@ -310,7 +311,7 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 	if !req.Headless {
 		uri = failPage
 		if uri == "" {
-			uri = config.GetConfig().App.Url + "/payment/pay/failed"
+			uri = config.GetConfig().App.Url + "/v2/pay/failed"
 		}
 		c.Redirect(http.StatusMovedPermanently, uri)
 		return "Transaction payment failed", http.StatusBadRequest, nil
@@ -493,7 +494,7 @@ func GetPaymentStatusService(c *gin.Context, extReq request.ExternalRequest, db 
 			return uri, "payment update error", http.StatusInternalServerError, err
 		}
 
-		pdfLink, _ := utility.URLDecode(utility.GenerateGroupByURL(c, fmt.Sprintf("payment/invoice/%v", payment.PaymentID), map[string]string{}))
+		pdfLink, _ := utility.URLDecode(utility.GenerateGroupByURL(config.GetConfig().App.Url, fmt.Sprintf("/payment/invoice/%v", payment.PaymentID), map[string]string{}))
 		businessProfileData, _ := GetBusinessProfileByAccountID(extReq, extReq.Logger, businessID)
 		if successPage != "" {
 			utility.AddQueryParam(&successPage, "invoice", pdfLink)
@@ -526,6 +527,7 @@ func GetPaymentStatusService(c *gin.Context, extReq request.ExternalRequest, db 
 }
 
 func HandleGetPaymentStatusPaid(c *gin.Context, extReq request.ExternalRequest, payment models.Payment, paymentInfo models.PaymentInfo) (string, error) {
+
 	var (
 		businessID    = 0
 		transactionID = ""
@@ -543,7 +545,7 @@ func HandleGetPaymentStatusPaid(c *gin.Context, extReq request.ExternalRequest, 
 		businessID = int(payment.BusinessID)
 	}
 
-	pdfLink, err := utility.URLDecode(utility.GenerateGroupByURL(c, fmt.Sprintf("payment/invoice/%v", payment.PaymentID), map[string]string{}))
+	pdfLink, err := utility.URLDecode(utility.GenerateGroupByURL(config.GetConfig().App.Url, fmt.Sprintf("/payment/invoice/%v", payment.PaymentID), map[string]string{}))
 	if err != nil {
 		return uri, fmt.Errorf("error generating invoice link")
 	}
@@ -554,6 +556,7 @@ func HandleGetPaymentStatusPaid(c *gin.Context, extReq request.ExternalRequest, 
 		utility.AddQueryParam(&successPage, "invoice", pdfLink)
 		utility.AddQueryParam(&successPage, "transaction_id", transactionID)
 		utility.AddQueryParam(&successPage, "reference", paymentInfo.Reference)
+		uri = successPage
 	} else {
 		if businessProfileData.RedirectUrl != "" {
 			uri = businessProfileData.RedirectUrl
@@ -566,5 +569,6 @@ func HandleGetPaymentStatusPaid(c *gin.Context, extReq request.ExternalRequest, 
 		utility.AddQueryParam(&uri, "transaction_id", transactionID)
 		utility.AddQueryParam(&uri, "reference", paymentInfo.Reference)
 	}
+
 	return uri, nil
 }

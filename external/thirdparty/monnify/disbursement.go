@@ -20,7 +20,7 @@ func (r *RequestObj) MonnifyInitTransfer() (external_models.MonnifyInitTransferR
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 
-	token, err := r.getMonnifyLoginObject().MonnifyLogin()
+	token, err := r.getMonnifyLoginObject(false).MonnifyLogin()
 	if err != nil {
 		logger.Info("monnify init transfer", outBoundResponse, err.Error())
 		return outBoundResponse, err
@@ -32,7 +32,7 @@ func (r *RequestObj) MonnifyInitTransfer() (external_models.MonnifyInitTransferR
 	}
 
 	logger.Info("monnify init transfer", data)
-	err = r.getNewSendRequestObject(nil, headers, "").SendRequest(&outBoundResponse)
+	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("monnify init transfer", outBoundResponse, err.Error())
 		return outBoundResponse, err

@@ -83,7 +83,7 @@ func FireWebhook(extReq request.ExternalRequest, db postgresql.Databases, webhoo
 		return err
 	}
 
-	webhook.RetryAt = time.Now()
+	webhook.RetryAt = strconv.Itoa(int(time.Now().Unix()))
 	webhook.Tries = webhook.Tries + 1
 	if res.StatusCode >= 200 && res.StatusCode <= 299 {
 		webhook.IsReceived = true

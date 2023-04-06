@@ -75,9 +75,9 @@ func GetHeader(c *gin.Context, key string) string {
 	return header
 }
 
-func GenerateGroupByURL(ctx *gin.Context, path string, querys map[string]string) string {
-	u := ctx.Request.URL
-	u.Path = ctx.GetString("groupPath") + path
+func GenerateGroupByURL(appUrl, path string, querys map[string]string) string {
+	versionPath := "/v2"
+	u, _ := url.ParseRequestURI(appUrl + versionPath + path)
 
 	for key, value := range querys {
 		queryParams, _ := url.ParseQuery(u.RawQuery)

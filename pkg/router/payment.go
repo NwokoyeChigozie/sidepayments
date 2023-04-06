@@ -27,7 +27,10 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentUrl.GET("/disbursement/callback", payment.MonnifyDisbursementCallback)
 
 		paymentUrl.GET("/payment/invoice/:payment_id", payment.GetPaymentInvoice)
-		paymentUrl.GET("/pay/:status", payment.RenderPayStatus)
+		paymentUrl.GET("/pay/successful", payment.RenderPaySuccessful)
+		paymentUrl.GET("/pay/failed", payment.RenderPayFailed)
+		paymentUrl.GET("/pay/status", payment.GetStatus)
+		paymentUrl.POST("/pay/new-status", payment.GetPaymentStatus)
 	}
 
 	paymentAuthUrl := r.Group(fmt.Sprintf("%v", ApiVersion), middleware.Authorize(db, extReq, middleware.AuthType))
@@ -50,21 +53,19 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentApiUrl.POST("/verify", payment.VerifyTransactionPayment)
 		paymentApiUrl.GET("/customers/payments/:business_id", payment.GetCustomerPayments)
 		// /pay
-		paymentAuthUrl.POST("/pay", payment.InitiatePayment)
-		paymentAuthUrl.POST("/pay/headless", payment.InitiatePaymentHeadless)
-		paymentAuthUrl.POST("/pay/tokenized", payment.ChargeCardInit)
-		paymentAuthUrl.POST("/pay/tokenized/headless", payment.ChargeCardHeadlessInit)
-		paymentAuthUrl.DELETE("/pay/tokenized/delete", payment.DeleteStoredCard)
-		paymentAuthUrl.GET("/pay/status", payment.GetStatus)
-		paymentAuthUrl.POST("/pay/new-status", payment.GetPaymentStatus)
+		paymentApiUrl.POST("/pay", payment.InitiatePayment)
+		paymentApiUrl.POST("/pay/headless", payment.InitiatePaymentHeadless)
+		paymentApiUrl.POST("/pay/tokenized", payment.ChargeCardInit)
+		paymentApiUrl.POST("/pay/tokenized/headless", payment.ChargeCardHeadlessInit)
+		paymentApiUrl.DELETE("/pay/tokenized/delete", payment.DeleteStoredCard)
 
-		paymentAuthUrl.POST("/payment_account/list", payment.PaymentAccountMonnifyList)
-		paymentAuthUrl.POST("/payment_account/verify", payment.PaymentAccountMonnifyVerify)
+		paymentApiUrl.POST("/payment_account/list", payment.PaymentAccountMonnifyList)
+		paymentApiUrl.POST("/payment_account/verify", payment.PaymentAccountMonnifyVerify)
 
-		paymentAuthUrl.GET("/disbursement/user/:account_id", payment.ListDisbursementByAccountID)
-		paymentAuthUrl.POST("/disbursement/wallet/wallet-transfer", payment.WalletTransfer)
-		paymentAuthUrl.POST("/disbursement/wallet/withdraw", payment.ManualDebit)
-		paymentAuthUrl.POST("/disbursement/process/refund", payment.ManualRefund)
+		paymentApiUrl.GET("/disbursement/user/:account_id", payment.ListDisbursementByAccountID)
+		paymentApiUrl.POST("/disbursement/wallet/wallet-transfer", payment.WalletTransfer)
+		paymentApiUrl.POST("/disbursement/wallet/withdraw", payment.ManualDebit)
+		paymentApiUrl.POST("/disbursement/process/refund", payment.ManualRefund)
 
 	}
 	return r

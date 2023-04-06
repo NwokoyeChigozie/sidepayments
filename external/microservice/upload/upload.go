@@ -24,9 +24,9 @@ func (r *RequestObj) UploadFile() (external_models.UploadFileResponseData, error
 		return external_models.UploadFileResponseData{}, fmt.Errorf("request data format error")
 	}
 
-	requestBody := new(bytes.Buffer)
-	writer := multipart.NewWriter(requestBody)
-	defer writer.Close()
+	// requestBody := new(bytes.Buffer)
+	var requestBody bytes.Buffer
+	writer := multipart.NewWriter(&requestBody)
 
 	part, err := writer.CreateFormFile("files", data.PlaceHolderName)
 	if err != nil {
@@ -38,13 +38,19 @@ func (r *RequestObj) UploadFile() (external_models.UploadFileResponseData, error
 		return external_models.UploadFileResponseData{}, err
 	}
 
-	r.RequestBody = requestBody
+	err = writer.Close()
+	if err != nil {
+		logger.Info("upload one file", outBoundResponse, err.Error())
+		return external_models.UploadFileResponseData{}, err
+	}
+
+	r.RequestBody = &requestBody
 	headers := map[string]string{
 		"Content-Type": writer.FormDataContentType(),
 		"v-app":        appKey,
 	}
 
-	logger.Info("upload one file", data)
+	logger.Info("upload one file", string(data.File), data.PlaceHolderName)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("upload one file", outBoundResponse, err.Error())

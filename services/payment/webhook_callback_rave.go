@@ -348,7 +348,7 @@ func transactionPaid(extReq request.ExternalRequest, db postgresql.Databases, pa
 		amounts += v.Amount
 	}
 
-	if amounts == transaction.Amount {
+	if amounts == transaction.TotalAmount {
 		for _, v := range milestones {
 			extReq.SendExternalRequest(request.TransactionUpdateStatus, external_models.UpdateTransactionStatusRequest{
 				AccountID:     transaction.BusinessID,

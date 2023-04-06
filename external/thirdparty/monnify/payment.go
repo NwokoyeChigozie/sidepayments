@@ -12,7 +12,7 @@ func (r *RequestObj) MonnifyInitPayment() (external_models.MonnifyInitPaymentRes
 		outBoundResponse external_models.MonnifyInitPaymentResponse
 		logger           = r.Logger
 		idata            = r.RequestData
-		token            = getBase64Token()
+		token            = getBase64Token(false)
 	)
 
 	data, ok := idata.(external_models.MonnifyInitPaymentRequest)
@@ -42,7 +42,7 @@ func (r *RequestObj) MonnifyVerifyTransactionByReference() (external_models.Monn
 		outBoundResponse external_models.MonnifyVerifyByReferenceResponse
 		logger           = r.Logger
 		idata            = r.RequestData
-		token            = getBase64Token()
+		token            = getBase64Token(false)
 	)
 
 	data, ok := idata.(string)
@@ -80,7 +80,7 @@ func (r *RequestObj) MonnifyReserveAccount() (external_models.MonnifyReserveAcco
 		return outBoundResponse.ResponseBody, fmt.Errorf("request data format error")
 	}
 
-	token, err := r.getMonnifyLoginObject().MonnifyLogin()
+	token, err := r.getMonnifyLoginObject(false).MonnifyLogin()
 	if err != nil {
 		logger.Info("monnify reserve account", outBoundResponse, err.Error())
 		return outBoundResponse.ResponseBody, err
@@ -92,7 +92,7 @@ func (r *RequestObj) MonnifyReserveAccount() (external_models.MonnifyReserveAcco
 	}
 
 	logger.Info("monnify reserve account", data)
-	err = r.getNewSendRequestObject(nil, headers, "").SendRequest(&outBoundResponse)
+	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("monnify reserve account", outBoundResponse, err.Error())
 		return outBoundResponse.ResponseBody, err
@@ -115,7 +115,7 @@ func (r *RequestObj) GetMonnifyReserveAccountTransactions() (external_models.Get
 		return outBoundResponse.ResponseBody, fmt.Errorf("request data format error")
 	}
 
-	token, err := r.getMonnifyLoginObject().MonnifyLogin()
+	token, err := r.getMonnifyLoginObject(false).MonnifyLogin()
 	if err != nil {
 		logger.Info("get monnify reserve account transactions", outBoundResponse, err.Error())
 		return outBoundResponse.ResponseBody, err
