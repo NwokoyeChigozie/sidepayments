@@ -2,7 +2,7 @@
 FROM golang:1.20.1-alpine3.17 as build
 
 # Install wkhtmltopdf dependencies
-RUN apk add --no-cache wkhtmltopdf
+RUN apk add --no-cache wkhtmltopdf=0.12.6-r0
 
 WORKDIR /usr/src/app
 
