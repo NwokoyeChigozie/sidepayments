@@ -68,6 +68,9 @@ func PaymentAccountMonnifyListService(c *gin.Context, extReq request.ExternalReq
 	}
 
 	if paymentAccount.ID == 0 || paymentAccount.AccountNumber == "" {
+		if paymentAccount.ID != 0 && paymentAccount.AccountNumber == "" {
+			paymentAccount.Delete(db.Payment)
+		}
 		if req.GeneratedReference != "" {
 			generatedReference = req.GeneratedReference
 		} else {
