@@ -1,8 +1,23 @@
 # Build stage
+FROM surnet/alpine-wkhtmltopdf:3.16.2-0.12.6-full as wkhtmltopdf
 FROM golang:1.20.1-alpine3.17 as build
 
-# Install wkhtmltopdf dependencies
-RUN apk add --no-cache wkhtmltopdf=0.12.6-r0
+
+# wkhtmltopdf install dependencies
+RUN apk add --no-cache \
+    libstdc++ \
+    libx11 \
+    libxrender \
+    libxext \
+    libssl1.1 \
+    ca-certificates \
+    fontconfig \
+    freetype \
+    ttf-droid \
+    ttf-freefont \
+    ttf-liberation \
+    # more fonts
+    ;
 
 WORKDIR /usr/src/app
 
@@ -23,5 +38,8 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app ./
 
 COPY --from=build /dist/vesicash-payment-ms /usr/local/bin/vesicash-payment-ms
+
+# wkhtmltopdf copy bins from ext image
+COPY --from=wkhtmltopdf /bin/wkhtmltopdf /bin/libwkhtmltox.so /bin/
 
 CMD ["vesicash-payment-ms"]

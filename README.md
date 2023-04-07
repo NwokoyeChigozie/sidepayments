@@ -32,7 +32,7 @@ $ docker build -t <image tag> .
 $ docker run -d -p <port>:<port> <image tag>
 ```
 
-e.g docker run -d -p 8006:8006 vesicash-payment-ms
+e.g docker run -d -p 8014:8014 vesicash-payment-ms
 
 ### Testing
 
