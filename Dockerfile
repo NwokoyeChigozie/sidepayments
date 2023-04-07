@@ -4,6 +4,7 @@ FROM golang:1.20.1-alpine3.17 as build
 
 
 # wkhtmltopdf install dependencies
+# hadolint ignore=DL3018
 RUN apk add --no-cache \
     libstdc++ \
     libx11 \
