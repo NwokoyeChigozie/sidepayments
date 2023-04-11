@@ -78,7 +78,7 @@ func CreditWallet(extReq request.ExternalRequest, db postgresql.Databases, amoun
 	return walletBalance, nil
 }
 
-func DebitWallet(extReq request.ExternalRequest, db postgresql.Databases, amount float64, currency string, businessID int, creditEscrow string, transactionID string) (external_models.WalletBalance, bool, error) {
+func DebitWallet(extReq request.ExternalRequest, db postgresql.Databases, amount float64, currency string, businessID int, creditEscrow string, transactionID string) (external_models.WalletBalance, error) {
 	if currency == "" {
 		currency = "NGN"
 	}
@@ -93,18 +93,18 @@ func DebitWallet(extReq request.ExternalRequest, db postgresql.Databases, amount
 	if err != nil {
 		walletBalance, err = CreateWalletBalance(extReq, businessID, currency, 0)
 		if err != nil {
-			return walletBalance, false, err
+			return walletBalance, err
 		}
 		extReq.Logger.Info("debit-wallet-c", "new balance:", fmt.Sprintf("%v %v", currency, amount))
 	}
 
 	if amount > walletBalance.Available {
-		return walletBalance, false, nil
+		return walletBalance, fmt.Errorf("insufficient wallet  balance")
 	} else {
 		availableBalance := walletBalance.Available - amount
 		walletBalance, err = UpdateWalletBalance(extReq, walletBalance.ID, availableBalance)
 		if err != nil {
-			return walletBalance, false, err
+			return walletBalance, err
 		}
 
 		extReq.Logger.Info("debit-wallet-u", "new balance:", fmt.Sprintf("%v %v", currency, availableBalance))
@@ -123,7 +123,7 @@ func DebitWallet(extReq request.ExternalRequest, db postgresql.Databases, amount
 		TransactionID: transactionID,
 	})
 
-	return walletBalance, true, nil
+	return walletBalance, nil
 }
 
 func CreateWalletBalance(extReq request.ExternalRequest, accountID int, currency string, available float64) (external_models.WalletBalance, error) {

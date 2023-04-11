@@ -94,11 +94,9 @@ func WalletTransferService(c *gin.Context, extReq request.ExternalRequest, db po
 		recipientAmount = amount
 	}
 
-	senderWallet, debitStatus, err := DebitWallet(extReq, db, amount, req.SenderCurrency, req.SenderAccountID, escrowWallet, req.TransactionID)
+	senderWallet, err = DebitWallet(extReq, db, amount, req.SenderCurrency, req.SenderAccountID, escrowWallet, req.TransactionID)
 	if err != nil {
 		return msg, http.StatusInternalServerError, err
-	} else if !debitStatus {
-		return msg, http.StatusInternalServerError, fmt.Errorf("debit failed for sender")
 	}
 
 	if utility.InStringSlice(strings.ToUpper(req.SenderCurrency), []string{"NGN", "ESCROW_NGN", "USD", "GBP", "ESCROW_USD", "ESCROW_GBP"}) {
@@ -236,13 +234,9 @@ func ManualDebitService(c *gin.Context, extReq request.ExternalRequest, db postg
 		return "", data, http.StatusBadRequest, fmt.Errorf("requested amount is greater than wallet balance")
 	}
 
-	walletBalance, debitStatus, err := DebitWallet(extReq, db, amount, currency, req.AccountID, req.EscrowWallet, "")
+	walletBalance, err = DebitWallet(extReq, db, amount, currency, req.AccountID, req.EscrowWallet, "")
 	if err != nil {
 		return "", data, http.StatusInternalServerError, err
-	}
-
-	if !debitStatus {
-		return "", data, http.StatusInternalServerError, fmt.Errorf("debit failed")
 	}
 
 	callback := utility.GenerateGroupByURL(config.GetConfig().App.Url, "/disbursement/callback", map[string]string{})

@@ -68,5 +68,11 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentApiUrl.POST("/disbursement/process/refund", payment.ManualRefund)
 
 	}
+
+	paymentAppUrl := r.Group(fmt.Sprintf("%v", ApiVersion), middleware.Authorize(db, extReq, middleware.AppType))
+	{
+		paymentAppUrl.POST("/wallet/debit", payment.DebitWallet)
+		paymentAppUrl.POST("/wallet/credit", payment.CreditWallet)
+	}
 	return r
 }
