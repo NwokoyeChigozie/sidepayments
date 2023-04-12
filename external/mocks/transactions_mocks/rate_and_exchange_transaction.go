@@ -13,7 +13,7 @@ func CreateExchangeTransaction(logger *utility.Logger, idata interface{}) (inter
 	)
 	data, ok := idata.(external_models.CreateExchangeTransactionRequest)
 	if !ok {
-		logger.Info("create exchange transaction", idata, "request data format error")
+		logger.Error("create exchange transaction", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 
@@ -28,7 +28,7 @@ func GetRateByID(logger *utility.Logger, idata interface{}) (external_models.Rat
 	)
 	data, ok := idata.(int)
 	if !ok {
-		logger.Info("get rate by id", idata, "request data format error")
+		logger.Error("get rate by id", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 

@@ -18,7 +18,7 @@ func (r *RequestObj) IpstackResolveIp() (external_models.IPStackResolveIPRespons
 
 	ip, ok := idata.(string)
 	if !ok {
-		logger.Info("ipstack resolve ip", idata, "request data format error")
+		logger.Error("ipstack resolve ip", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 
@@ -27,7 +27,7 @@ func (r *RequestObj) IpstackResolveIp() (external_models.IPStackResolveIPRespons
 	logger.Info("ipstack resolve ip", ip)
 	err := r.getNewSendRequestObject(nil, map[string]string{}, path).SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("ipstack resolve ip", outBoundResponse, err.Error())
+		logger.Error("ipstack resolve ip", outBoundResponse, err.Error())
 		return outBoundResponse, err
 	}
 

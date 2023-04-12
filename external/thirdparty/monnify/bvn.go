@@ -21,7 +21,7 @@ func (r *RequestObj) MonnifyLogin() (string, error) {
 
 	err := r.getNewSendRequestObject(nil, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("monnify login", outBoundResponse, err.Error())
+		logger.Error("monnify login", outBoundResponse, err.Error())
 		return "", err
 	}
 	logger.Info("monnify login", outBoundResponse)
@@ -39,13 +39,13 @@ func (r *RequestObj) MonnifyMatchBvnDetails() (bool, error) {
 
 	token, err := r.getMonnifyLoginObject(true).MonnifyLogin()
 	if err != nil {
-		logger.Info("monnify match bvn details", outBoundResponse, err.Error())
+		logger.Error("monnify match bvn details", outBoundResponse, err.Error())
 		return false, err
 	}
 
 	data, ok := idata.(external_models.MonnifyMatchBvnDetailsReq)
 	if !ok {
-		logger.Info("monnify match bvn details", idata, "request data format error")
+		logger.Error("monnify match bvn details", idata, "request data format error")
 		return false, fmt.Errorf("request data format error")
 	}
 
@@ -57,17 +57,17 @@ func (r *RequestObj) MonnifyMatchBvnDetails() (bool, error) {
 	logger.Info("monnify match bvn details", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("monnify match bvn details", outBoundResponse, err.Error())
+		logger.Error("monnify match bvn details", outBoundResponse, err.Error())
 		return false, err
 	}
 	logger.Info("monnify match bvn details", outBoundResponse)
 	if !outBoundResponse.RequestSuccessful {
-		logger.Info("monnify match bvn details", "request not successful: "+outBoundResponse.ResponseMessage)
+		logger.Error("monnify match bvn details", "request not successful: "+outBoundResponse.ResponseMessage)
 		return false, fmt.Errorf("request not successful: " + outBoundResponse.ResponseMessage)
 	}
 
 	if outBoundResponse.ResponseBody.DateOfBirth != "FULL_MATCH" {
-		logger.Info("monnify match bvn details", "bvn does not match date of birth", outBoundResponse.ResponseBody.DateOfBirth)
+		logger.Error("monnify match bvn details", "bvn does not match date of birth", outBoundResponse.ResponseBody.DateOfBirth)
 		return false, fmt.Errorf("bvn does not match date of birth: %v", outBoundResponse.ResponseBody.DateOfBirth)
 	}
 

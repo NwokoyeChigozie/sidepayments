@@ -15,7 +15,7 @@ func ValidateOnAuth(logger *utility.Logger, idata interface{}) (bool, error) {
 
 	_, ok := idata.(external_models.ValidateOnDBReq)
 	if !ok {
-		logger.Info("validate on auth", idata, "request data format error")
+		logger.Error("validate on auth", idata, "request data format error")
 		return false, fmt.Errorf("request data format error")
 	}
 
@@ -28,12 +28,12 @@ func ValidateAuthorization(logger *utility.Logger, idata interface{}) (external_
 
 	_, ok := idata.(external_models.ValidateAuthorizationReq)
 	if !ok {
-		logger.Info("validate authorization", idata, "request data format error")
+		logger.Error("validate authorization", idata, "request data format error")
 		return external_models.ValidateAuthorizationDataModel{}, fmt.Errorf("request data format error")
 	}
 
 	if ValidateAuthorizationRes == nil {
-		logger.Info("validate authorization", User, "validate authorization response not provided")
+		logger.Error("validate authorization", User, "validate authorization response not provided")
 		return external_models.ValidateAuthorizationDataModel{}, fmt.Errorf("validate authorization response not provided")
 	}
 

@@ -16,7 +16,7 @@ func GetAuthorize(logger *utility.Logger, idata interface{}) (external_models.Ge
 
 	_, ok := idata.(external_models.GetAuthorizeModel)
 	if !ok {
-		logger.Info("get authorize", idata, "request data format error")
+		logger.Error("get authorize", idata, "request data format error")
 		return external_models.GetAuthorizeResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
@@ -26,7 +26,7 @@ func GetAuthorize(logger *utility.Logger, idata interface{}) (external_models.Ge
 	}
 
 	if Authorize == nil {
-		logger.Info("get authorize", UsersCredential, "authorize not provided")
+		logger.Error("get authorize", UsersCredential, "authorize not provided")
 		return external_models.GetAuthorizeResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
@@ -48,7 +48,7 @@ func CreateAuthorize(logger *utility.Logger, idata interface{}) (external_models
 
 	_, ok := idata.(external_models.CreateAuthorizeModel)
 	if !ok {
-		logger.Info("create authorize", idata, "request data format error")
+		logger.Error("create authorize", idata, "request data format error")
 		return external_models.GetAuthorizeResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
@@ -58,7 +58,7 @@ func CreateAuthorize(logger *utility.Logger, idata interface{}) (external_models
 	}
 
 	if Authorize == nil {
-		logger.Info("create authorize", UsersCredential, "authorize not provided")
+		logger.Error("create authorize", UsersCredential, "authorize not provided")
 		return external_models.GetAuthorizeResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
@@ -81,7 +81,7 @@ func UpdateAuthorize(logger *utility.Logger, idata interface{}) (external_models
 
 	_, ok := idata.(external_models.UpdateAuthorizeModel)
 	if !ok {
-		logger.Info("update authorize", idata, "request data format error")
+		logger.Error("update authorize", idata, "request data format error")
 		return external_models.GetAuthorizeResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
@@ -91,7 +91,7 @@ func UpdateAuthorize(logger *utility.Logger, idata interface{}) (external_models
 	}
 
 	if Authorize == nil {
-		logger.Info("update authorize", UsersCredential, "authorize not provided")
+		logger.Error("update authorize", UsersCredential, "authorize not provided")
 		return external_models.GetAuthorizeResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,

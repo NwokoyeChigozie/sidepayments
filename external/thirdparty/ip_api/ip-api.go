@@ -20,7 +20,7 @@ func (r *RequestObj) ResolveIp() (external_models.ResolveIpResponse, error) {
 
 	ip, ok := idata.(string)
 	if !ok {
-		logger.Info("ip-api resolve ip", idata, "request data format error")
+		logger.Error("ip-api resolve ip", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 
@@ -29,7 +29,7 @@ func (r *RequestObj) ResolveIp() (external_models.ResolveIpResponse, error) {
 	logger.Info("ip-api resolve ip", ip)
 	err := r.getNewSendRequestObject(nil, headers, path).SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("ip-api resolve ip", outBoundResponse, err.Error())
+		logger.Error("ip-api resolve ip", outBoundResponse, err.Error())
 		return outBoundResponse, err
 	}
 

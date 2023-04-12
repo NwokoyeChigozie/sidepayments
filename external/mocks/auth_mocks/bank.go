@@ -15,7 +15,7 @@ func GetBank(logger *utility.Logger, idata interface{}) (external_models.Bank, e
 
 	data, ok := idata.(external_models.GetBankRequest)
 	if !ok {
-		logger.Info("get bank", idata, "request data format error")
+		logger.Error("get bank", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 	logger.Info("get bank", outBoundResponse)

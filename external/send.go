@@ -91,7 +91,7 @@ func (r *SendRequestObject) SendRequest(response interface{}) error {
 		req.Header.Add(key, value)
 	}
 
-	logger.Error("request", name, r.Path, r.Method, r.Headers)
+	logger.Info("request", name, r.Path, r.Method, r.Headers)
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -131,7 +131,7 @@ func (r *SendRequestObject) SendRequest(response interface{}) error {
 	}
 
 	if res.StatusCode < 200 || res.StatusCode > 299 {
-		return fmt.Errorf("Error " + strconv.Itoa(res.StatusCode))
+		return fmt.Errorf("external requests error for request %v, code %v", name, strconv.Itoa(res.StatusCode))
 	}
 
 	return nil

@@ -15,7 +15,7 @@ func ResolveIp(logger *utility.Logger, idata interface{}) (external_models.Resol
 
 	ip, ok := idata.(string)
 	if !ok {
-		logger.Info("ip-api resolve ip", idata, "request data format error")
+		logger.Error("ip-api resolve ip", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 

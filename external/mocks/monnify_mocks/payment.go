@@ -15,7 +15,7 @@ func MonnifyInitPayment(logger *utility.Logger, idata interface{}) (external_mod
 
 	data, ok := idata.(external_models.MonnifyInitPaymentRequest)
 	if !ok {
-		logger.Info("monnify init payment", idata, "request data format error")
+		logger.Error("monnify init payment", idata, "request data format error")
 		return outBoundResponse.ResponseBody, fmt.Errorf("request data format error")
 	}
 
@@ -34,7 +34,7 @@ func MonnifyVerifyTransactionByReference(logger *utility.Logger, idata interface
 
 	data, ok := idata.(string)
 	if !ok {
-		logger.Info("monnify verify transaction by reference", idata, "request data format error")
+		logger.Error("monnify verify transaction by reference", idata, "request data format error")
 		return outBoundResponse.ResponseBody, fmt.Errorf("request data format error")
 	}
 
@@ -58,7 +58,7 @@ func MonnifyReserveAccount(logger *utility.Logger, idata interface{}) (external_
 
 	data, ok := idata.(external_models.MonnifyReserveAccountRequest)
 	if !ok {
-		logger.Info("monnify reserve account", idata, "request data format error")
+		logger.Error("monnify reserve account", idata, "request data format error")
 		return outBoundResponse.ResponseBody, fmt.Errorf("request data format error")
 	}
 
@@ -81,7 +81,7 @@ func GetMonnifyReserveAccountTransactions(logger *utility.Logger, idata interfac
 
 	data, ok := idata.(string)
 	if !ok {
-		logger.Info("get monnify reserve account transactions", idata, "request data format error")
+		logger.Error("get monnify reserve account transactions", idata, "request data format error")
 		return outBoundResponse.ResponseBody, fmt.Errorf("request data format error")
 	}
 

@@ -18,7 +18,7 @@ func (r *RequestObj) GetUser() (external_models.User, error) {
 
 	data, ok := idata.(external_models.GetUserRequestModel)
 	if !ok {
-		logger.Info("get user", idata, "request data format error")
+		logger.Error("get user", idata, "request data format error")
 		return outBoundResponse.Data.User, fmt.Errorf("request data format error")
 	}
 
@@ -30,7 +30,7 @@ func (r *RequestObj) GetUser() (external_models.User, error) {
 	logger.Info("get user", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get user", outBoundResponse, err.Error())
+		logger.Error("get user", outBoundResponse, err.Error())
 		return outBoundResponse.Data.User, err
 	}
 	logger.Info("get user", outBoundResponse)
@@ -49,7 +49,7 @@ func (r *RequestObj) GetUsersByBusinessID() ([]external_models.User, error) {
 
 	data, ok := idata.(string)
 	if !ok {
-		logger.Info("get users by business id", idata, "request data format error")
+		logger.Error("get users by business id", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -61,7 +61,7 @@ func (r *RequestObj) GetUsersByBusinessID() ([]external_models.User, error) {
 	logger.Info("get users by business id", data)
 	err := r.getNewSendRequestObject(data, headers, "/"+data).SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get users by business id", outBoundResponse, err.Error())
+		logger.Error("get users by business id", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("get users by business id", outBoundResponse)
@@ -80,7 +80,7 @@ func (r *RequestObj) SetUserAuthorizationRequiredStatus() (bool, error) {
 
 	data, ok := idata.(external_models.SetUserAuthorizationRequiredStatusModel)
 	if !ok {
-		logger.Info("set user authorization required status", idata, "request data format error")
+		logger.Error("set user authorization required status", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -92,7 +92,7 @@ func (r *RequestObj) SetUserAuthorizationRequiredStatus() (bool, error) {
 	logger.Info("set user authorization required status", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("set user authorization required status", outBoundResponse, err.Error())
+		logger.Error("set user authorization required status", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("set user authorization required status", outBoundResponse)

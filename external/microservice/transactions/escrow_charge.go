@@ -14,12 +14,12 @@ func (r *RequestObj) GetEscrowCharge() (external_models.GetEscrowChargeResponseD
 	)
 	data, ok := idata.(external_models.GetEscrowChargeRequest)
 	if !ok {
-		logger.Info("get escrow charge", idata, "request data format error")
+		logger.Error("get escrow charge", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("get escrow charge", outBoundResponse, err.Error())
+		logger.Error("get escrow charge", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 
@@ -32,7 +32,7 @@ func (r *RequestObj) GetEscrowCharge() (external_models.GetEscrowChargeResponseD
 	logger.Info("get escrow charge", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get escrow charge", outBoundResponse, err.Error())
+		logger.Error("get escrow charge", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("get escrow charge", outBoundResponse)

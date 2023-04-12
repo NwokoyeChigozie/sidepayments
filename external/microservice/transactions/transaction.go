@@ -18,7 +18,7 @@ func (r *RequestObj) UpdateTransactionAmountPaid() (external_models.Transaction,
 
 	data, ok := idata.(external_models.UpdateTransactionAmountPaidRequest)
 	if !ok {
-		logger.Info("update transaction amount paid", idata, "request data format error")
+		logger.Error("update transaction amount paid", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -30,7 +30,7 @@ func (r *RequestObj) UpdateTransactionAmountPaid() (external_models.Transaction,
 	logger.Info("update transaction amount paid", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("update wallet", outBoundResponse, err.Error())
+		logger.Error("update wallet", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("update transaction amount paid", outBoundResponse)
@@ -46,12 +46,12 @@ func (r *RequestObj) TransactionUpdateStatus() (interface{}, error) {
 	)
 	data, ok := idata.(external_models.UpdateTransactionStatusRequest)
 	if !ok {
-		logger.Info("transaction update status", idata, "request data format error")
+		logger.Error("transaction update status", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("transaction update status", outBoundResponse, err.Error())
+		logger.Error("transaction update status", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -64,7 +64,7 @@ func (r *RequestObj) TransactionUpdateStatus() (interface{}, error) {
 	logger.Info("transaction update status", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("transaction update status", outBoundResponse, err.Error())
+		logger.Error("transaction update status", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("transaction update status", outBoundResponse)
@@ -80,12 +80,12 @@ func (r *RequestObj) BuyerSatisfied() (interface{}, error) {
 	)
 	data, ok := idata.(external_models.OnlyTransactionIDRequiredRequest)
 	if !ok {
-		logger.Info("buyer satisfied", idata, "request data format error")
+		logger.Error("buyer satisfied", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("buyer satisfied", outBoundResponse, err.Error())
+		logger.Error("buyer satisfied", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -98,7 +98,7 @@ func (r *RequestObj) BuyerSatisfied() (interface{}, error) {
 	logger.Info("buyer satisfied", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("buyer satisfied", outBoundResponse, err.Error())
+		logger.Error("buyer satisfied", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("buyer satisfied", outBoundResponse)

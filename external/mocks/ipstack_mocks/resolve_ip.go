@@ -17,7 +17,7 @@ func IpstackResolveIp(logger *utility.Logger, idata interface{}) (external_model
 
 	ip, ok := idata.(string)
 	if !ok {
-		logger.Info("ipstack resolve ip", idata, "request data format error")
+		logger.Error("ipstack resolve ip", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 	outBoundResponse.Ip = ip

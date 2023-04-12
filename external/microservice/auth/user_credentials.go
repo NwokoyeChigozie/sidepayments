@@ -18,7 +18,7 @@ func (r *RequestObj) GetUserCredential() (external_models.GetUserCredentialRespo
 
 	data, ok := idata.(external_models.GetUserCredentialModel)
 	if !ok {
-		logger.Info("get user credential", idata, "request data format error")
+		logger.Error("get user credential", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 
@@ -30,7 +30,7 @@ func (r *RequestObj) GetUserCredential() (external_models.GetUserCredentialRespo
 	logger.Info("get user credential", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get user credential", outBoundResponse, err.Error())
+		logger.Error("get user credential", outBoundResponse, err.Error())
 		return outBoundResponse, err
 	}
 	logger.Info("get user credential", outBoundResponse)
@@ -49,7 +49,7 @@ func (r *RequestObj) CreateUserCredential() (external_models.GetUserCredentialRe
 
 	data, ok := idata.(external_models.CreateUserCredentialModel)
 	if !ok {
-		logger.Info("create user credential", idata, "request data format error")
+		logger.Error("create user credential", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 
@@ -61,7 +61,7 @@ func (r *RequestObj) CreateUserCredential() (external_models.GetUserCredentialRe
 	logger.Info("create user credential", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("create user credential", outBoundResponse, err.Error())
+		logger.Error("create user credential", outBoundResponse, err.Error())
 		return outBoundResponse, err
 	}
 	logger.Info("create user credential", outBoundResponse)
@@ -80,7 +80,7 @@ func (r *RequestObj) UpdateUserCredential() (external_models.GetUserCredentialRe
 
 	data, ok := idata.(external_models.UpdateUserCredentialModel)
 	if !ok {
-		logger.Info("update user credential", idata, "request data format error")
+		logger.Error("update user credential", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 
@@ -92,7 +92,7 @@ func (r *RequestObj) UpdateUserCredential() (external_models.GetUserCredentialRe
 	logger.Info("update user credential", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("update user credential", outBoundResponse, err.Error())
+		logger.Error("update user credential", outBoundResponse, err.Error())
 		return outBoundResponse, err
 	}
 	logger.Info("update user credential", outBoundResponse)

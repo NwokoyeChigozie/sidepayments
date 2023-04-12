@@ -18,7 +18,7 @@ func (r *RequestObj) GetBank() (external_models.Bank, error) {
 
 	data, ok := idata.(external_models.GetBankRequest)
 	if !ok {
-		logger.Info("get bank", idata, "request data format error")
+		logger.Error("get bank", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -30,7 +30,7 @@ func (r *RequestObj) GetBank() (external_models.Bank, error) {
 	logger.Info("get bank", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get bank", outBoundResponse, err.Error())
+		logger.Error("get bank", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("get bank", outBoundResponse)

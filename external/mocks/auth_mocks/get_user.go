@@ -14,12 +14,12 @@ var (
 func GetUser(logger *utility.Logger, idata interface{}) (external_models.User, error) {
 	_, ok := idata.(external_models.GetUserRequestModel)
 	if !ok {
-		logger.Info("get user", idata, "request data format error")
+		logger.Error("get user", idata, "request data format error")
 		return external_models.User{}, fmt.Errorf("request data format error")
 	}
 
 	if User == nil {
-		logger.Info("get user", User, "user not provided")
+		logger.Error("get user", User, "user not provided")
 		return external_models.User{}, fmt.Errorf("user not provided")
 	}
 
@@ -30,12 +30,12 @@ func GetUser(logger *utility.Logger, idata interface{}) (external_models.User, e
 func GetUsersByBusinessID(logger *utility.Logger, idata interface{}) ([]external_models.User, error) {
 	_, ok := idata.(string)
 	if !ok {
-		logger.Info("get uses by business idr", idata, "request data format error")
+		logger.Error("get uses by business idr", idata, "request data format error")
 		return []external_models.User{}, fmt.Errorf("request data format error")
 	}
 
 	if User == nil {
-		logger.Info("get users by business id", User, "user not provided")
+		logger.Error("get users by business id", User, "user not provided")
 		return []external_models.User{}, fmt.Errorf("user not provided")
 	}
 
@@ -47,7 +47,7 @@ func SetUserAuthorizationRequiredStatus(logger *utility.Logger, idata interface{
 
 	data, ok := idata.(external_models.SetUserAuthorizationRequiredStatusModel)
 	if !ok {
-		logger.Info("set user authorization required status", idata, "request data format error")
+		logger.Error("set user authorization required status", idata, "request data format error")
 		return false, fmt.Errorf("request data format error")
 	}
 

@@ -18,7 +18,7 @@ func (r *RequestObj) GetUserProfile() (external_models.UserProfile, error) {
 
 	data, ok := idata.(external_models.GetUserProfileModel)
 	if !ok {
-		logger.Info("get user profile", idata, "request data format error")
+		logger.Error("get user profile", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -30,7 +30,7 @@ func (r *RequestObj) GetUserProfile() (external_models.UserProfile, error) {
 	logger.Info("get user profile", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get user profile", outBoundResponse, err.Error())
+		logger.Error("get user profile", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("get user profile", outBoundResponse)

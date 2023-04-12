@@ -18,7 +18,7 @@ func (r *RequestObj) ValidateOnAuth() (bool, error) {
 
 	data, ok := idata.(external_models.ValidateOnDBReq)
 	if !ok {
-		logger.Info("validate on auth", idata, "request data format error")
+		logger.Error("validate on auth", idata, "request data format error")
 		return false, fmt.Errorf("request data format error")
 	}
 
@@ -30,7 +30,7 @@ func (r *RequestObj) ValidateOnAuth() (bool, error) {
 	logger.Info("validate on auth", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("validate on auth", outBoundResponse, err.Error())
+		logger.Error("validate on auth", outBoundResponse, err.Error())
 		return false, err
 	}
 	logger.Info("validate on auth", outBoundResponse)
@@ -49,7 +49,7 @@ func (r *RequestObj) ValidateAuthorization() (external_models.ValidateAuthorizat
 
 	data, ok := idata.(external_models.ValidateAuthorizationReq)
 	if !ok {
-		logger.Info("validate authorization", idata, "request data format error")
+		logger.Error("validate authorization", idata, "request data format error")
 		return external_models.ValidateAuthorizationDataModel{}, fmt.Errorf("request data format error")
 	}
 
@@ -61,7 +61,7 @@ func (r *RequestObj) ValidateAuthorization() (external_models.ValidateAuthorizat
 	logger.Info("validate authorization", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("validate authorization", outBoundResponse, err.Error())
+		logger.Error("validate authorization", outBoundResponse, err.Error())
 		return external_models.ValidateAuthorizationDataModel{}, err
 	}
 	logger.Info("validate authorization", outBoundResponse.Data)

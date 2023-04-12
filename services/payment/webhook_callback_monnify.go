@@ -468,7 +468,7 @@ func fundAccount(extReq request.ExternalRequest, db postgresql.Databases, amount
 			}, businessProfileData.AccountID)
 		}
 		paymentAccountByte, _ := json.Marshal(paymentAccount)
-		extReq.Logger.Info("Monnify Bank Transfer Not Confirmed", "data:", string(paymentAccountByte))
+		extReq.Logger.Error("Monnify Bank Transfer Not Confirmed", "data:", string(paymentAccountByte))
 
 	}
 	return nil

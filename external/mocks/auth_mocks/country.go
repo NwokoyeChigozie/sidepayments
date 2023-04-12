@@ -19,12 +19,12 @@ func GetCountry(logger *utility.Logger, idata interface{}) (external_models.Coun
 
 	_, ok := idata.(external_models.GetCountryModel)
 	if !ok {
-		logger.Info("get Country", idata, "request data format error")
+		logger.Error("get Country", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
 	if Country == nil {
-		logger.Info("get Country", Country, "Country not provided")
+		logger.Error("get Country", Country, "Country not provided")
 		return external_models.Country{}, fmt.Errorf("country not provided")
 	}
 

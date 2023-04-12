@@ -12,13 +12,13 @@ func SendVerificationEmail(logger *utility.Logger, idata interface{}) (interface
 
 	_, ok := idata.(external_models.EmailNotificationRequest)
 	if !ok {
-		logger.Info("get user", idata, "request data format error")
+		logger.Error("get user", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 
 	_, err := auth_mocks.GetAccessToken(logger)
 	if err != nil {
-		logger.Info("verification email", nil, err)
+		logger.Error("verification email", nil, err)
 		return nil, err
 	}
 
@@ -31,13 +31,13 @@ func SendWelcomeEmail(logger *utility.Logger, idata interface{}) (interface{}, e
 	)
 	data, ok := idata.(external_models.AccountIDRequestModel)
 	if !ok {
-		logger.Info("welcome email", idata, "request data format error")
+		logger.Error("welcome email", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 
 	_, err := auth_mocks.GetAccessToken(logger)
 	if err != nil {
-		logger.Info("welcome email", outBoundResponse, err.Error())
+		logger.Error("welcome email", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -57,7 +57,7 @@ func SendEmailVerifiedNotification(logger *utility.Logger, idata interface{}) (i
 
 	_, err := auth_mocks.GetAccessToken(logger)
 	if err != nil {
-		logger.Info("email verified notification", outBoundResponse, err.Error())
+		logger.Error("email verified notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 

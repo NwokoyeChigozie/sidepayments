@@ -18,7 +18,7 @@ func (r *RequestObj) GetBusinessProfile() (external_models.BusinessProfile, erro
 
 	data, ok := idata.(external_models.GetBusinessProfileModel)
 	if !ok {
-		logger.Info("get business profile", idata, "request data format error")
+		logger.Error("get business profile", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -30,7 +30,7 @@ func (r *RequestObj) GetBusinessProfile() (external_models.BusinessProfile, erro
 	logger.Info("get business profile", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get business profile", outBoundResponse, err.Error())
+		logger.Error("get business profile", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("get business profile", outBoundResponse)

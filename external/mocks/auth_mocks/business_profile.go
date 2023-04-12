@@ -19,12 +19,12 @@ func GetBusinessProfile(logger *utility.Logger, idata interface{}) (external_mod
 
 	_, ok := idata.(external_models.GetBusinessProfileModel)
 	if !ok {
-		logger.Info("get business profile", idata, "request data format error")
+		logger.Error("get business profile", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
 	if BusinessProfile == nil {
-		logger.Info("get BusinessProfile", BusinessProfile, "BusinessProfile not provided")
+		logger.Error("get BusinessProfile", BusinessProfile, "BusinessProfile not provided")
 		return external_models.BusinessProfile{}, fmt.Errorf("BusinessProfile not provided")
 	}
 

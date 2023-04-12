@@ -22,13 +22,13 @@ func (r *RequestObj) RaveInitPayment() (external_models.RaveInitPaymentResponse,
 
 	data, ok := idata.(external_models.RaveInitPaymentRequest)
 	if !ok {
-		logger.Info("init payment rave", idata, "request data format error")
+		logger.Error("init payment rave", idata, "request data format error")
 		return external_models.RaveInitPaymentResponse{}, fmt.Errorf("request data format error")
 	}
 
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("init payment rave", outBoundResponse, err.Error())
+		logger.Error("init payment rave", outBoundResponse, err.Error())
 		return external_models.RaveInitPaymentResponse{}, err
 	}
 	logger.Info("init payment rave", outBoundResponse)
@@ -51,13 +51,13 @@ func (r *RequestObj) RaveReserveAccount() (external_models.RaveReserveAccountRes
 
 	data, ok := idata.(external_models.RaveReserveAccountRequest)
 	if !ok {
-		logger.Info("rave reserve account", idata, "request data format error")
+		logger.Error("rave reserve account", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("rave reserve account", outBoundResponse, err.Error())
+		logger.Error("rave reserve account", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("rave reserve account", outBoundResponse)
@@ -80,13 +80,13 @@ func (r *RequestObj) RaveVerifyTransactionByTxRef() (external_models.RaveVerifyT
 
 	data, ok := idata.(string)
 	if !ok {
-		logger.Info("rave verify transaction by tx_ref", idata, "request data format error")
+		logger.Error("rave verify transaction by tx_ref", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
 	err := r.getNewSendRequestObject(data, headers, data).SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("rave verify transaction by tx_ref", outBoundResponse, err.Error())
+		logger.Error("rave verify transaction by tx_ref", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("rave verify transaction by tx_ref", outBoundResponse)
@@ -109,13 +109,13 @@ func (r *RequestObj) RaveChargeCard() (external_models.RaveVerifyTransactionResp
 
 	data, ok := idata.(external_models.RaveChargeCardRequest)
 	if !ok {
-		logger.Info("rave charge card", idata, "request data format error")
+		logger.Error("rave charge card", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("rave charge card", outBoundResponse, err.Error())
+		logger.Error("rave charge card", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("rave charge card", outBoundResponse)

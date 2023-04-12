@@ -214,7 +214,7 @@ func CreateWalletTransaction(extReq request.ExternalRequest, senderAccountID, re
 
 	walletTransactionInterface, err := extReq.SendExternalRequest(request.CreateWalletTransaction, data)
 	if err != nil {
-		extReq.Logger.Info(err.Error())
+		extReq.Logger.Error(err.Error())
 		return external_models.WalletTransaction{}, err
 	}
 
@@ -238,7 +238,7 @@ func CreateWalletHistory(extReq request.ExternalRequest, accountID int, referenc
 
 	walletHistoryInterface, err := extReq.SendExternalRequest(request.CreateWalletHistory, data)
 	if err != nil {
-		extReq.Logger.Info(err.Error())
+		extReq.Logger.Error(err.Error())
 		return external_models.WalletHistory{}, err
 	}
 

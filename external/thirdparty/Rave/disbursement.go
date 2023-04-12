@@ -22,13 +22,13 @@ func (r *RequestObj) RaveInitTransfer() (external_models.RaveInitTransferRespons
 
 	data, ok := idata.(external_models.RaveInitTransferRequest)
 	if !ok {
-		logger.Info("rave init transfer", idata, "request data format error")
+		logger.Error("rave init transfer", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("rave init transfer", outBoundResponse, err.Error())
+		logger.Error("rave init transfer", outBoundResponse, err.Error())
 		return outBoundResponse, err
 	}
 	logger.Info("rave init transfer", outBoundResponse)

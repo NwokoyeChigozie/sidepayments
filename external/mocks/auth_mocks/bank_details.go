@@ -19,12 +19,12 @@ func GetBankDetails(logger *utility.Logger, idata interface{}) (external_models.
 
 	_, ok := idata.(external_models.GetBankDetailModel)
 	if !ok {
-		logger.Info("get bank detail", idata, "request data format error")
+		logger.Error("get bank detail", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
 	if BankDetail == nil {
-		logger.Info("get BankDetail", BankDetail, "BankDetail not provided")
+		logger.Error("get BankDetail", BankDetail, "BankDetail not provided")
 		return external_models.BankDetail{}, fmt.Errorf("BankDetail not provided")
 	}
 

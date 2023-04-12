@@ -10,7 +10,7 @@ import (
 func SendAuthorizedNotification(logger *utility.Logger, idata interface{}) (interface{}, error) {
 	data, ok := idata.(external_models.AuthorizeNotificationRequest)
 	if !ok {
-		logger.Info("authorized notification", idata, "request data format error")
+		logger.Error("authorized notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 
@@ -23,7 +23,7 @@ func SendAuthorizationNotification(logger *utility.Logger, idata interface{}) (i
 
 	data, ok := idata.(external_models.AuthorizeNotificationRequest)
 	if !ok {
-		logger.Info("authorization notification", idata, "request data format error")
+		logger.Error("authorization notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 

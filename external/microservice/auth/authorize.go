@@ -18,7 +18,7 @@ func (r *RequestObj) GetAuthorize() (external_models.GetAuthorizeResponse, error
 
 	data, ok := idata.(external_models.GetAuthorizeModel)
 	if !ok {
-		logger.Info("get authorize", idata, "request data format error")
+		logger.Error("get authorize", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 
@@ -30,7 +30,7 @@ func (r *RequestObj) GetAuthorize() (external_models.GetAuthorizeResponse, error
 	logger.Info("get user credential", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get authorize", outBoundResponse, err.Error())
+		logger.Error("get authorize", outBoundResponse, err.Error())
 		return outBoundResponse, err
 	}
 	logger.Info("get authorize", outBoundResponse)
@@ -49,7 +49,7 @@ func (r *RequestObj) CreateAuthorize() (external_models.GetAuthorizeResponse, er
 
 	data, ok := idata.(external_models.CreateAuthorizeModel)
 	if !ok {
-		logger.Info("create authorize", idata, "request data format error")
+		logger.Error("create authorize", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 
@@ -61,7 +61,7 @@ func (r *RequestObj) CreateAuthorize() (external_models.GetAuthorizeResponse, er
 	logger.Info("create authorize", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("create authorize", outBoundResponse, err.Error())
+		logger.Error("create authorize", outBoundResponse, err.Error())
 		return outBoundResponse, err
 	}
 	logger.Info("create authorize", outBoundResponse)
@@ -80,7 +80,7 @@ func (r *RequestObj) UpdateAuthorize() (external_models.GetAuthorizeResponse, er
 
 	data, ok := idata.(external_models.UpdateAuthorizeModel)
 	if !ok {
-		logger.Info("update authorize", idata, "request data format error")
+		logger.Error("update authorize", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 
@@ -92,7 +92,7 @@ func (r *RequestObj) UpdateAuthorize() (external_models.GetAuthorizeResponse, er
 	logger.Info("update authorize", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("update authorize", outBoundResponse, err.Error())
+		logger.Error("update authorize", outBoundResponse, err.Error())
 		return outBoundResponse, err
 	}
 	logger.Info("update authorize", outBoundResponse)

@@ -20,7 +20,7 @@ func (r *RequestObj) CreateWalletBalance() (external_models.WalletBalance, error
 
 	data, ok := idata.(external_models.CreateWalletRequest)
 	if !ok {
-		logger.Info("create wallet", idata, "request data format error")
+		logger.Error("create wallet", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -32,7 +32,7 @@ func (r *RequestObj) CreateWalletBalance() (external_models.WalletBalance, error
 	logger.Info("create wallet", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("create wallet", outBoundResponse, err.Error())
+		logger.Error("create wallet", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("create wallet", outBoundResponse)
@@ -51,7 +51,7 @@ func (r *RequestObj) GetWalletBalanceByAccountIDAndCurrency() (external_models.W
 
 	data, ok := idata.(external_models.GetWalletRequest)
 	if !ok {
-		logger.Info("get wallet", idata, "request data format error")
+		logger.Error("get wallet", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -63,7 +63,7 @@ func (r *RequestObj) GetWalletBalanceByAccountIDAndCurrency() (external_models.W
 	logger.Info("get wallet", data)
 	err := r.getNewSendRequestObject(data, headers, fmt.Sprintf("/%v/%v", strconv.Itoa(int(data.AccountID)), strings.ToUpper(data.Currency))).SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get wallet", outBoundResponse, err.Error())
+		logger.Error("get wallet", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("get wallet", outBoundResponse)
@@ -82,7 +82,7 @@ func (r *RequestObj) UpdateWalletBalance() (external_models.WalletBalance, error
 
 	data, ok := idata.(external_models.UpdateWalletRequest)
 	if !ok {
-		logger.Info("update wallet", idata, "request data format error")
+		logger.Error("update wallet", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -94,7 +94,7 @@ func (r *RequestObj) UpdateWalletBalance() (external_models.WalletBalance, error
 	logger.Info("update wallet", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("update wallet", outBoundResponse, err.Error())
+		logger.Error("update wallet", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("update wallet", outBoundResponse)
@@ -113,7 +113,7 @@ func (r *RequestObj) CreateWalletHistory() (external_models.WalletHistory, error
 
 	data, ok := idata.(external_models.CreateWalletHistoryRequest)
 	if !ok {
-		logger.Info("create wallet history", idata, "request data format error")
+		logger.Error("create wallet history", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -125,7 +125,7 @@ func (r *RequestObj) CreateWalletHistory() (external_models.WalletHistory, error
 	logger.Info("create wallet history", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("create wallet history", outBoundResponse, err.Error())
+		logger.Error("create wallet history", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("create wallet history", outBoundResponse)
@@ -143,7 +143,7 @@ func (r *RequestObj) CreateWalletTransaction() (external_models.WalletTransactio
 
 	data, ok := idata.(external_models.CreateWalletTransactionRequest)
 	if !ok {
-		logger.Info("create wallet transaction", idata, "request data format error")
+		logger.Error("create wallet transaction", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -155,7 +155,7 @@ func (r *RequestObj) CreateWalletTransaction() (external_models.WalletTransactio
 	logger.Info("create wallet transaction", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("create wallet transaction", outBoundResponse, err.Error())
+		logger.Error("create wallet transaction", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("create wallet transaction", outBoundResponse)

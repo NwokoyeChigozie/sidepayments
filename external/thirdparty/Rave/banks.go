@@ -21,13 +21,13 @@ func (r *RequestObj) ListBanksWithRave() ([]external_models.BanksResponse, error
 
 	data, ok := idata.(string)
 	if !ok {
-		logger.Info("list banks with rave", idata, "request data format error")
+		logger.Error("list banks with rave", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
 	err := r.getNewSendRequestObject(data, headers, "/"+data).SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("list banks with rave", outBoundResponse, err.Error())
+		logger.Error("list banks with rave", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("list banks with rave", outBoundResponse)
@@ -49,13 +49,13 @@ func (r *RequestObj) ConvertCurrencyWithRave() (external_models.ConvertCurrencyD
 
 	data, ok := idata.(external_models.ConvertCurrencyRequest)
 	if !ok {
-		logger.Info("convert currency with rave", idata, "request data format error")
+		logger.Error("convert currency with rave", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
 	err := r.getNewSendRequestObject(data, headers, fmt.Sprintf("?amount=%v&destination_currency=%v&source_currency=%v", data.Amount, data.From, data.To)).SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("convert currency with rave", outBoundResponse, err.Error())
+		logger.Error("convert currency with rave", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("convert currency with rave", outBoundResponse)

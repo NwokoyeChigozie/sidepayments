@@ -14,12 +14,12 @@ func (r *RequestObj) VerificationFailedNotification() (interface{}, error) {
 	)
 	data, ok := idata.(external_models.VerificationFailedModel)
 	if !ok {
-		logger.Info("verification failed notification", idata, "request data format error")
+		logger.Error("verification failed notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("verification failed notification", outBoundResponse, err.Error())
+		logger.Error("verification failed notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -32,7 +32,7 @@ func (r *RequestObj) VerificationFailedNotification() (interface{}, error) {
 	logger.Info("verification failed notification", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("verification failed notification", outBoundResponse, err.Error())
+		logger.Error("verification failed notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("verification failed notification", outBoundResponse)
@@ -48,12 +48,12 @@ func (r *RequestObj) VerificationSuccessfulNotification() (interface{}, error) {
 	)
 	data, ok := idata.(external_models.VerificationSuccessfulModel)
 	if !ok {
-		logger.Info("verification successful notification", idata, "request data format error")
+		logger.Error("verification successful notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("verification successful notification", outBoundResponse, err.Error())
+		logger.Error("verification successful notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -66,7 +66,7 @@ func (r *RequestObj) VerificationSuccessfulNotification() (interface{}, error) {
 	logger.Info("verification successful notification", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("verification successful notification", outBoundResponse, err.Error())
+		logger.Error("verification successful notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("verification successful notification", outBoundResponse)

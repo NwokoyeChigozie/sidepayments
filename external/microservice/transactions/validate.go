@@ -18,7 +18,7 @@ func (r *RequestObj) ValidateOnTransactions() (bool, error) {
 
 	data, ok := idata.(external_models.ValidateOnDBReq)
 	if !ok {
-		logger.Info("validate on transactions", idata, "request data format error")
+		logger.Error("validate on transactions", idata, "request data format error")
 		return false, fmt.Errorf("request data format error")
 	}
 
@@ -30,7 +30,7 @@ func (r *RequestObj) ValidateOnTransactions() (bool, error) {
 	logger.Info("validate on transactions", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("validate on transactions", outBoundResponse, err.Error())
+		logger.Error("validate on transactions", outBoundResponse, err.Error())
 		return false, err
 	}
 	logger.Info("validate on transactions", outBoundResponse)

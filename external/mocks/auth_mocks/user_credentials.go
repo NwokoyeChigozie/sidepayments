@@ -16,7 +16,7 @@ func GetUserCredential(logger *utility.Logger, idata interface{}) (external_mode
 
 	_, ok := idata.(external_models.GetUserCredentialModel)
 	if !ok {
-		logger.Info("get user credential", idata, "request data format error")
+		logger.Error("get user credential", idata, "request data format error")
 		return external_models.GetUserCredentialResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
@@ -26,7 +26,7 @@ func GetUserCredential(logger *utility.Logger, idata interface{}) (external_mode
 	}
 
 	if UsersCredential == nil {
-		logger.Info("get user credential", UsersCredential, "user credential not provided")
+		logger.Error("get user credential", UsersCredential, "user credential not provided")
 		return external_models.GetUserCredentialResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
@@ -48,7 +48,7 @@ func CreateUserCredential(logger *utility.Logger, idata interface{}) (external_m
 
 	_, ok := idata.(external_models.CreateUserCredentialModel)
 	if !ok {
-		logger.Info("create user credential", idata, "request data format error")
+		logger.Error("create user credential", idata, "request data format error")
 		return external_models.GetUserCredentialResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
@@ -58,7 +58,7 @@ func CreateUserCredential(logger *utility.Logger, idata interface{}) (external_m
 	}
 
 	if UsersCredential == nil {
-		logger.Info("create user credential", UsersCredential, "user credential not provided")
+		logger.Error("create user credential", UsersCredential, "user credential not provided")
 		return external_models.GetUserCredentialResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
@@ -81,7 +81,7 @@ func UpdateUserCredential(logger *utility.Logger, idata interface{}) (external_m
 
 	_, ok := idata.(external_models.UpdateUserCredentialModel)
 	if !ok {
-		logger.Info("update user credential", idata, "request data format error")
+		logger.Error("update user credential", idata, "request data format error")
 		return external_models.GetUserCredentialResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
@@ -91,7 +91,7 @@ func UpdateUserCredential(logger *utility.Logger, idata interface{}) (external_m
 	}
 
 	if UsersCredential == nil {
-		logger.Info("update user credential", UsersCredential, "user credential not provided")
+		logger.Error("update user credential", UsersCredential, "user credential not provided")
 		return external_models.GetUserCredentialResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,

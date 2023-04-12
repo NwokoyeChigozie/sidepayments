@@ -18,7 +18,7 @@ func (r *RequestObj) GetBusinessCharge() (external_models.BusinessCharge, error)
 
 	data, ok := idata.(external_models.GetBusinessChargeModel)
 	if !ok {
-		logger.Info("get business charge", idata, "request data format error")
+		logger.Error("get business charge", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -30,7 +30,7 @@ func (r *RequestObj) GetBusinessCharge() (external_models.BusinessCharge, error)
 	logger.Info("get business charge", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get business charge", outBoundResponse, err.Error())
+		logger.Error("get business charge", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("get business charge", outBoundResponse)
@@ -49,7 +49,7 @@ func (r *RequestObj) InitBusinessCharge() (external_models.BusinessCharge, error
 
 	data, ok := idata.(external_models.InitBusinessChargeModel)
 	if !ok {
-		logger.Info("init business charge", idata, "request data format error")
+		logger.Error("init business charge", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -61,7 +61,7 @@ func (r *RequestObj) InitBusinessCharge() (external_models.BusinessCharge, error
 	logger.Info("init business charge", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("init business charge", outBoundResponse, err.Error())
+		logger.Error("init business charge", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("init business charge", outBoundResponse)

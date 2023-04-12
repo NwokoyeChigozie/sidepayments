@@ -17,7 +17,7 @@ func (r *RequestObj) MonnifyInitPayment() (external_models.MonnifyInitPaymentRes
 
 	data, ok := idata.(external_models.MonnifyInitPaymentRequest)
 	if !ok {
-		logger.Info("monnify init payment", idata, "request data format error")
+		logger.Error("monnify init payment", idata, "request data format error")
 		return outBoundResponse.ResponseBody, fmt.Errorf("request data format error")
 	}
 
@@ -29,7 +29,7 @@ func (r *RequestObj) MonnifyInitPayment() (external_models.MonnifyInitPaymentRes
 	logger.Info("monnify init payment", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("monnify init payment", outBoundResponse, err.Error())
+		logger.Error("monnify init payment", outBoundResponse, err.Error())
 		return outBoundResponse.ResponseBody, err
 	}
 
@@ -47,7 +47,7 @@ func (r *RequestObj) MonnifyVerifyTransactionByReference() (external_models.Monn
 
 	data, ok := idata.(string)
 	if !ok {
-		logger.Info("monnify verify transaction by reference", idata, "request data format error")
+		logger.Error("monnify verify transaction by reference", idata, "request data format error")
 		return outBoundResponse.ResponseBody, fmt.Errorf("request data format error")
 	}
 
@@ -59,7 +59,7 @@ func (r *RequestObj) MonnifyVerifyTransactionByReference() (external_models.Monn
 	logger.Info("monnify verify transaction by reference", data)
 	err := r.getNewSendRequestObject(nil, headers, data).SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("monnify verify transaction by reference", outBoundResponse, err.Error())
+		logger.Error("monnify verify transaction by reference", outBoundResponse, err.Error())
 		return outBoundResponse.ResponseBody, err
 	}
 
@@ -76,13 +76,13 @@ func (r *RequestObj) MonnifyReserveAccount() (external_models.MonnifyReserveAcco
 
 	data, ok := idata.(external_models.MonnifyReserveAccountRequest)
 	if !ok {
-		logger.Info("monnify reserve account", idata, "request data format error")
+		logger.Error("monnify reserve account", idata, "request data format error")
 		return outBoundResponse.ResponseBody, fmt.Errorf("request data format error")
 	}
 
 	token, err := r.getMonnifyLoginObject(false).MonnifyLogin()
 	if err != nil {
-		logger.Info("monnify reserve account", outBoundResponse, err.Error())
+		logger.Error("monnify reserve account", outBoundResponse, err.Error())
 		return outBoundResponse.ResponseBody, err
 	}
 
@@ -94,7 +94,7 @@ func (r *RequestObj) MonnifyReserveAccount() (external_models.MonnifyReserveAcco
 	logger.Info("monnify reserve account", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("monnify reserve account", outBoundResponse, err.Error())
+		logger.Error("monnify reserve account", outBoundResponse, err.Error())
 		return outBoundResponse.ResponseBody, err
 	}
 
@@ -111,13 +111,13 @@ func (r *RequestObj) GetMonnifyReserveAccountTransactions() (external_models.Get
 
 	data, ok := idata.(string)
 	if !ok {
-		logger.Info("get monnify reserve account transactions", idata, "request data format error")
+		logger.Error("get monnify reserve account transactions", idata, "request data format error")
 		return outBoundResponse.ResponseBody, fmt.Errorf("request data format error")
 	}
 
 	token, err := r.getMonnifyLoginObject(false).MonnifyLogin()
 	if err != nil {
-		logger.Info("get monnify reserve account transactions", outBoundResponse, err.Error())
+		logger.Error("get monnify reserve account transactions", outBoundResponse, err.Error())
 		return outBoundResponse.ResponseBody, err
 	}
 
@@ -129,7 +129,7 @@ func (r *RequestObj) GetMonnifyReserveAccountTransactions() (external_models.Get
 	logger.Info("get monnify reserve account transactions", data)
 	err = r.getNewSendRequestObject(nil, headers, fmt.Sprintf("?accountReference=%v&page=0&size=100", data)).SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get monnify reserve account transactions", outBoundResponse, err.Error())
+		logger.Error("get monnify reserve account transactions", outBoundResponse, err.Error())
 		return outBoundResponse.ResponseBody, err
 	}
 

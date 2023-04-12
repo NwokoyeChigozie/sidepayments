@@ -14,12 +14,12 @@ func (r *RequestObj) SendSendSMSToPhone() (interface{}, error) {
 	)
 	data, ok := idata.(external_models.SMSToPhoneNotificationRequest)
 	if !ok {
-		logger.Info("sms to phone", idata, "request data format error")
+		logger.Error("sms to phone", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("send sms to phone", outBoundResponse, err.Error())
+		logger.Error("send sms to phone", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -32,7 +32,7 @@ func (r *RequestObj) SendSendSMSToPhone() (interface{}, error) {
 	logger.Info("send sms to phone", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("send sms to phone", outBoundResponse, err.Error())
+		logger.Error("send sms to phone", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("send sms to phone", outBoundResponse)

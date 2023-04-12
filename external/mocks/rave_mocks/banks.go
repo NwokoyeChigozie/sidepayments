@@ -15,7 +15,7 @@ func ListBanksWithRave(logger *utility.Logger, idata interface{}) ([]external_mo
 
 	_, ok := idata.(string)
 	if !ok {
-		logger.Info("list banks with rave", idata, "request data format error")
+		logger.Error("list banks with rave", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -36,7 +36,7 @@ func ConvertCurrencyWithRave(logger *utility.Logger, idata interface{}) (externa
 
 	data, ok := idata.(external_models.ConvertCurrencyRequest)
 	if !ok {
-		logger.Info("convert currency with rave", idata, "request data format error")
+		logger.Error("convert currency with rave", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 

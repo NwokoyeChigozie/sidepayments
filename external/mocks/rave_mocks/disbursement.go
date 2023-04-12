@@ -15,7 +15,7 @@ func RaveInitTransfer(logger *utility.Logger, idata interface{}) (external_model
 
 	data, ok := idata.(external_models.RaveInitTransferRequest)
 	if !ok {
-		logger.Info("rave init transfer", idata, "request data format error")
+		logger.Error("rave init transfer", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 

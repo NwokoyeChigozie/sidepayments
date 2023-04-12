@@ -14,12 +14,12 @@ func (r *RequestObj) SendVerificationEmail() (interface{}, error) {
 	)
 	data, ok := idata.(external_models.EmailNotificationRequest)
 	if !ok {
-		logger.Info("verification email", idata, "request data format error")
+		logger.Error("verification email", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("verification email", outBoundResponse, err.Error())
+		logger.Error("verification email", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -32,7 +32,7 @@ func (r *RequestObj) SendVerificationEmail() (interface{}, error) {
 	logger.Info("verification email", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("verification email", outBoundResponse, err.Error())
+		logger.Error("verification email", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("verification email", outBoundResponse)
@@ -52,7 +52,7 @@ func (r *RequestObj) SendWelcomeEmail() (interface{}, error) {
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("welcome email", outBoundResponse, err.Error())
+		logger.Error("welcome email", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -65,7 +65,7 @@ func (r *RequestObj) SendWelcomeEmail() (interface{}, error) {
 	logger.Info("welcome email", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("welcome email", outBoundResponse, err.Error())
+		logger.Error("welcome email", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("welcome email", outBoundResponse)
@@ -85,7 +85,7 @@ func (r *RequestObj) SendEmailVerifiedNotification() (interface{}, error) {
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("email verified notification", outBoundResponse, err.Error())
+		logger.Error("email verified notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -98,7 +98,7 @@ func (r *RequestObj) SendEmailVerifiedNotification() (interface{}, error) {
 	logger.Info("email verified notification", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("email verified notification", outBoundResponse, err.Error())
+		logger.Error("email verified notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("email verified notification", outBoundResponse)

@@ -15,7 +15,7 @@ func MonnifyInitTransfer(logger *utility.Logger, idata interface{}) (external_mo
 
 	data, ok := idata.(external_models.MonnifyInitTransferRequest)
 	if !ok {
-		logger.Info("monnify init transfer", idata, "request data format error")
+		logger.Error("monnify init transfer", idata, "request data format error")
 		return outBoundResponse, fmt.Errorf("request data format error")
 	}
 

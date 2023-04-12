@@ -15,12 +15,12 @@ func RaveResolveBankAccount(logger *utility.Logger, idata interface{}) (string, 
 
 	_, ok := idata.(external_models.ResolveAccountRequest)
 	if !ok {
-		logger.Info("rave resolve bank account", idata, "request data format error")
+		logger.Error("rave resolve bank account", idata, "request data format error")
 		return "", fmt.Errorf("request data format error")
 	}
 
 	if AccountName == "" {
-		logger.Info("rave resolve bank account", "account name not provided", AccountName)
+		logger.Error("rave resolve bank account", "account name not provided", AccountName)
 		return "", fmt.Errorf("account name not provided")
 	}
 

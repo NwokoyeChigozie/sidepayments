@@ -140,7 +140,7 @@ func (vr ValidateRequestM) ValidationCheck(dbName string, table, checkType strin
 			Value: args[0],
 		})
 		if err != nil {
-			vr.Logger.Info("error occurred in validation", err.Error())
+			vr.Logger.Error("error occurred in validation", err.Error())
 			return false
 		}
 		return status.(bool)
@@ -160,7 +160,7 @@ func (vr ValidateRequestM) ValidationCheck(dbName string, table, checkType strin
 			Value: args[0],
 		})
 		if err != nil {
-			vr.Logger.Info("error occurred in validation", err.Error())
+			vr.Logger.Error("error occurred in validation", err.Error())
 			return false
 		}
 		return status.(bool)

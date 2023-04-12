@@ -17,12 +17,12 @@ func ListTransactionsByID(logger *utility.Logger, idata interface{}) (external_m
 	)
 	_, ok := idata.(string)
 	if !ok {
-		logger.Info("list transactions by id", idata, "request data format error")
+		logger.Error("list transactions by id", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
 	if ListTransactionsByIDObj == nil {
-		logger.Info("list transactions by id", ListTransactionsByIDObj, "ListTransactionsByIDObj not provided")
+		logger.Error("list transactions by id", ListTransactionsByIDObj, "ListTransactionsByIDObj not provided")
 		return external_models.TransactionByID{}, fmt.Errorf("ListTransactionsByIDObj not provided")
 	}
 

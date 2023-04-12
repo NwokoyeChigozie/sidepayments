@@ -38,7 +38,7 @@ func CreatePaymentService(extReq request.ExternalRequest, db postgresql.Database
 
 			country, err := GetCountryByNameOrCode(extReq, extReq.Logger, countryCode)
 			if err != nil {
-				extReq.Logger.Info("error getting country with country code", countryCode, err)
+				extReq.Logger.Error("error getting country with country code", countryCode, err)
 				return models.Payment{}, http.StatusBadRequest, err
 			}
 			disburseCurrency = country.CurrencyCode

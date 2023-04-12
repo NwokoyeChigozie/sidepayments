@@ -13,7 +13,7 @@ func WalletfundedNotification(logger *utility.Logger, idata interface{}) (interf
 	)
 	data, ok := idata.(external_models.WalletFundedNotificationRequest)
 	if !ok {
-		logger.Info("wallet funded notification", idata, "request data format error")
+		logger.Error("wallet funded notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 
@@ -28,7 +28,7 @@ func WalletDebitNotification(logger *utility.Logger, idata interface{}) (interfa
 	)
 	data, ok := idata.(external_models.WalletDebitNotificationRequest)
 	if !ok {
-		logger.Info("wallet debit notification", idata, "request data format error")
+		logger.Error("wallet debit notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 
@@ -43,7 +43,7 @@ func PaymentInvoiceNotification(logger *utility.Logger, idata interface{}) (inte
 	)
 	data, ok := idata.(external_models.PaymentInvoiceNotificationRequest)
 	if !ok {
-		logger.Info("payment invoice notification", idata, "request data format error")
+		logger.Error("payment invoice notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 
@@ -58,7 +58,7 @@ func TransactionPaidNotification(logger *utility.Logger, idata interface{}) (int
 	)
 	data, ok := idata.(external_models.OnlyTransactionIDAndAccountIDRequest)
 	if !ok {
-		logger.Info("transaction paid notification", idata, "request data format error")
+		logger.Error("transaction paid notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 

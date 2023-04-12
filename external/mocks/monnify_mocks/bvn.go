@@ -16,7 +16,7 @@ func MonnifyLogin(logger *utility.Logger, idata interface{}) (string, error) {
 	)
 
 	if base64Key == "" {
-		logger.Info("monnify login", "monnify base64 key not in env", base64Key)
+		logger.Error("monnify login", "monnify base64 key not in env", base64Key)
 		return "", fmt.Errorf("monnify base64 key not in env: %v", base64Key)
 	}
 	logger.Info("monnify login", outBoundResponse)
@@ -32,13 +32,13 @@ func MonnifyMatchBvnDetails(logger *utility.Logger, idata interface{}) (bool, er
 
 	_, err := MonnifyLogin(logger, nil)
 	if err != nil {
-		logger.Info("monnify match bvn details", outBoundResponse, err.Error())
+		logger.Error("monnify match bvn details", outBoundResponse, err.Error())
 		return false, err
 	}
 
 	data, ok := idata.(external_models.MonnifyMatchBvnDetailsReq)
 	if !ok {
-		logger.Info("monnify match bvn details", idata, "request data format error")
+		logger.Error("monnify match bvn details", idata, "request data format error")
 		return false, fmt.Errorf("request data format error")
 	}
 

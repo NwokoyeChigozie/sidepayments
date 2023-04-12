@@ -15,7 +15,7 @@ func CreateActivityLog(logger *utility.Logger, idata interface{}) (interface{}, 
 
 	data, ok := idata.(external_models.UpdateTransactionAmountPaidRequest)
 	if !ok {
-		logger.Info("create activity log", idata, "request data format error")
+		logger.Error("create activity log", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 

@@ -18,7 +18,7 @@ func (r *RequestObj) CreateActivityLog() (interface{}, error) {
 
 	data, ok := idata.(external_models.UpdateTransactionAmountPaidRequest)
 	if !ok {
-		logger.Info("create activity log", idata, "request data format error")
+		logger.Error("create activity log", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 
@@ -30,7 +30,7 @@ func (r *RequestObj) CreateActivityLog() (interface{}, error) {
 	logger.Info("create activity log", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("update wallet", outBoundResponse, err.Error())
+		logger.Error("update wallet", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("create activity log", outBoundResponse)

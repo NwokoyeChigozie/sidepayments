@@ -11,7 +11,7 @@ func ValidateOnTransactions(logger *utility.Logger, idata interface{}) (bool, er
 
 	_, ok := idata.(external_models.ValidateOnDBReq)
 	if !ok {
-		logger.Info("validate on transaction", idata, "request data format error")
+		logger.Error("validate on transaction", idata, "request data format error")
 		return false, fmt.Errorf("request data format error")
 	}
 

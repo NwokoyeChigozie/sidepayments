@@ -15,7 +15,7 @@ func RaveInitPayment(logger *utility.Logger, idata interface{}) (external_models
 
 	data, ok := idata.(external_models.RaveInitPaymentRequest)
 	if !ok {
-		logger.Info("init payment rave", idata, "request data format error")
+		logger.Error("init payment rave", idata, "request data format error")
 		return external_models.RaveInitPaymentResponse{}, fmt.Errorf("request data format error")
 	}
 
@@ -40,7 +40,7 @@ func RaveReserveAccount(logger *utility.Logger, idata interface{}) (external_mod
 
 	data, ok := idata.(external_models.RaveReserveAccountRequest)
 	if !ok {
-		logger.Info("rave reserve account", idata, "request data format error")
+		logger.Error("rave reserve account", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -66,7 +66,7 @@ func RaveVerifyTransactionByTxRef(logger *utility.Logger, idata interface{}) (ex
 
 	data, ok := idata.(string)
 	if !ok {
-		logger.Info("rave verify transaction by tx_ref", idata, "request data format error")
+		logger.Error("rave verify transaction by tx_ref", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -100,7 +100,7 @@ func RaveChargeCard(logger *utility.Logger, idata interface{}) (external_models.
 
 	data, ok := idata.(external_models.RaveChargeCardRequest)
 	if !ok {
-		logger.Info("rave charge card", idata, "request data format error")
+		logger.Error("rave charge card", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 

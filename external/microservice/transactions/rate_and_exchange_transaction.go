@@ -16,7 +16,7 @@ func (r *RequestObj) CreateExchangeTransaction() (interface{}, error) {
 	)
 	data, ok := idata.(external_models.CreateExchangeTransactionRequest)
 	if !ok {
-		logger.Info("create exchange transaction", idata, "request data format error")
+		logger.Error("create exchange transaction", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 
@@ -28,7 +28,7 @@ func (r *RequestObj) CreateExchangeTransaction() (interface{}, error) {
 	logger.Info("create exchange transaction", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("create exchange transaction", outBoundResponse, err.Error())
+		logger.Error("create exchange transaction", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("create exchange transaction", outBoundResponse)
@@ -45,7 +45,7 @@ func (r *RequestObj) GetRateByID() (external_models.Rate, error) {
 	)
 	data, ok := idata.(int)
 	if !ok {
-		logger.Info("get rate by id", idata, "request data format error")
+		logger.Error("get rate by id", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -57,7 +57,7 @@ func (r *RequestObj) GetRateByID() (external_models.Rate, error) {
 	logger.Info("get rate by id", data)
 	err := r.getNewSendRequestObject(data, headers, fmt.Sprintf("/%v", data)).SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get rate by id", outBoundResponse, err.Error())
+		logger.Error("get rate by id", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("get rate by id", outBoundResponse)

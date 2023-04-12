@@ -19,12 +19,12 @@ func GetUserProfile(logger *utility.Logger, idata interface{}) (external_models.
 
 	_, ok := idata.(external_models.GetUserProfileModel)
 	if !ok {
-		logger.Info("get user profile", idata, "request data format error")
+		logger.Error("get user profile", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
 	if UserProfile == nil {
-		logger.Info("get UserProfile", UserProfile, "UserProfile not provided")
+		logger.Error("get UserProfile", UserProfile, "UserProfile not provided")
 		return external_models.UserProfile{}, fmt.Errorf("UserProfile not provided")
 	}
 

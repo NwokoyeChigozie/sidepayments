@@ -20,7 +20,7 @@ func (r *RequestObj) UploadFile() (external_models.UploadFileResponseData, error
 
 	data, ok := idata.(external_models.UploadFileRequest)
 	if !ok {
-		logger.Info("upload one file", idata, "request data format error")
+		logger.Error("upload one file", idata, "request data format error")
 		return external_models.UploadFileResponseData{}, fmt.Errorf("request data format error")
 	}
 
@@ -30,17 +30,17 @@ func (r *RequestObj) UploadFile() (external_models.UploadFileResponseData, error
 
 	part, err := writer.CreateFormFile("files", data.PlaceHolderName)
 	if err != nil {
-		logger.Info("upload one file", outBoundResponse, err.Error())
+		logger.Error("upload one file", outBoundResponse, err.Error())
 		return external_models.UploadFileResponseData{}, err
 	}
 	if _, err := part.Write(data.File); err != nil {
-		logger.Info("upload one file", outBoundResponse, err.Error())
+		logger.Error("upload one file", outBoundResponse, err.Error())
 		return external_models.UploadFileResponseData{}, err
 	}
 
 	err = writer.Close()
 	if err != nil {
-		logger.Info("upload one file", outBoundResponse, err.Error())
+		logger.Error("upload one file", outBoundResponse, err.Error())
 		return external_models.UploadFileResponseData{}, err
 	}
 
@@ -53,14 +53,14 @@ func (r *RequestObj) UploadFile() (external_models.UploadFileResponseData, error
 	logger.Info("upload one file", string(data.File), data.PlaceHolderName)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("upload one file", outBoundResponse, err.Error())
+		logger.Error("upload one file", outBoundResponse, err.Error())
 		return external_models.UploadFileResponseData{}, err
 	}
 	logger.Info("upload one file", outBoundResponse)
 
 	if len(outBoundResponse.Data) < 1 {
 		err = fmt.Errorf("no link returned")
-		logger.Info("upload one file", outBoundResponse, err)
+		logger.Error("upload one file", outBoundResponse, err)
 		return external_models.UploadFileResponseData{}, err
 	}
 

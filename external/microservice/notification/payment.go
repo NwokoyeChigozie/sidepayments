@@ -14,12 +14,12 @@ func (r *RequestObj) WalletfundedNotification() (interface{}, error) {
 	)
 	data, ok := idata.(external_models.WalletFundedNotificationRequest)
 	if !ok {
-		logger.Info("wallet funded notification", idata, "request data format error")
+		logger.Error("wallet funded notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("wallet funded notification", outBoundResponse, err.Error())
+		logger.Error("wallet funded notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -32,7 +32,7 @@ func (r *RequestObj) WalletfundedNotification() (interface{}, error) {
 	logger.Info("wallet funded notification", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("wallet funded notification", outBoundResponse, err.Error())
+		logger.Error("wallet funded notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("wallet funded notification", outBoundResponse)
@@ -48,12 +48,12 @@ func (r *RequestObj) WalletDebitNotification() (interface{}, error) {
 	)
 	data, ok := idata.(external_models.WalletDebitNotificationRequest)
 	if !ok {
-		logger.Info("wallet debit notification", idata, "request data format error")
+		logger.Error("wallet debit notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("wallet debit notification", outBoundResponse, err.Error())
+		logger.Error("wallet debit notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -66,7 +66,7 @@ func (r *RequestObj) WalletDebitNotification() (interface{}, error) {
 	logger.Info("wallet debit notification", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("wallet debit notification", outBoundResponse, err.Error())
+		logger.Error("wallet debit notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("wallet debit notification", outBoundResponse)
@@ -82,12 +82,12 @@ func (r *RequestObj) PaymentInvoiceNotification() (interface{}, error) {
 	)
 	data, ok := idata.(external_models.PaymentInvoiceNotificationRequest)
 	if !ok {
-		logger.Info("payment invoice notification", idata, "request data format error")
+		logger.Error("payment invoice notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("payment invoice notification", outBoundResponse, err.Error())
+		logger.Error("payment invoice notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -100,7 +100,7 @@ func (r *RequestObj) PaymentInvoiceNotification() (interface{}, error) {
 	logger.Info("payment invoice notification", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("payment invoice notification", outBoundResponse, err.Error())
+		logger.Error("payment invoice notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("payment invoice notification", outBoundResponse)
@@ -116,12 +116,12 @@ func (r *RequestObj) TransactionPaidNotification() (interface{}, error) {
 	)
 	data, ok := idata.(external_models.OnlyTransactionIDAndAccountIDRequest)
 	if !ok {
-		logger.Info("transaction paid notification", idata, "request data format error")
+		logger.Error("transaction paid notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("transaction paid notification", outBoundResponse, err.Error())
+		logger.Error("transaction paid notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -134,7 +134,7 @@ func (r *RequestObj) TransactionPaidNotification() (interface{}, error) {
 	logger.Info("transaction paid notification", data)
 	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("transaction paid notification", outBoundResponse, err.Error())
+		logger.Error("transaction paid notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("transaction paid notification", outBoundResponse)

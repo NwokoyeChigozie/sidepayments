@@ -16,7 +16,7 @@ func AppruveVerifyID(logger *utility.Logger, idata interface{}) (int, error) {
 
 	_, ok := idata.(external_models.AppruveReqModelFirst)
 	if !ok {
-		logger.Info("appruve_verify_id request data format error", idata)
+		logger.Error("appruve_verify_id request data format error", idata)
 		return http.StatusInternalServerError, fmt.Errorf("request data format error")
 	}
 

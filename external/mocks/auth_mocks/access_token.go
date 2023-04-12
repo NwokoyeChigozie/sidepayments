@@ -23,7 +23,7 @@ func GetAccessTokenByKey(logger *utility.Logger, idata interface{}) (external_mo
 
 	data, ok := idata.(string)
 	if !ok {
-		logger.Info("get access token by key", idata, "request data format error")
+		logger.Error("get access token by key", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 

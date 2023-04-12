@@ -26,7 +26,7 @@ func (r *RequestObj) AppruveVerifyID() (int, error) {
 
 	fdata, ok := idata.(external_models.AppruveReqModelFirst)
 	if !ok {
-		logger.Info("appruve_verify_id", idata, "request data format error")
+		logger.Error("appruve_verify_id", idata, "request data format error")
 		return http.StatusInternalServerError, fmt.Errorf("request data format error")
 	}
 
@@ -44,7 +44,7 @@ func (r *RequestObj) AppruveVerifyID() (int, error) {
 
 	err := r.getNewSendRequestObject(data, headers, endpoint).SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("appruve_verify_id", outBoundResponse, err.Error())
+		logger.Error("appruve_verify_id", outBoundResponse, err.Error())
 		code := http.StatusInternalServerError
 		if external.ResponseCode != 0 {
 			code = external.ResponseCode

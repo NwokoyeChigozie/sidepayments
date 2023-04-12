@@ -14,12 +14,12 @@ func (r *RequestObj) ListTransactionsByID() (external_models.TransactionByID, er
 	)
 	data, ok := idata.(string)
 	if !ok {
-		logger.Info("list transactions by id", idata, "request data format error")
+		logger.Error("list transactions by id", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
-		logger.Info("list transactions by id", outBoundResponse, err.Error())
+		logger.Error("list transactions by id", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 
@@ -32,7 +32,7 @@ func (r *RequestObj) ListTransactionsByID() (external_models.TransactionByID, er
 	logger.Info("list transactions by id", data)
 	err = r.getNewSendRequestObject(data, headers, "/"+data).SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("list transactions by id", outBoundResponse, err.Error())
+		logger.Error("list transactions by id", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("list transactions by id", outBoundResponse)

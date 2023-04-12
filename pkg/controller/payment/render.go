@@ -17,7 +17,7 @@ func (base *Controller) GetPaymentInvoice(c *gin.Context) {
 
 	c.Header("Content-Disposition", "inline")
 
-	base.ExtReq.Logger.Error("info getting payment invoice", "payment id "+paymentID)
+	base.ExtReq.Logger.Info("info getting payment invoice", "payment id "+paymentID)
 	template, data, code, err := payment.GetPaymentInvoiceService(c, base.ExtReq, base.Db, paymentID)
 	if err != nil {
 		base.ExtReq.Logger.Error("error getting payment invoice", err.Error())
@@ -25,13 +25,13 @@ func (base *Controller) GetPaymentInvoice(c *gin.Context) {
 		return
 	}
 
-	base.ExtReq.Logger.Error("info getting payment invoice", fmt.Sprintf("generate template: %v, and data: %v", template, data))
+	base.ExtReq.Logger.Info("info getting payment invoice", fmt.Sprintf("generate template: %v, and data: %v", template, data))
 	err = template.Execute(c.Writer, data)
 	if err != nil {
 		base.ExtReq.Logger.Error("error getting payment invoice", err.Error())
 		c.AbortWithError(http.StatusInternalServerError, err)
 	}
-	base.ExtReq.Logger.Error("info getting payment invoice", "done")
+	base.ExtReq.Logger.Info("info getting payment invoice", "done")
 	c.Status(http.StatusOK)
 }
 

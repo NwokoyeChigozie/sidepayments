@@ -25,7 +25,7 @@ func ListTransactionsByID(extReq request.ExternalRequest, transactionID string) 
 	transactionInterface, err := extReq.SendExternalRequest(request.ListTransactionsByID, transactionID)
 
 	if err != nil {
-		extReq.Logger.Info(err.Error())
+		extReq.Logger.Error(err.Error())
 		return external_models.TransactionByID{}, fmt.Errorf("transaction could not be retrieved")
 	}
 	transaction, ok := transactionInterface.(external_models.TransactionByID)
@@ -127,7 +127,7 @@ func GetUserProfileByAccountID(extReq request.ExternalRequest, logger *utility.L
 		AccountID: uint(accountID),
 	})
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return external_models.UserProfile{}, err
 	}
 
@@ -151,7 +151,7 @@ func GetCountryByNameOrCode(extReq request.ExternalRequest, logger *utility.Logg
 	})
 
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return external_models.Country{}, fmt.Errorf("your country could not be resolved, please update your profile")
 	}
 	country, ok := countryInterface.(external_models.Country)
@@ -177,7 +177,7 @@ func isRequestIPNigerian(extReq request.ExternalRequest, c *gin.Context) (bool, 
 
 	ipInterface, err := extReq.SendExternalRequest(request.ResolveIP, ip)
 	if err != nil {
-		extReq.Logger.Info(err.Error())
+		extReq.Logger.Error(err.Error())
 		return false, err
 	}
 
@@ -198,7 +198,7 @@ func GetBusinessProfileByAccountID(extReq request.ExternalRequest, logger *utili
 		AccountID: uint(accountID),
 	})
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return external_models.BusinessProfile{}, fmt.Errorf("business lacks a profile")
 	}
 
@@ -217,7 +217,7 @@ func GetBusinessProfileByFlutterwaveMerchantID(extReq request.ExternalRequest, l
 		FlutterwaveMerchantID: merchantID,
 	})
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return external_models.BusinessProfile{}, err
 	}
 
@@ -239,7 +239,7 @@ func getBusinessChargeWithBusinessIDAndCurrency(extReq request.ExternalRequest, 
 	})
 
 	if err != nil {
-		extReq.Logger.Info(err.Error())
+		extReq.Logger.Error(err.Error())
 		return external_models.BusinessCharge{}, err
 	}
 
@@ -262,7 +262,7 @@ func getBusinessChargeWithBusinessIDAndCountry(extReq request.ExternalRequest, b
 	})
 
 	if err != nil {
-		extReq.Logger.Info(err.Error())
+		extReq.Logger.Error(err.Error())
 		return external_models.BusinessCharge{}, err
 	}
 
@@ -285,7 +285,7 @@ func initBusinessCharge(extReq request.ExternalRequest, businessID int, currency
 	})
 
 	if err != nil {
-		extReq.Logger.Info(err.Error())
+		extReq.Logger.Error(err.Error())
 		return external_models.BusinessCharge{}, err
 	}
 
@@ -308,7 +308,7 @@ func GetCountryByCurrency(extReq request.ExternalRequest, logger *utility.Logger
 	})
 
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return external_models.Country{}, fmt.Errorf("your country could not be resolved, please update your profile")
 	}
 	country, ok := countryInterface.(external_models.Country)
@@ -327,7 +327,7 @@ func GetRateByID(extReq request.ExternalRequest, rateID int) (external_models.Ra
 	rateInterface, err := extReq.SendExternalRequest(request.GetRateByID, rateID)
 
 	if err != nil {
-		extReq.Logger.Info(err.Error())
+		extReq.Logger.Error(err.Error())
 		return external_models.Rate{}, err
 	}
 	rate, ok := rateInterface.(external_models.Rate)
@@ -352,7 +352,7 @@ func CreateExchangeTransaction(extReq request.ExternalRequest, accountID, rateID
 	})
 
 	if err != nil {
-		extReq.Logger.Info(err.Error())
+		extReq.Logger.Error(err.Error())
 		return err
 	}
 
@@ -366,7 +366,7 @@ func GetUserCredentialByAccountIdAndType(extReq request.ExternalRequest, account
 	})
 
 	if err != nil {
-		extReq.Logger.Info(err.Error())
+		extReq.Logger.Error(err.Error())
 		return external_models.UsersCredential{}, err
 	}
 
@@ -398,7 +398,7 @@ func GetBankDetail(extReq request.ExternalRequest, id, accountID int, country, c
 	userBankInterface, err := extReq.SendExternalRequest(request.GetBankDetails, data)
 
 	if err != nil {
-		extReq.Logger.Info(err.Error())
+		extReq.Logger.Error(err.Error())
 		return external_models.BankDetail{}, err
 	}
 
@@ -424,7 +424,7 @@ func GetBank(extReq request.ExternalRequest, id int, name, code, country string)
 	bankInterface, err := extReq.SendExternalRequest(request.GetBank, data)
 
 	if err != nil {
-		extReq.Logger.Info(err.Error())
+		extReq.Logger.Error(err.Error())
 		return external_models.Bank{}, err
 	}
 

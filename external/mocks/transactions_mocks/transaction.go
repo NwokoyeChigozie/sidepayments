@@ -15,7 +15,7 @@ func UpdateTransactionAmountPaid(logger *utility.Logger, idata interface{}) (ext
 
 	data, ok := idata.(external_models.UpdateTransactionAmountPaidRequest)
 	if !ok {
-		logger.Info("update transaction amount paid", idata, "request data format error")
+		logger.Error("update transaction amount paid", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 	logger.Info("update transaction amount paid", outBoundResponse)
@@ -32,7 +32,7 @@ func TransactionUpdateStatus(logger *utility.Logger, idata interface{}) (interfa
 	)
 	data, ok := idata.(external_models.UpdateTransactionStatusRequest)
 	if !ok {
-		logger.Info("transaction update status", idata, "request data format error")
+		logger.Error("transaction update status", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 
@@ -47,7 +47,7 @@ func BuyerSatisfied(logger *utility.Logger, idata interface{}) (interface{}, err
 	)
 	data, ok := idata.(external_models.OnlyTransactionIDRequiredRequest)
 	if !ok {
-		logger.Info("buyer satisfied", idata, "request data format error")
+		logger.Error("buyer satisfied", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 

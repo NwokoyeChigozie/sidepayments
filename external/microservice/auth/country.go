@@ -18,7 +18,7 @@ func (r *RequestObj) GetCountry() (external_models.Country, error) {
 
 	data, ok := idata.(external_models.GetCountryModel)
 	if !ok {
-		logger.Info("get country", idata, "request data format error")
+		logger.Error("get country", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
@@ -30,7 +30,7 @@ func (r *RequestObj) GetCountry() (external_models.Country, error) {
 	logger.Info("get country", data)
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get country", outBoundResponse, err.Error())
+		logger.Error("get country", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err
 	}
 	logger.Info("get country", outBoundResponse)

@@ -17,7 +17,7 @@ func UploadFile(logger *utility.Logger, idata interface{}) (external_models.Uplo
 
 	data, ok := idata.(external_models.UploadFileRequest)
 	if !ok {
-		logger.Info("upload one file", "request data format error")
+		logger.Error("upload one file", "request data format error")
 		return external_models.UploadFileResponseData{}, fmt.Errorf("request data format error")
 	}
 
@@ -27,11 +27,11 @@ func UploadFile(logger *utility.Logger, idata interface{}) (external_models.Uplo
 
 	part, err := writer.CreateFormFile("files", data.PlaceHolderName)
 	if err != nil {
-		logger.Info("upload one file", outBoundResponse, err.Error())
+		logger.Error("upload one file", outBoundResponse, err.Error())
 		return external_models.UploadFileResponseData{}, err
 	}
 	if _, err := part.Write(data.File); err != nil {
-		logger.Info("upload one file", outBoundResponse, err.Error())
+		logger.Error("upload one file", outBoundResponse, err.Error())
 		return external_models.UploadFileResponseData{}, err
 	}
 

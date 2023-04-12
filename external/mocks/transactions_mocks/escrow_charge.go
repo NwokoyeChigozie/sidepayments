@@ -17,7 +17,7 @@ func GetEscrowCharge(logger *utility.Logger, idata interface{}) (external_models
 	)
 	data, ok := idata.(external_models.GetEscrowChargeRequest)
 	if !ok {
-		logger.Info("get escrow charge", idata, "request data format error")
+		logger.Error("get escrow charge", idata, "request data format error")
 		return outBoundResponse.Data, fmt.Errorf("request data format error")
 	}
 
