@@ -165,6 +165,7 @@ func (base *Controller) ChargeCardHeadlessInit(c *gin.Context) {
 	c.JSON(http.StatusOK, rd)
 
 }
+
 func (base *Controller) DeleteStoredCard(c *gin.Context) {
 	var (
 		req models.DeleteStoredCardRequest

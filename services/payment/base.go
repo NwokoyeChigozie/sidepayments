@@ -104,6 +104,20 @@ func GetAccessTokenByKeyFromRequest(extReq request.ExternalRequest, c *gin.Conte
 
 	return accessToken, nil
 }
+func GetAccessTokenByBusinessID(extReq request.ExternalRequest, businessID int) (external_models.AccessToken, error) {
+
+	acItf, err := extReq.SendExternalRequest(request.GetAccessTokenByBusinessID, strconv.Itoa(businessID))
+	if err != nil {
+		return external_models.AccessToken{}, err
+	}
+
+	accessToken, ok := acItf.(external_models.AccessToken)
+	if !ok {
+		return external_models.AccessToken{}, fmt.Errorf("response data format error")
+	}
+
+	return accessToken, nil
+}
 
 func GetEscrowCharge(extReq request.ExternalRequest, businessId int, amount float64) (external_models.GetEscrowChargeResponseData, error) {
 	escItf, err := extReq.SendExternalRequest(request.GetEscrowCharge, external_models.GetEscrowChargeRequest{

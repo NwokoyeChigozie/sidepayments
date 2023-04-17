@@ -169,6 +169,16 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		return monnify_mocks.MonnifyInitTransfer(er.Logger, data)
 	case "transaction_paid_notification":
 		return notification_mocks.TransactionPaidNotification(er.Logger, data)
+	case "successful_refund_notification":
+		return notification_mocks.SuccessfulRefundNotification(er.Logger, data)
+	case "escrow_disbursed_seller_notification":
+		return notification_mocks.EscrowDisbursedSellerNotification(er.Logger, data)
+	case "escrow_disbursed_buyer_notification":
+		return notification_mocks.EscrowDisbursedBuyerNotification(er.Logger, data)
+	case "transaction_closed_buyer_notification":
+		return notification_mocks.TransactionClosedBuyerNotification(er.Logger, data)
+	case "transaction_closed_seller_notification":
+		return notification_mocks.TransactionClosedSellerNotification(er.Logger, data)
 	default:
 		return nil, fmt.Errorf("request not found")
 	}

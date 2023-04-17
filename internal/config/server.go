@@ -8,6 +8,8 @@ type ServerConfiguration struct {
 	TrustedProxies            []string
 	ExemptFromThrottle        []string
 	MetricsPort               string
+	RunCronJobs               bool
+	CronJobs                  []string
 }
 type App struct {
 	Name    string

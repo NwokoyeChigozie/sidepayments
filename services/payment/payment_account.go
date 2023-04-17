@@ -178,7 +178,7 @@ func PaymentAccountMonnifyListService(c *gin.Context, extReq request.ExternalReq
 
 	return paymentAccount, http.StatusOK, nil
 }
-func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalRequest, db postgresql.Databases, req models.PaymentAccountMonnifyVerifyRequest) (map[string]interface{}, string, int, error) {
+func PaymentAccountMonnifyVerifyService(extReq request.ExternalRequest, db postgresql.Databases, req models.PaymentAccountMonnifyVerifyRequest) (map[string]interface{}, string, int, error) {
 	var (
 		data            = map[string]interface{}{"reference": req.Reference, "amount": 0.00, "pdf_link": "", "status": false}
 		msg             = ""
@@ -187,6 +187,7 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 		paymentAccount  = models.PaymentAccount{PaymentAccountID: req.Reference}
 		transaction     external_models.TransactionByID
 		pdfLink         = ""
+		transactionID   = req.TransactionID
 	)
 
 	code, err := paymentAccount.GetPaymentAccountByPaymentAccountID(db.Payment)
@@ -198,6 +199,10 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 	code, err = payment.GetPaymentByPaymentID(db.Payment)
 	if err != nil && code == http.StatusInternalServerError {
 		return data, msg, code, err
+	}
+
+	if payment.TransactionID != transactionID {
+		transactionID = payment.TransactionID
 	}
 
 	if payment.IsPaid {
@@ -285,8 +290,8 @@ func PaymentAccountMonnifyVerifyService(c *gin.Context, extReq request.ExternalR
 	}
 
 	fundEscrowWallet := "no"
-	if req.TransactionID != "" {
-		transaction, err = ListTransactionsByID(extReq, payment.TransactionID)
+	if transactionID != "" {
+		transaction, err = ListTransactionsByID(extReq, transactionID)
 		if err != nil {
 			return data, msg, http.StatusInternalServerError, err
 		}

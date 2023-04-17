@@ -160,21 +160,23 @@ func (r *Rave) VerifyTrans(reference string, amount float64, currency string) (s
 	return "success", nil
 }
 
-func (r *Rave) StatusV3(db postgresql.Databases, payment models.Payment, paymentInfo models.PaymentInfo, reference string) (bool, float64, error) {
+func (r *Rave) StatusV3(db postgresql.Databases, payment models.Payment, paymentInfo models.PaymentInfo, reference string) (external_models.RaveVerifyTransactionResponseData, bool, string, float64, error) {
 	var (
-		status bool
-		amount float64
+		status       bool
+		amount       float64
+		statusString string
 	)
 
 	paymentItf, err := r.ExtReq.SendExternalRequest(request.RaveVerifyTransactionByTxRef, reference)
 	if err != nil {
-		return status, amount, err
+		return external_models.RaveVerifyTransactionResponseData{}, status, statusString, amount, err
 	}
 
 	data, ok := paymentItf.(external_models.RaveVerifyTransactionResponseData)
 	if !ok {
-		return status, amount, fmt.Errorf("response data format error")
+		return data, status, statusString, amount, fmt.Errorf("response data format error")
 	}
+	statusString = data.Status
 
 	if data.Card != nil {
 		expirySlice := strings.Split(data.Card.Expiry, "/")
@@ -204,7 +206,7 @@ func (r *Rave) StatusV3(db postgresql.Databases, payment models.Payment, payment
 			}
 			err := paymentCardInfo.CreatePaymentCardInfo(db.Payment)
 			if err != nil {
-				return status, amount, err
+				return data, status, statusString, amount, err
 			}
 		}
 	}
@@ -223,7 +225,41 @@ func (r *Rave) StatusV3(db postgresql.Databases, payment models.Payment, payment
 		amount = data.ChargedAmount
 	}
 
-	return status, amount, nil
+	return data, status, statusString, amount, nil
+}
+func (r *Rave) Status(reference string) (external_models.RaveVerifyTransactionResponseData, bool, string, float64, error) {
+	var (
+		status       bool
+		amount       float64
+		statusString string
+	)
+
+	paymentItf, err := r.ExtReq.SendExternalRequest(request.RaveVerifyTransactionByTxRef, reference)
+	if err != nil {
+		return external_models.RaveVerifyTransactionResponseData{}, status, statusString, amount, err
+	}
+
+	data, ok := paymentItf.(external_models.RaveVerifyTransactionResponseData)
+	if !ok {
+		return data, status, statusString, amount, fmt.Errorf("response data format error")
+	}
+	statusString = data.Status
+
+	if data.Status == "successful" || data.Status == "completed" {
+		status = true
+		amount = data.ChargedAmount
+	} else if data.Status == "failed" {
+		status = false
+		amount = data.ChargedAmount
+	} else if data.Status == "error" {
+		status = false
+		amount = data.ChargedAmount
+	} else {
+		status = true
+		amount = data.ChargedAmount
+	}
+
+	return data, status, statusString, amount, nil
 }
 
 func (r *Rave) ChargeCard(token, currency, email, reference string, amount float64) (string, error) {

@@ -3,6 +3,7 @@ package utility
 import (
 	"crypto/hmac"
 	"crypto/sha1"
+	"crypto/sha256"
 	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
@@ -33,6 +34,13 @@ func ShaHash(str string) (string, error) {
 func Sha512Hmac(secret string, body []byte) string {
 	hmacSecret := []byte(secret)
 	h := hmac.New(sha512.New, hmacSecret)
+	h.Write(body)
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func Sha256Hmac(secret string, body []byte) string {
+	hmacSecret := []byte(secret)
+	h := hmac.New(sha256.New, hmacSecret)
 	h.Write(body)
 	return hex.EncodeToString(h.Sum(nil))
 }

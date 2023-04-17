@@ -3,6 +3,7 @@ package payment
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -12,6 +13,7 @@ import (
 	"github.com/vesicash/payment-ms/external/request"
 	"github.com/vesicash/payment-ms/internal/models"
 	"github.com/vesicash/payment-ms/pkg/repository/storage/postgresql"
+	"github.com/vesicash/payment-ms/utility"
 )
 
 func InitWebhook(extReq request.ExternalRequest, db postgresql.Databases, uri, event string, data map[string]interface{}, businessID int) error {
@@ -24,12 +26,13 @@ func InitWebhook(extReq request.ExternalRequest, db postgresql.Databases, uri, e
 		return err
 	}
 
-	webhook := models.Webhook{WebhookUri: strings.TrimSpace(uri), BusinessID: strconv.Itoa(businessID), Event: event, RequestPayload: string(dataByte)}
+	webhook := models.Webhook{WebhookUri: strings.TrimSpace(uri), BusinessID: strconv.Itoa(businessID), Event: event, RequestPayload: string(dataByte), IsAbandoned: false, IsReceived: false}
 	err = webhook.CreateWebhook(db.Payment)
 	if err != nil {
 		return err
 	}
 
+	FireWebhook(extReq, db, webhook)
 	return nil
 }
 
@@ -37,9 +40,20 @@ func FireWebhook(extReq request.ExternalRequest, db postgresql.Databases, webhoo
 	var (
 		method = "POST"
 	)
+
 	if extReq.Test {
 		return nil
 	}
+
+	if webhook.RetryAt != "" {
+		retryAtUnix, _ := strconv.Atoi(webhook.RetryAt)
+		retryAt := time.Unix(int64(retryAtUnix), 0)
+		if retryAt.After(time.Now()) {
+			return nil
+		}
+	}
+	businessId, _ := strconv.Atoi(webhook.BusinessID)
+	apiKey, _ := GetAccessTokenByBusinessID(extReq, businessId)
 
 	data := map[string]interface{}{}
 
@@ -65,6 +79,13 @@ func FireWebhook(extReq request.ExternalRequest, db postgresql.Databases, webhoo
 		"Content-Type": "application/json",
 	}
 
+	if apiKey.PrivateKey != "" {
+		headerSignature := fmt.Sprintf("%v:%v", apiKey.PrivateKey, businessId)
+		hmacResult := utility.Sha256Hmac(apiKey.PrivateKey, []byte(headerSignature))
+		headers["X-Vesicash-Webhook-Secret"] = hmacResult
+		headers["User-Agent"] = "Vesicash Agent/2.0"
+	}
+
 	for key, value := range headers {
 		req.Header.Add(key, value)
 	}
@@ -83,11 +104,13 @@ func FireWebhook(extReq request.ExternalRequest, db postgresql.Databases, webhoo
 		return err
 	}
 
-	webhook.RetryAt = strconv.Itoa(int(time.Now().Unix()))
+	webhook.RetryAt = strconv.Itoa(int(time.Now().Add(24 * time.Hour).Unix()))
 	webhook.Tries = webhook.Tries + 1
+	webhook.ResponseCode = strconv.Itoa(res.StatusCode)
+	webhook.ResponsePayload = string(body)
+
 	if res.StatusCode >= 200 && res.StatusCode <= 299 {
 		webhook.IsReceived = true
-		webhook.ResponsePayload = string(body)
 	} else {
 
 		webhook.IsReceived = false
@@ -103,6 +126,8 @@ func FireWebhook(extReq request.ExternalRequest, db postgresql.Databases, webhoo
 	if err != nil {
 		return err
 	}
+
+	extReq.Logger.Info(fmt.Sprintf("Webhook #%v FIRED, RESPONSE CODE: %v", webhook.ID, res.StatusCode))
 
 	return nil
 }

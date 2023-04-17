@@ -130,6 +130,20 @@ func (d *Disbursement) GetDisbursementsByAccountID(db *gorm.DB, paginator postgr
 	return details, pagination, nil
 }
 
+func (d *Disbursement) GetAllForStatuses(db *gorm.DB, statuses []string) ([]Disbursement, error) {
+	statusSlice := []string{}
+	for _, status := range statuses {
+		statusSlice = append(statusSlice, strings.ToLower(status))
+	}
+
+	details := []Disbursement{}
+	err := postgresql.SelectAllFromDb(db, "desc", &details, "LOWER(status) IN (?)", statusSlice)
+	if err != nil {
+		return details, err
+	}
+	return details, nil
+}
+
 func (d *Disbursement) CreateDisbursement(db *gorm.DB) error {
 	d.Currency = strings.ToUpper(d.Currency)
 	d.DebitCurrency = strings.ToUpper(d.DebitCurrency)

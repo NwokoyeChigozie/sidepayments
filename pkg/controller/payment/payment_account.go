@@ -76,7 +76,7 @@ func (base *Controller) PaymentAccountMonnifyVerify(c *gin.Context) {
 		return
 	}
 
-	status, msg, code, err := payment.PaymentAccountMonnifyVerifyService(c, base.ExtReq, base.Db, req)
+	status, msg, code, err := payment.PaymentAccountMonnifyVerifyService(base.ExtReq, base.Db, req)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)

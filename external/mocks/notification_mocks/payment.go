@@ -66,3 +66,69 @@ func TransactionPaidNotification(logger *utility.Logger, idata interface{}) (int
 
 	return nil, nil
 }
+
+func SuccessfulRefundNotification(logger *utility.Logger, idata interface{}) (interface{}, error) {
+	var (
+		outBoundResponse map[string]interface{}
+	)
+	data, ok := idata.(external_models.OnlyTransactionIDAndAccountIDRequest)
+	if !ok {
+		logger.Error("successful refund notification", idata, "request data format error")
+		return nil, fmt.Errorf("request data format error")
+	}
+	logger.Info("successful refund notification", outBoundResponse, data)
+
+	return nil, nil
+}
+func EscrowDisbursedSellerNotification(logger *utility.Logger, idata interface{}) (interface{}, error) {
+	var (
+		outBoundResponse map[string]interface{}
+	)
+	data, ok := idata.(external_models.OnlyTransactionIDRequiredRequest)
+	if !ok {
+		logger.Error("escrow disbursed seller notification", idata, "request data format error")
+		return nil, fmt.Errorf("request data format error")
+	}
+	logger.Info("escrow disbursed seller notification", outBoundResponse, data)
+
+	return nil, nil
+}
+func EscrowDisbursedBuyerNotification(logger *utility.Logger, idata interface{}) (interface{}, error) {
+	var (
+		outBoundResponse map[string]interface{}
+	)
+	data, ok := idata.(external_models.OnlyTransactionIDRequiredRequest)
+	if !ok {
+		logger.Error("escrow disbursed buyer notification", idata, "request data format error")
+		return nil, fmt.Errorf("request data format error")
+	}
+	logger.Info("escrow disbursed buyer notification", outBoundResponse, data)
+
+	return nil, nil
+}
+func TransactionClosedBuyerNotification(logger *utility.Logger, idata interface{}) (interface{}, error) {
+	var (
+		outBoundResponse map[string]interface{}
+	)
+	data, ok := idata.(external_models.OnlyTransactionIDRequiredRequest)
+	if !ok {
+		logger.Error("transaction closed buyer notification", idata, "request data format error")
+		return nil, fmt.Errorf("request data format error")
+	}
+	logger.Info("transaction closed buyer notification", outBoundResponse, data)
+
+	return nil, nil
+}
+func TransactionClosedSellerNotification(logger *utility.Logger, idata interface{}) (interface{}, error) {
+	var (
+		outBoundResponse map[string]interface{}
+	)
+	data, ok := idata.(external_models.OnlyTransactionIDRequiredRequest)
+	if !ok {
+		logger.Error("transaction closed seller notification", idata, "request data format error")
+		return nil, fmt.Errorf("request data format error")
+	}
+	logger.Info("transaction closed seller notification", outBoundResponse, data)
+
+	return nil, nil
+}

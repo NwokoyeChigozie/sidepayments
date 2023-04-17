@@ -81,17 +81,17 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 
 	switch strings.ToLower(paymentGateway) {
 	case "rave":
-		gatewayStatus, _, err = rave.StatusV3(db, payment, paymentInfo, req.Reference)
+		_, gatewayStatus, _, _, err = rave.StatusV3(db, payment, paymentInfo, req.Reference)
 		if err != nil {
 			return "rave error", http.StatusInternalServerError, err
 		}
 	case "monnify":
-		gatewayStatus, _, err = monnify.Status(req.Reference)
+		_, gatewayStatus, _, _, err = monnify.Status(req.Reference)
 		if err != nil {
 			return "monnify error", http.StatusInternalServerError, err
 		}
 	default:
-		gatewayStatus, _, err = rave.StatusV3(db, payment, paymentInfo, req.Reference)
+		_, gatewayStatus, _, _, err = rave.StatusV3(db, payment, paymentInfo, req.Reference)
 		if err != nil {
 			return "rave error", http.StatusInternalServerError, err
 		}
@@ -375,17 +375,17 @@ func GetPaymentStatusService(c *gin.Context, extReq request.ExternalRequest, db 
 
 	switch strings.ToLower(paymentGateway) {
 	case "rave":
-		gatewayStatus, _, err = rave.StatusV3(db, payment, paymentInfo, req.Reference)
+		_, gatewayStatus, _, _, err = rave.StatusV3(db, payment, paymentInfo, req.Reference)
 		if err != nil {
 			return uri, "rave error", http.StatusInternalServerError, err
 		}
 	case "monnify":
-		gatewayStatus, _, err = monnify.Status(req.Reference)
+		_, gatewayStatus, _, _, err = monnify.Status(req.Reference)
 		if err != nil {
 			return uri, "monnify error", http.StatusInternalServerError, err
 		}
 	default:
-		gatewayStatus, _, err = rave.StatusV3(db, payment, paymentInfo, req.Reference)
+		_, gatewayStatus, _, _, err = rave.StatusV3(db, payment, paymentInfo, req.Reference)
 		if err != nil {
 			return uri, "rave error", http.StatusInternalServerError, err
 		}

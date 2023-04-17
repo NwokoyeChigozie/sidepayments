@@ -32,6 +32,15 @@ func (w *Webhook) CreateWebhook(db *gorm.DB) error {
 	return nil
 }
 
+func (p *Webhook) GetAllByIsAbandonedAndIsReceived(db *gorm.DB) ([]Webhook, error) {
+	details := []Webhook{}
+	err := postgresql.SelectAllFromDbOrderBy(db, "id", "desc", &details, "is_abandoned = ? and is_received = ?", p.IsAbandoned, p.IsReceived)
+	if err != nil {
+		return details, err
+	}
+	return details, nil
+}
+
 func (w *Webhook) UpdateAllFields(db *gorm.DB) error {
 	_, err := postgresql.SaveAllFields(db, &w)
 	return err

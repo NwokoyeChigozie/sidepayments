@@ -2,6 +2,7 @@ package auth_mocks
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/vesicash/payment-ms/external/external_models"
 	"github.com/vesicash/payment-ms/utility"
@@ -37,4 +38,21 @@ func GetAccessTokenByKey(logger *utility.Logger, idata interface{}) (external_mo
 		IsLive:        true,
 		IsTermsAgreed: true,
 	}, nil
+}
+
+func GetAccessTokenByBusinessID(logger *utility.Logger, idata interface{}) (external_models.AccessToken, error) {
+	var (
+		outBoundResponse external_models.GetAccessTokenModel
+	)
+
+	data, ok := idata.(string)
+	if !ok {
+		logger.Error("get access token by business id", idata, "request data format error")
+		return outBoundResponse.Data, fmt.Errorf("request data format error")
+	}
+
+	logger.Info("get access token by business id", outBoundResponse, data)
+	accountID, _ := strconv.Atoi(data)
+	AccessToken.AccountID = accountID
+	return AccessToken, nil
 }

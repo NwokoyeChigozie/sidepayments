@@ -107,6 +107,13 @@ var (
 	RaveInitTransfer            string = "rave_init_transfer"
 	MonnifyInitTransfer         string = "monnify_init_transfer"
 	TransactionPaidNotification string = "transaction_paid_notification"
+
+	SuccessfulRefundNotification        string = "successful_refund_notification"
+	EscrowDisbursedSellerNotification   string = "escrow_disbursed_seller_notification"
+	EscrowDisbursedBuyerNotification    string = "escrow_disbursed_buyer_notification"
+	TransactionClosedBuyerNotification  string = "transaction_closed_buyer_notification"
+	TransactionClosedSellerNotification string = "transaction_closed_seller_notification"
+	GetAccessTokenByBusinessID          string = "get_access_token_by_busines_id"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -830,6 +837,72 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.TransactionPaidNotification()
+		case "successful_refund_notification":
+			obj := notification.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/email/send/successful_refund", config.Microservices.Notification),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.SuccessfulRefundNotification()
+		case "escrow_disbursed_seller_notification":
+			obj := notification.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/email/send/escrow_disbursed_seller", config.Microservices.Notification),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.EscrowDisbursedSellerNotification()
+		case "escrow_disbursed_buyer_notification":
+			obj := notification.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/email/send/escrow_disbursed_buyer", config.Microservices.Notification),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.EscrowDisbursedBuyerNotification()
+		case "transaction_closed_buyer_notification":
+			obj := notification.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/email/send/transaction_closed_buyer", config.Microservices.Notification),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.TransactionClosedBuyerNotification()
+		case "transaction_closed_seller_notification":
+			obj := notification.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/email/send/transaction_closed_seller", config.Microservices.Notification),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.TransactionClosedSellerNotification()
+		case "get_access_token_by_busines_id":
+			obj := auth.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/get_access_token_by_busines_id", config.Microservices.Auth),
+				Method:       "GET",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.GetAccessTokenByBusinessID()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

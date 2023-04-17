@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/vesicash/payment-ms/pkg/repository/storage/postgresql"
@@ -44,4 +45,13 @@ func (p *PendingTransferFunding) Delete(db *gorm.DB) error {
 		return fmt.Errorf("pending transfer funding delete failed: %v", err.Error())
 	}
 	return nil
+}
+
+func (p *PendingTransferFunding) GetAllBystatus(db *gorm.DB) ([]PendingTransferFunding, error) {
+	details := []PendingTransferFunding{}
+	err := postgresql.SelectAllFromDbOrderBy(db, "id", "asc", &details, " LOWER(status) = ?", strings.ToLower(p.Status))
+	if err != nil {
+		return details, err
+	}
+	return details, nil
 }

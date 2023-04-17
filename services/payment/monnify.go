@@ -39,19 +39,20 @@ func (m *Monnify) InitPayment(amount float64, customerName, customerEmail, refer
 	return paymentData.CheckoutUrl, data, nil
 }
 
-func (m *Monnify) Status(reference string) (bool, float64, error) {
+func (m *Monnify) Status(reference string) (external_models.MonnifyVerifyByReferenceResponseBody, bool, string, float64, error) {
 	var (
-		status bool
-		amount float64
+		status       bool
+		amount       float64
+		statusString string
 	)
 	paymentItf, err := m.ExtReq.SendExternalRequest(request.MonnifyVerifyTransactionByReference, reference)
 	if err != nil {
-		return status, amount, err
+		return external_models.MonnifyVerifyByReferenceResponseBody{}, status, statusString, amount, err
 	}
 
 	data, ok := paymentItf.(external_models.MonnifyVerifyByReferenceResponseBody)
 	if !ok {
-		return status, amount, fmt.Errorf("response data format error")
+		return data, status, statusString, amount, fmt.Errorf("response data format error")
 	}
 
 	if strings.ToUpper(data.PaymentStatus) == "PAID" {
@@ -62,7 +63,7 @@ func (m *Monnify) Status(reference string) (bool, float64, error) {
 		amount = data.Amount
 	}
 
-	return status, amount, nil
+	return data, status, statusString, amount, nil
 }
 
 func (m *Monnify) VerifyTrans(accountReference string, amount float64) (bool, float64, error) {
