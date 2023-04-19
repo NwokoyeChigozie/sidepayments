@@ -51,3 +51,25 @@ type ListTransactionsByIDResponse struct {
 	Message string          `json:"message"`
 	Data    TransactionByID `json:"data"`
 }
+
+type ListTransactionsRequestMid struct {
+	Status     string `json:"status"`
+	StatusCode string `json:"status_code"`
+	Filter     string `json:"filter" validate:"oneof=day week month"`
+	Page       int    `json:"page"`
+	Limit      int    `json:"limit"`
+}
+
+type ListTransactionsRequest struct {
+	Status     string `json:"status"`
+	StatusCode string `json:"status_code"`
+	Filter     string `json:"filter" validate:"oneof=day week month"`
+}
+
+type ListTransactionsResponse struct {
+	Status     string            `json:"status"`
+	Code       int               `json:"code"`
+	Message    string            `json:"message"`
+	Data       []TransactionByID `json:"data"`
+	Pagination interface{}       `json:"pagination"`
+}

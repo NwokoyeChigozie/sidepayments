@@ -463,7 +463,7 @@ func sendTransactionConfirmed(extReq request.ExternalRequest, db postgresql.Data
 		}
 	}
 
-	businessEscrowCharge, err := getBusinessChargeWithBusinessIDAndCurrency(extReq, transaction.BusinessID, transaction.Currency)
+	businessEscrowCharge, err := GetBusinessChargeWithBusinessIDAndCurrency(extReq, transaction.BusinessID, transaction.Currency)
 
 	if err == nil {
 		businessPerc, _ := strconv.ParseFloat(businessEscrowCharge.BusinessCharge, 64)

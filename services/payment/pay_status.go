@@ -33,13 +33,13 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 
 	code, err := paymentInfo.GetPaymentInfoByReference(db.Payment)
 	if err != nil {
-		return "error", code, fmt.Errorf("Payment data lacks a log record: %v", err.Error())
+		return "error", code, fmt.Errorf("payment data lacks a log record: %v", err.Error())
 	}
 
 	payment := models.Payment{PaymentID: paymentInfo.PaymentID}
 	code, err = payment.GetPaymentByPaymentID(db.Payment)
 	if err != nil {
-		return msg, code, fmt.Errorf("Payment data lacks a payment record: %v", err.Error())
+		return msg, code, fmt.Errorf("payment data lacks a payment record: %v", err.Error())
 	}
 
 	reqByte, err := json.Marshal(req)
@@ -153,7 +153,7 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 				}
 			}
 			buyerParty := transaction.Parties["buyer"]
-			businessEscrowCharge, err := getBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, transaction.Country.CountryCode)
+			businessEscrowCharge, err := GetBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, transaction.Country.CountryCode)
 			if err == nil {
 				var (
 					totalAmount       = payment.TotalAmount

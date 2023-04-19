@@ -246,7 +246,7 @@ func GetBusinessProfileByFlutterwaveMerchantID(extReq request.ExternalRequest, l
 	return businessProfile, nil
 }
 
-func getBusinessChargeWithBusinessIDAndCurrency(extReq request.ExternalRequest, businessID int, currency string) (external_models.BusinessCharge, error) {
+func GetBusinessChargeWithBusinessIDAndCurrency(extReq request.ExternalRequest, businessID int, currency string) (external_models.BusinessCharge, error) {
 	dataInterface, err := extReq.SendExternalRequest(request.GetBusinessCharge, external_models.GetBusinessChargeModel{
 		BusinessID: uint(businessID),
 		Currency:   strings.ToUpper(currency),
@@ -269,7 +269,7 @@ func getBusinessChargeWithBusinessIDAndCurrency(extReq request.ExternalRequest, 
 	return businessCharge, nil
 }
 
-func getBusinessChargeWithBusinessIDAndCountry(extReq request.ExternalRequest, businessID int, country string) (external_models.BusinessCharge, error) {
+func GetBusinessChargeWithBusinessIDAndCountry(extReq request.ExternalRequest, businessID int, country string) (external_models.BusinessCharge, error) {
 	dataInterface, err := extReq.SendExternalRequest(request.GetBusinessCharge, external_models.GetBusinessChargeModel{
 		BusinessID: uint(businessID),
 		Country:    strings.ToUpper(country),
@@ -292,7 +292,7 @@ func getBusinessChargeWithBusinessIDAndCountry(extReq request.ExternalRequest, b
 	return businessCharge, nil
 }
 
-func initBusinessCharge(extReq request.ExternalRequest, businessID int, currency string) (external_models.BusinessCharge, error) {
+func InitBusinessCharge(extReq request.ExternalRequest, businessID int, currency string) (external_models.BusinessCharge, error) {
 	dataInterface, err := extReq.SendExternalRequest(request.InitBusinessCharge, external_models.InitBusinessChargeModel{
 		BusinessID: uint(businessID),
 		Currency:   strings.ToUpper(currency),
@@ -394,19 +394,23 @@ func GetUserCredentialByAccountIdAndType(extReq request.ExternalRequest, account
 
 	return userCred.Data, nil
 }
-func GetBankDetail(extReq request.ExternalRequest, id, accountID int, country, currency string) (external_models.BankDetail, error) {
+func GetBankDetail(extReq request.ExternalRequest, id, accountID int, country, currency string, isMobileMoneyOperator ...bool) (external_models.BankDetail, error) {
 
 	data := external_models.GetBankDetailModel{}
-
+	isMobileMoneyOperatorValue := false
+	if len(isMobileMoneyOperator) > 0 {
+		isMobileMoneyOperatorValue = isMobileMoneyOperator[0]
+	}
 	if id != 0 {
 		data = external_models.GetBankDetailModel{
 			ID: uint(id),
 		}
 	} else {
 		data = external_models.GetBankDetailModel{
-			AccountID: uint(accountID),
-			Country:   country,
-			Currency:  currency,
+			AccountID:             uint(accountID),
+			Country:               country,
+			Currency:              currency,
+			IsMobileMoneyOperator: isMobileMoneyOperatorValue,
 		}
 	}
 	userBankInterface, err := extReq.SendExternalRequest(request.GetBankDetails, data)
@@ -459,6 +463,47 @@ func HasBvn(extReq request.ExternalRequest, accountID uint) bool {
 		return false
 	}
 	return userCredential.Bvn != ""
+}
+
+func HasVerification(extReq request.ExternalRequest, accountID uint, verificationType string) bool {
+	checkInterface, err := extReq.SendExternalRequest(request.CheckVerification, external_models.CheckVerificationRequest{
+		AccountID: uint(accountID),
+		Type:      verificationType,
+	})
+
+	if err != nil {
+		extReq.Logger.Error(err.Error())
+		return false
+	}
+
+	check, ok := checkInterface.(external_models.CheckVerificationResponseData)
+	if !ok {
+		extReq.Logger.Error(err.Error())
+		return false
+	}
+
+	return check.Verified
+}
+
+func ListTransactionsByStatusCode(extReq request.ExternalRequest, statusCode string, page, limit int) ([]external_models.TransactionByID, error) {
+	checkInterface, err := extReq.SendExternalRequest(request.ListTransactions, external_models.ListTransactionsRequestMid{
+		StatusCode: statusCode,
+		Limit:      limit,
+		Page:       page,
+	})
+
+	if err != nil {
+		extReq.Logger.Error(err.Error())
+		return []external_models.TransactionByID{}, err
+	}
+
+	transactions, ok := checkInterface.([]external_models.TransactionByID)
+	if !ok {
+		extReq.Logger.Error(err.Error())
+		return transactions, err
+	}
+
+	return transactions, nil
 }
 
 func thisOrThatStr(this, that string) string {

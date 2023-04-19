@@ -12,6 +12,7 @@ import (
 	"github.com/vesicash/payment-ms/external/mocks/rave_mocks"
 	"github.com/vesicash/payment-ms/external/mocks/transactions_mocks"
 	"github.com/vesicash/payment-ms/external/mocks/upload_mocks"
+	"github.com/vesicash/payment-ms/external/mocks/verification_mocks"
 	"github.com/vesicash/payment-ms/utility"
 )
 
@@ -179,6 +180,12 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		return notification_mocks.TransactionClosedBuyerNotification(er.Logger, data)
 	case "transaction_closed_seller_notification":
 		return notification_mocks.TransactionClosedSellerNotification(er.Logger, data)
+	case "get_access_token_by_busines_id":
+		return auth_mocks.GetAccessTokenByBusinessID(er.Logger, data)
+	case "check_verification":
+		return verification_mocks.CheckVerification(er.Logger, data)
+	case "list_transactions":
+		return transactions_mocks.ListTransactions(er.Logger, data)
 	default:
 		return nil, fmt.Errorf("request not found")
 	}

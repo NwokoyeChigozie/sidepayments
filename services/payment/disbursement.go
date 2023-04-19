@@ -403,9 +403,9 @@ func ManualRefundService(c *gin.Context, extReq request.ExternalRequest, db post
 		currencyCode = country.CurrencyCode
 	}
 
-	businessCharges, err := getBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, countryCode)
+	businessCharges, err := GetBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, countryCode)
 	if err != nil {
-		businessCharges, err = initBusinessCharge(extReq, transaction.BusinessID, currencyCode)
+		businessCharges, err = InitBusinessCharge(extReq, transaction.BusinessID, currencyCode)
 		if err != nil {
 			return response, http.StatusInternalServerError, err
 		}

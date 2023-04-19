@@ -39,7 +39,7 @@ func MonnifyWebhookService(c *gin.Context, extReq request.ExternalRequest, db po
 	hash := utility.Sha512Hmac(secret, requestBody)
 	if hash != monnifySignature {
 		extReq.Logger.Error("monnify webhhook log error", "Web Hook Denied, Hash Mismatch", hash, monnifySignature, requestBody)
-		return http.StatusUnauthorized, fmt.Errorf("Web Hook Denied, Hash Mismatch")
+		return http.StatusUnauthorized, fmt.Errorf("web Hook Denied, Hash Mismatch")
 	}
 
 	extReq.Logger.Info("monnify webhhook log info", string(requestBody))
@@ -311,7 +311,7 @@ func MonnifyDisbursementCallbackService(c *gin.Context, extReq request.ExternalR
 	hash := utility.Sha512Hmac(secret, requestBody)
 	if hash != monnifySignature {
 		extReq.Logger.Error("monnify callback log error", "Web Hook Denied, Hash Mismatch", hash, monnifySignature, requestBody)
-		return http.StatusUnauthorized, fmt.Errorf("Web Hook Denied, Hash Mismatch")
+		return http.StatusUnauthorized, fmt.Errorf("web Hook Denied, Hash Mismatch")
 	}
 
 	extReq.Logger.Info("monnify callback log info", string(requestBody))

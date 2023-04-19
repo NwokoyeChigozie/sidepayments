@@ -6,7 +6,9 @@ import "github.com/vesicash/payment-ms/internal/models"
 func AuthMigrationModels() []interface{} {
 	return []interface{}{
 		models.DisbursementLog{},
+		models.DisbursementRequestLog{},
 		models.Disbursement{},
+		models.FailedDisbursement{},
 		models.FundingAccount{},
 		models.PaymentAccount{},
 		models.PaymentCallback{},

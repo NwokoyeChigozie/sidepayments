@@ -19,10 +19,11 @@ type BankDetail struct {
 }
 
 type GetBankDetailModel struct {
-	ID        uint   `json:"id"`
-	AccountID uint   `json:"account_id"`
-	Country   string `json:"country"`
-	Currency  string `json:"currency"`
+	ID                    uint   `json:"id"`
+	AccountID             uint   `json:"account_id"`
+	Country               string `json:"country"`
+	Currency              string `json:"currency"`
+	IsMobileMoneyOperator bool   `json:"is_mobile_money_operator"`
 }
 
 type GetBankDetailResponse struct {

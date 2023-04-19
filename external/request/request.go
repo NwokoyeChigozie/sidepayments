@@ -7,6 +7,7 @@ import (
 	"github.com/vesicash/payment-ms/external/microservice/notification"
 	"github.com/vesicash/payment-ms/external/microservice/transactions"
 	"github.com/vesicash/payment-ms/external/microservice/upload"
+	"github.com/vesicash/payment-ms/external/microservice/verification"
 	"github.com/vesicash/payment-ms/external/mocks"
 	rave "github.com/vesicash/payment-ms/external/thirdparty/Rave"
 	"github.com/vesicash/payment-ms/external/thirdparty/appruve"
@@ -114,6 +115,8 @@ var (
 	TransactionClosedBuyerNotification  string = "transaction_closed_buyer_notification"
 	TransactionClosedSellerNotification string = "transaction_closed_seller_notification"
 	GetAccessTokenByBusinessID          string = "get_access_token_by_busines_id"
+	CheckVerification                   string = "check_verification"
+	ListTransactions                    string = "list_transactions"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -903,6 +906,28 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 				Logger:       er.Logger,
 			}
 			return obj.GetAccessTokenByBusinessID()
+		case "check_verification":
+			obj := verification.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/check_verification", config.Microservices.Verification),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.CheckVerification()
+		case "list_transactions":
+			obj := transactions.RequestObj{
+				Name:         name,
+				Path:         fmt.Sprintf("%v/v2/list", config.Microservices.Transactions),
+				Method:       "POST",
+				SuccessCode:  200,
+				DecodeMethod: JsonDecodeMethod,
+				RequestData:  data,
+				Logger:       er.Logger,
+			}
+			return obj.ListTransactions()
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

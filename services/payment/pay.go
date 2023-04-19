@@ -89,9 +89,9 @@ func InitiatePaymentService(c *gin.Context, extReq request.ExternalRequest, db p
 		currencyCode = country.CurrencyCode
 	}
 
-	businessCharge, err := getBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, countryCode)
+	businessCharge, err := GetBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, countryCode)
 	if err != nil {
-		businessCharge, err = initBusinessCharge(extReq, transaction.BusinessID, currencyCode)
+		businessCharge, err = InitBusinessCharge(extReq, transaction.BusinessID, currencyCode)
 		if err != nil {
 			return response, http.StatusInternalServerError, err
 		}
@@ -289,9 +289,9 @@ func InitiatePaymentHeadlessService(c *gin.Context, extReq request.ExternalReque
 		return response, http.StatusInternalServerError, err
 	}
 
-	businessCharge, err := getBusinessChargeWithBusinessIDAndCountry(extReq, businessProfile.AccountID, strings.ToUpper(req.Currency))
+	businessCharge, err := GetBusinessChargeWithBusinessIDAndCountry(extReq, businessProfile.AccountID, strings.ToUpper(req.Currency))
 	if err != nil {
-		businessCharge, err = initBusinessCharge(extReq, businessProfile.AccountID, strings.ToUpper(req.Currency))
+		businessCharge, err = InitBusinessCharge(extReq, businessProfile.AccountID, strings.ToUpper(req.Currency))
 		if err != nil {
 			return response, http.StatusInternalServerError, err
 		}
@@ -542,7 +542,7 @@ func ChargeCardHeadlessInitService(c *gin.Context, extReq request.ExternalReques
 			}
 		}
 
-		businessEscrowCharge, err := getBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, transaction.Country.CountryCode)
+		businessEscrowCharge, err := GetBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, transaction.Country.CountryCode)
 		if err == nil {
 			paymentAmount := payment.TotalAmount
 			businessPerc, _ := strconv.ParseFloat(businessEscrowCharge.BusinessCharge, 64)

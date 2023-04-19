@@ -13,7 +13,6 @@ import (
 
 var (
 	cronJobs = map[string]CronJobObject{
-		// "transaction-inspection-period": {CronJob: HandleTransactionInspectionPeriod, Interval: time.Hour * 24},
 		"disbursement":       {CronJob: Disbursement, Interval: time.Minute * 1},
 		"disbursement-check": {CronJob: DisbursementCheck, Interval: time.Minute * 1},
 		"webhook-fire":       {CronJob: WebhookFire, Interval: time.Minute * 1},

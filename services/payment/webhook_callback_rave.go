@@ -422,7 +422,7 @@ func transactionPaid(extReq request.ExternalRequest, db postgresql.Databases, pa
 		payment.UpdateAllFields(db.Payment)
 	}
 
-	businessEscrowCharge, err := getBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, transaction.Country.CountryCode)
+	businessEscrowCharge, err := GetBusinessChargeWithBusinessIDAndCountry(extReq, transaction.BusinessID, transaction.Country.CountryCode)
 	if err == nil {
 		vesicashCharge, _ := strconv.ParseFloat(businessEscrowCharge.VesicashCharge, 64)
 		businessPerc, _ := strconv.ParseFloat(businessEscrowCharge.BusinessCharge, 64)
