@@ -74,5 +74,13 @@ func Payment(r *gin.Engine, ApiVersion string, validator *validator.Validate, db
 		paymentAppUrl.POST("/wallet/debit", payment.DebitWallet)
 		paymentAppUrl.POST("/wallet/credit", payment.CreditWallet)
 	}
+
+	paymentjobsUrl := r.Group(fmt.Sprintf("%v/jobs", ApiVersion))
+	{
+		paymentjobsUrl.POST("/start", payment.StartCronJob)
+		paymentjobsUrl.POST("/start-bulk", payment.StartCronJobsBulk)
+		paymentjobsUrl.POST("/stop", payment.StopCronJob)
+		paymentjobsUrl.PATCH("/update_interval", payment.UpdateCronJobInterval)
+	}
 	return r
 }

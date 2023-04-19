@@ -24,8 +24,6 @@ type BaseConfig struct {
 	TRUSTED_PROXIES                  string  `mapstructure:"TRUSTED_PROXIES"`
 	EXEMPT_FROM_THROTTLE             string  `mapstructure:"EXEMPT_FROM_THROTTLE"`
 	METRICS_SERVER_PORT              string  `mapstructure:"METRICS_SERVER_PORT"`
-	RUN_CRON_JOBS                    bool    `mapstructure:"RUN_CRON_JOBS"`
-	CRON_JOBS                        string  `mapstructure:"CRON_JOBS"`
 
 	APP_NAME string `mapstructure:"APP_NAME"`
 	APP_KEY  string `mapstructure:"APP_KEY"`
@@ -126,10 +124,8 @@ type BaseConfig struct {
 func (config *BaseConfig) SetupConfigurationn() *Configuration {
 	trustedProxies := []string{}
 	exemptFromThrottle := []string{}
-	cronjobs := []string{}
 	json.Unmarshal([]byte(config.TRUSTED_PROXIES), &trustedProxies)
 	json.Unmarshal([]byte(config.EXEMPT_FROM_THROTTLE), &exemptFromThrottle)
-	json.Unmarshal([]byte(config.CRON_JOBS), &cronjobs)
 	return &Configuration{
 		Server: ServerConfiguration{
 			Port:                      config.SERVER_PORT,
@@ -139,8 +135,6 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 			TrustedProxies:            trustedProxies,
 			ExemptFromThrottle:        exemptFromThrottle,
 			MetricsPort:               config.METRICS_SERVER_PORT,
-			RunCronJobs:               config.RUN_CRON_JOBS,
-			CronJobs:                  cronjobs,
 		},
 		App: App{
 			Name:    config.APP_NAME,
