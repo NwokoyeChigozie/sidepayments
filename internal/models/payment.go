@@ -164,6 +164,7 @@ type GetStatusRequest struct {
 	SuccessPage string `json:"success_page"`
 	FailurePage string `json:"failure_page"`
 	FundWallet  bool   `json:"fund_wallet"`
+	Gateway     string `json:"gateway"`
 }
 type GetPaymentStatusRequest struct {
 	Reference  string `json:"reference" validate:"required"`

@@ -25,7 +25,7 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 		successPage     = ""
 		msg             = ""
 		escrowWallet    = "no"
-		paymentGateway  = "rave"
+		paymentGateway  = thisOrThatStr(req.Gateway, "rave")
 		rave            = Rave{ExtReq: extReq}
 		monnify         = Monnify{ExtReq: extReq}
 		paymentChannelD = config.GetConfig().Slack.PaymentChannelID

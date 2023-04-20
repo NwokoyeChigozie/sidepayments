@@ -18,9 +18,10 @@ func (base *Controller) GetStatus(c *gin.Context) {
 		successPage      = c.Query("success_page")
 		failurePage      = c.Query("failure_page")
 		fundWalletString = c.Query("fund_wallet")
+		gateway          = c.Query("gateway")
 	)
 
-	req := models.GetStatusRequest{Reference: reference, SuccessPage: successPage, FailurePage: failurePage}
+	req := models.GetStatusRequest{Reference: reference, SuccessPage: successPage, FailurePage: failurePage, Gateway: gateway}
 	if headlessString != "" && strings.ToLower(headlessString) == "true" {
 		req.Headless = true
 	} else {
