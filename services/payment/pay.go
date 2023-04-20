@@ -22,6 +22,7 @@ func InitiatePaymentService(c *gin.Context, extReq request.ExternalRequest, db p
 		paymentGateway              = req.PaymentGateway
 		reference                   = ""
 		rave                        = Rave{ExtReq: extReq}
+		monnify                     = Monnify{ExtReq: extReq}
 		response                    = models.InitiatePaymentResponse{}
 		maxUSDAmountNigeria float64 = 100
 		onlinePayment               = config.GetConfig().ONLINE_PAYMENT
@@ -175,10 +176,34 @@ func InitiatePaymentService(c *gin.Context, extReq request.ExternalRequest, db p
 		}
 	}
 
-	paymentUrl, paymentRequest, err := rave.InitPayment(reference, buyer.EmailAddress, transaction.Currency, successPage, amount)
-	if err != nil {
-		return response, http.StatusInternalServerError, fmt.Errorf("initiating payment failed: %v", err.Error())
+	var (
+		paymentUrl     = ""
+		paymentRequest interface{}
+		callback       = utility.GenerateGroupByURL(config.GetConfig().App.Url, "/pay/status", map[string]string{"gateway": paymentGateway, "reference": reference, "success_page": successPage})
+	)
+
+	switch strings.ToLower(paymentGateway) {
+	case "rave":
+		paymentUrl, paymentRequest, err = rave.InitPayment(reference, buyer.EmailAddress, strings.ToUpper(transaction.Currency), callback, amount)
+		if err != nil {
+			return response, http.StatusInternalServerError, fmt.Errorf("initiating payment failed: %v", err.Error())
+		}
+	case "monnify":
+		paymentUrl, paymentRequest, err = monnify.InitPayment(amount, fmt.Sprintf("%v %v", buyer.Lastname, buyer.Firstname), buyer.EmailAddress, reference, "Payment For Vesicash", transaction.Currency, callback)
+		if err != nil {
+			return response, http.StatusInternalServerError, fmt.Errorf("initiating payment failed: %v", err.Error())
+		}
+	default:
+		paymentUrl, paymentRequest, err = rave.InitPayment(reference, buyer.EmailAddress, strings.ToUpper(transaction.Currency), callback, amount)
+		if err != nil {
+			return response, http.StatusInternalServerError, fmt.Errorf("initiating payment failed: %v", err.Error())
+		}
 	}
+
+	// paymentUrl, paymentRequest, err := rave.InitPayment(reference, buyer.EmailAddress, transaction.Currency, successPage, amount)
+	// if err != nil {
+	// 	return response, http.StatusInternalServerError, fmt.Errorf("initiating payment failed: %v", err.Error())
+	// }
 
 	paymentInfo := models.PaymentInfo{
 		PaymentID:   payment.PaymentID,
