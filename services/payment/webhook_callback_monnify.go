@@ -301,6 +301,7 @@ func MonnifyDisbursementCallbackService(c *gin.Context, extReq request.ExternalR
 	var (
 		secret               = config.GetConfig().Monnify.MonnifySecret
 		data                 models.MonnifyWebhookRequestEventData
+		currency             = ""
 		monnifySignature     = utility.GetHeader(c, "monnify-signature")
 		generatedReference   string
 		amountPaid           float64
@@ -330,8 +331,8 @@ func MonnifyDisbursementCallbackService(c *gin.Context, extReq request.ExternalR
 	}
 
 	if req.EventType != "FAILED_DISBURSEMENT" && req.EventType != "SUCCESSFUL_DISBURSEMENT" {
-		extReq.Logger.Error("monnify callback log error", "not a disbursement event type: ", req.EventType)
-		return http.StatusBadRequest, fmt.Errorf("not a disbursement event type")
+		extReq.Logger.Error("monnify callback log error", "disbursement event type not implemented %v", req.EventType)
+		return http.StatusBadRequest, fmt.Errorf("disbursement event type not implemented %v", req.EventType)
 	}
 
 	if req.EventData != nil {
@@ -347,6 +348,10 @@ func MonnifyDisbursementCallbackService(c *gin.Context, extReq request.ExternalR
 
 	if data.Amount != nil {
 		amountPaid = *data.Amount
+	}
+
+	if data.Currency != nil {
+		currency = *data.Currency
 	}
 
 	if data.Status != nil {
@@ -372,7 +377,15 @@ func MonnifyDisbursementCallbackService(c *gin.Context, extReq request.ExternalR
 			return code, err
 		}
 
-		_, err = CreditWallet(extReq, db, amountPaid, disbursement.Currency, disbursement.BusinessID, true, "no", "")
+		disbursement.Status = "failed"
+		err = disbursement.UpdateAllFields(db.Payment)
+		if err != nil {
+			extReq.Logger.Error("monnify callback log error", fmt.Sprintf("err updating disbursement: %v", err.Error()))
+			return code, err
+		}
+
+		// credit the wallet back
+		_, err = CreditWallet(extReq, db, amountPaid, strings.ToUpper(currency), disbursement.RecipientID, true, "no", "")
 		if err != nil {
 			extReq.Logger.Error("monnify callback log error", fmt.Sprintf("crediting wallet for business id: %v, amount: %v %v, Error: %v", disbursement.BusinessID, disbursement.Currency, amountPaid, err.Error()))
 		}
