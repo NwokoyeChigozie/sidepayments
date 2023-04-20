@@ -169,6 +169,7 @@ type GetPaymentStatusRequest struct {
 	Reference  string `json:"reference" validate:"required"`
 	Headless   bool   `json:"headless" validate:"required"`
 	FundWallet bool   `json:"fund_wallet"`
+	Gateway    string `json:"gateway"`
 }
 type FundWalletVerifyRequest struct {
 	Reference string `json:"reference" validate:"required"`

@@ -325,7 +325,7 @@ func GetPaymentStatusService(c *gin.Context, extReq request.ExternalRequest, db 
 		paymentInfo     = models.PaymentInfo{Reference: req.Reference}
 		uri             = ""
 		msg             = ""
-		paymentGateway  = "rave"
+		paymentGateway  = thisOrThatStr(req.Gateway, "rave")
 		rave            = Rave{ExtReq: extReq}
 		monnify         = Monnify{ExtReq: extReq}
 		paymentChannelD = config.GetConfig().Slack.PaymentChannelID
