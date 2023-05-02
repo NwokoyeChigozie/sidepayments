@@ -1,13 +1,16 @@
 package external_models
 
 type WalletFundedNotificationRequest struct {
-	AccountID uint    `json:"account_id"`
-	Amount    float64 `json:"amount"`
+	AccountID     uint    `json:"account_id"`
+	Amount        float64 `json:"amount"`
+	Currency      string  `json:"currency"`
+	TransactionID string  `json:"transaction_id"`
 }
 
 type WalletDebitNotificationRequest struct {
 	AccountID     uint    `json:"account_id"`
 	Amount        float64 `json:"amount"`
+	Currency      string  `json:"currency"`
 	TransactionID string  `json:"transaction_id"`
 }
 type PaymentInvoiceNotificationRequest struct {

@@ -249,7 +249,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "send_verification_email":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/email_verification2", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_email_verification_mail", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -260,7 +260,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "send_welcome_email":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/welcome", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_welcome_mail", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -271,7 +271,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "send_email_verified_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/email_verified", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_email_verified_mail", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -282,7 +282,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "send_sms_to_phone":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/phone/send/sms_to_phone", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_sms_to_phone", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -293,7 +293,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "monnify_login":
 			obj := monnify.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/v1/auth/login", config.Monnify.MonnifyEndpoint),
+				Path:         fmt.Sprintf("%v/api/v1/auth/login", config.Monnify.MonnifyApi),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -326,7 +326,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "verification_failed_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/verification_failed", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_verification_failed", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -337,7 +337,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "verification_successful_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/verification_successful", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_verification_successful", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -403,7 +403,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "send_authorized_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/send_authorized", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_authorized", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -414,7 +414,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "send_authorization_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/send_authorization", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_authorization", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -645,7 +645,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "wallet_funded_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/wallet_funded", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_wallet_funded", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -656,7 +656,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "wallet_debit_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/wallet_debit", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_wallet_debited", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -678,7 +678,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "payment_invoice_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/payment/receipt", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_payment_receipt", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -832,7 +832,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "transaction_paid_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/transaction_paid", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_transaction_paid", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -843,7 +843,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "successful_refund_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/successful_refund", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_successful_refund", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -854,7 +854,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "escrow_disbursed_seller_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/escrow_disbursed_seller", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_seller_disbursement_successful", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -865,7 +865,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "escrow_disbursed_buyer_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/escrow_disbursed_buyer", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_buyer_disbursement_successful", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -876,7 +876,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "transaction_closed_buyer_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/transaction_closed_buyer", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_transaction_closed_buyer", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
@@ -887,7 +887,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		case "transaction_closed_seller_notification":
 			obj := notification.RequestObj{
 				Name:         name,
-				Path:         fmt.Sprintf("%v/email/send/transaction_closed_seller", config.Microservices.Notification),
+				Path:         fmt.Sprintf("%v/v2/send/send_transaction_closed_seller", config.Microservices.Notification),
 				Method:       "POST",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,

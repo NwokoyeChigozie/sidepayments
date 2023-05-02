@@ -70,8 +70,10 @@ func CreditWallet(extReq request.ExternalRequest, db postgresql.Databases, amoun
 
 		walletEaringLog.CreateWalletEarningLog(db.Payment)
 		extReq.SendExternalRequest(request.WalletFundedNotification, external_models.WalletFundedNotificationRequest{
-			AccountID: uint(businessID),
-			Amount:    amount,
+			AccountID:     uint(businessID),
+			Amount:        amount,
+			Currency:      strings.Replace(currency, "ESCROW_", "", -1),
+			TransactionID: transactionID,
 		})
 	}
 
@@ -120,6 +122,7 @@ func DebitWallet(extReq request.ExternalRequest, db postgresql.Databases, amount
 	extReq.SendExternalRequest(request.WalletDebitNotification, external_models.WalletDebitNotificationRequest{
 		AccountID:     uint(businessID),
 		Amount:        amount,
+		Currency:      strings.Replace(currency, "ESCROW_", "", -1),
 		TransactionID: transactionID,
 	})
 
