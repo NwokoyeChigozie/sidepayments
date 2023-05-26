@@ -169,13 +169,13 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 					return "error", http.StatusInternalServerError, err
 				}
 				amountOne = totalAmount - amountOne
-				_, err = CreditWallet(extReq, db, amountOne, transaction.Currency, buyerParty.AccountID, false, escrowWallet, transaction.TransactionID)
+				_, err = CreditWallet(extReq, db, amountOne, transaction.Currency, buyerParty.AccountID, false, GetWalletType(escrowWallet, ""), transaction.TransactionID)
 				if err != nil {
 					return "error", http.StatusInternalServerError, err
 				}
 
 			} else {
-				_, err = CreditWallet(extReq, db, payment.TotalAmount, transaction.Currency, buyerParty.AccountID, false, escrowWallet, transaction.TransactionID)
+				_, err = CreditWallet(extReq, db, payment.TotalAmount, transaction.Currency, buyerParty.AccountID, false, GetWalletType(escrowWallet, ""), transaction.TransactionID)
 				if err != nil {
 					return "error", http.StatusInternalServerError, err
 				}
@@ -194,7 +194,7 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 
 		} else {
 			if req.FundWallet {
-				_, err = CreditWallet(extReq, db, payment.TotalAmount, payment.Currency, int(payment.AccountID), false, escrowWallet, "")
+				_, err = CreditWallet(extReq, db, payment.TotalAmount, payment.Currency, int(payment.AccountID), false, GetWalletType(escrowWallet, ""), "")
 				if err != nil {
 					return "error", http.StatusInternalServerError, err
 				}
@@ -417,7 +417,7 @@ func GetPaymentStatusService(c *gin.Context, extReq request.ExternalRequest, db 
 				return uri, "error", http.StatusInternalServerError, err
 			}
 			buyerAmount := payment.TotalAmount - escrowCharge
-			_, err = CreditWallet(extReq, db, buyerAmount, transaction.Currency, businessID, false, escrowWallet, transaction.TransactionID)
+			_, err = CreditWallet(extReq, db, buyerAmount, transaction.Currency, businessID, false, GetWalletType(escrowWallet, ""), transaction.TransactionID)
 			if err != nil {
 				return uri, "error", http.StatusInternalServerError, err
 			}
@@ -439,7 +439,7 @@ func GetPaymentStatusService(c *gin.Context, extReq request.ExternalRequest, db 
 			}
 		} else {
 			if req.FundWallet {
-				_, err = CreditWallet(extReq, db, payment.TotalAmount, payment.Currency, int(payment.AccountID), false, escrowWallet, "")
+				_, err = CreditWallet(extReq, db, payment.TotalAmount, payment.Currency, int(payment.AccountID), false, GetWalletType(escrowWallet, ""), "")
 				if err != nil {
 					return uri, "error", http.StatusInternalServerError, err
 				}

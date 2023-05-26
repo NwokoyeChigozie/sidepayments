@@ -12,6 +12,7 @@ import (
 	"github.com/vesicash/payment-ms/utility"
 )
 
+type WalletType string
 type WalletTransactionApproved string
 type WalletHistoryType string
 
@@ -22,16 +23,32 @@ var (
 
 	WalletHistoryCredit WalletHistoryType = "credit"
 	WalletHistoryDebit  WalletHistoryType = "debit"
+
+	EscrowWalletType  WalletType = "ESCROW_"
+	MorWalletType     WalletType = "MOR_"
+	DefaultWalletType WalletType = ""
 )
 
-func CreditWallet(extReq request.ExternalRequest, db postgresql.Databases, amount float64, currency string, businessID int, isRefund bool, creditEscrow string, transactionID string) (external_models.WalletBalance, error) {
+func GetWalletType(isEscrow, isMor string) WalletType {
+	if strings.EqualFold(isEscrow, "yes") && strings.EqualFold(isMor, "yes") {
+		return DefaultWalletType
+	} else if strings.EqualFold(isEscrow, "yes") && !strings.EqualFold(isMor, "yes") {
+		return EscrowWalletType
+	} else if !strings.EqualFold(isEscrow, "yes") && strings.EqualFold(isMor, "yes") {
+		return MorWalletType
+	} else {
+		return DefaultWalletType
+	}
+}
+
+func CreditWallet(extReq request.ExternalRequest, db postgresql.Databases, amount float64, currency string, businessID int, isRefund bool, walletType WalletType, transactionID string) (external_models.WalletBalance, error) {
 	if currency == "" {
 		currency = "NGN"
 	}
 	currency = strings.ToUpper(currency)
 
-	if strings.ToLower(creditEscrow) == "yes" {
-		currency = fmt.Sprintf("ESCROW_%v", currency)
+	if walletType != DefaultWalletType {
+		currency = fmt.Sprintf("%v%v", walletType, currency)
 		extReq.Logger.Info("credit-wallet", "creditEscrow is yes", "currency = ", currency, fmt.Sprintf("transaction with id %v", transactionID))
 		if transactionID != "" && transactionID != "0" {
 			_, err := UpdateTransactionAmountPaid(extReq, transactionID, amount, "+")
@@ -68,11 +85,13 @@ func CreditWallet(extReq request.ExternalRequest, db postgresql.Databases, amoun
 			Currency:  currency,
 		}
 
+		actualCurrency := strings.Replace(currency, string(EscrowWalletType), "", -1)
+		actualCurrency = strings.Replace(currency, string(MorWalletType), "", -1)
 		walletEaringLog.CreateWalletEarningLog(db.Payment)
 		extReq.SendExternalRequest(request.WalletFundedNotification, external_models.WalletFundedNotificationRequest{
 			AccountID:     uint(businessID),
 			Amount:        amount,
-			Currency:      strings.Replace(currency, "ESCROW_", "", -1),
+			Currency:      actualCurrency,
 			TransactionID: transactionID,
 		})
 	}
@@ -80,14 +99,14 @@ func CreditWallet(extReq request.ExternalRequest, db postgresql.Databases, amoun
 	return walletBalance, nil
 }
 
-func DebitWallet(extReq request.ExternalRequest, db postgresql.Databases, amount float64, currency string, businessID int, creditEscrow string, transactionID string) (external_models.WalletBalance, error) {
+func DebitWallet(extReq request.ExternalRequest, db postgresql.Databases, amount float64, currency string, businessID int, walletType WalletType, transactionID string) (external_models.WalletBalance, error) {
 	if currency == "" {
 		currency = "NGN"
 	}
 	currency = strings.ToUpper(currency)
 
-	if strings.ToLower(creditEscrow) == "yes" {
-		currency = fmt.Sprintf("ESCROW_%v", currency)
+	if walletType != DefaultWalletType {
+		currency = fmt.Sprintf("%v%v", walletType, currency)
 		extReq.Logger.Info("debit-wallet", "creditEscrow is yes", "currency = ", currency, fmt.Sprintf("transaction with id %v", transactionID))
 	}
 
@@ -119,10 +138,12 @@ func DebitWallet(extReq request.ExternalRequest, db postgresql.Databases, amount
 	// }
 
 	// walletDebitLog.CreateWalletDebitLog(db.Payment)
+	actualCurrency := strings.Replace(currency, string(EscrowWalletType), "", -1)
+	actualCurrency = strings.Replace(currency, string(MorWalletType), "", -1)
 	extReq.SendExternalRequest(request.WalletDebitNotification, external_models.WalletDebitNotificationRequest{
 		AccountID:     uint(businessID),
 		Amount:        amount,
-		Currency:      strings.Replace(currency, "ESCROW_", "", -1),
+		Currency:      actualCurrency,
 		TransactionID: transactionID,
 	})
 

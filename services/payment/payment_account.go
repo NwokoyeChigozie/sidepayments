@@ -344,7 +344,7 @@ func PaymentAccountMonnifyVerifyService(extReq request.ExternalRequest, db postg
 		}
 		finalAmount := amountPaid - fundingCharge
 
-		_, err = CreditWallet(extReq, db, finalAmount, transaction.Currency, int(user.AccountID), false, fundEscrowWallet, transaction.TransactionID)
+		_, err = CreditWallet(extReq, db, finalAmount, transaction.Currency, int(user.AccountID), false, GetWalletType(fundEscrowWallet, ""), transaction.TransactionID)
 		if err != nil {
 			return data, msg, http.StatusBadRequest, err
 		}
@@ -474,7 +474,7 @@ func sendTransactionConfirmed(extReq request.ExternalRequest, db postgresql.Data
 			return transaction, err
 		}
 
-		_, err = CreditWallet(extReq, db, utility.PercentageOf(amount, businessPerc), transaction.Currency, transaction.BusinessID, false, transaction.EscrowWallet, transaction.TransactionID)
+		_, err = CreditWallet(extReq, db, utility.PercentageOf(amount, businessPerc), transaction.Currency, transaction.BusinessID, false, GetWalletType(transaction.EscrowWallet, ""), transaction.TransactionID)
 		if err != nil {
 			return transaction, err
 		}

@@ -435,7 +435,7 @@ func fundAccount(extReq request.ExternalRequest, db postgresql.Databases, amount
 		paymentAccount.PaymentReference = paymentReference
 		paymentAccount.UpdateAllFields(db.Payment)
 
-		_, err = CreditWallet(extReq, db, finalAmount, currency, int(user.AccountID), false, thisOrThatStr(transaction.EscrowWallet, "no"), transaction.TransactionID)
+		_, err = CreditWallet(extReq, db, finalAmount, currency, int(user.AccountID), false, GetWalletType(thisOrThatStr(transaction.EscrowWallet, "no"), ""), transaction.TransactionID)
 		if err != nil {
 			return err
 		}

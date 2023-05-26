@@ -561,7 +561,7 @@ func ChargeCardHeadlessInitService(c *gin.Context, extReq request.ExternalReques
 		if chargeBearer.AccountID != 0 {
 			paymentAmount := payment.TotalAmount
 			newAmount := paymentAmount - payment.EscrowCharge
-			_, err = CreditWallet(extReq, db, newAmount, currency, chargeBearer.AccountID, false, escrowWallet, transaction.TransactionID)
+			_, err = CreditWallet(extReq, db, newAmount, currency, chargeBearer.AccountID, false, GetWalletType(escrowWallet, ""), transaction.TransactionID)
 			if err != nil {
 				return data, http.StatusInternalServerError, err
 			}
@@ -573,7 +573,7 @@ func ChargeCardHeadlessInitService(c *gin.Context, extReq request.ExternalReques
 			businessPerc, _ := strconv.ParseFloat(businessEscrowCharge.BusinessCharge, 64)
 			vesicashCharge, _ := strconv.ParseFloat(businessEscrowCharge.VesicashCharge, 64)
 			amount := utility.PercentageOf(paymentAmount, businessPerc)
-			_, err = CreditWallet(extReq, db, amount, currency, transaction.BusinessID, false, escrowWallet, transaction.TransactionID)
+			_, err = CreditWallet(extReq, db, amount, currency, transaction.BusinessID, false, GetWalletType(escrowWallet, ""), transaction.TransactionID)
 			if err != nil {
 				return data, http.StatusInternalServerError, err
 			}

@@ -37,7 +37,7 @@ func (base *Controller) DebitWallet(c *gin.Context) {
 		return
 	}
 
-	walletBalance, err := payment.DebitWallet(base.ExtReq, base.Db, req.Amount, req.Currency, req.BusinessID, req.EscrowWallet, req.TransactionID)
+	walletBalance, err := payment.DebitWallet(base.ExtReq, base.Db, req.Amount, req.Currency, req.BusinessID, payment.GetWalletType(req.EscrowWallet, req.MorWallet), req.TransactionID)
 	if err != nil {
 		rd := utility.BuildErrorResponse(http.StatusInternalServerError, "error", err.Error(), err, nil)
 		c.JSON(http.StatusInternalServerError, rd)
@@ -76,7 +76,7 @@ func (base *Controller) CreditWallet(c *gin.Context) {
 		return
 	}
 
-	walletBalance, err := payment.CreditWallet(base.ExtReq, base.Db, req.Amount, req.Currency, req.BusinessID, req.IsRefund, req.EscrowWallet, req.TransactionID)
+	walletBalance, err := payment.CreditWallet(base.ExtReq, base.Db, req.Amount, req.Currency, req.BusinessID, req.IsRefund, payment.GetWalletType(req.EscrowWallet, req.MorWallet), req.TransactionID)
 	if err != nil {
 		rd := utility.BuildErrorResponse(http.StatusInternalServerError, "error", err.Error(), err, nil)
 		c.JSON(http.StatusInternalServerError, rd)

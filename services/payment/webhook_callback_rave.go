@@ -241,7 +241,7 @@ func handleTransfer(c *gin.Context, extReq request.ExternalRequest, db postgresq
 	}
 
 	if strings.EqualFold(transaferStatus, "SUCCESSFUL") {
-		_, err = CreditWallet(extReq, db, amount, currency, businessID, false, thisOrThatStr(transaction.EscrowWallet, "yes"), transaction.TransactionID)
+		_, err = CreditWallet(extReq, db, amount, currency, businessID, false, GetWalletType(thisOrThatStr(transaction.EscrowWallet, "yes"), ""), transaction.TransactionID)
 		if err != nil {
 			return http.StatusInternalServerError, err
 		}
@@ -310,7 +310,7 @@ func handleTransferCompleted(c *gin.Context, extReq request.ExternalRequest, db 
 	fundingAccounts.UpdateAllFields(db.Payment)
 
 	if strings.EqualFold(transferStatus, "SUCCESSFUL") {
-		_, err = CreditWallet(extReq, db, amount, currency, accountID, false, thisOrThatStr(fundingAccounts.EscrowWallet, "no"), "")
+		_, err = CreditWallet(extReq, db, amount, currency, accountID, false, GetWalletType(thisOrThatStr(fundingAccounts.EscrowWallet, "no"), ""), "")
 		if err != nil {
 			return http.StatusInternalServerError, err
 		}
@@ -431,14 +431,14 @@ func transactionPaid(extReq request.ExternalRequest, db postgresql.Databases, pa
 			return err
 		}
 
-		_, err = CreditWallet(extReq, db, utility.PercentageOf(payment.TotalAmount, businessPerc), transaction.Currency, transaction.BusinessID, false, transaction.EscrowWallet, transaction.TransactionID)
+		_, err = CreditWallet(extReq, db, utility.PercentageOf(payment.TotalAmount, businessPerc), transaction.Currency, transaction.BusinessID, false, GetWalletType(transaction.EscrowWallet, ""), transaction.TransactionID)
 		if err != nil {
 			return err
 		}
 	}
 
 	if payment.ShippingFee != 0 && shippingChargeBearerParty.AccountID != 0 {
-		_, err = CreditWallet(extReq, db, payment.ShippingFee, transaction.Currency, shippingChargeBearerParty.AccountID, false, transaction.EscrowWallet, transaction.TransactionID)
+		_, err = CreditWallet(extReq, db, payment.ShippingFee, transaction.Currency, shippingChargeBearerParty.AccountID, false, GetWalletType(transaction.EscrowWallet, ""), transaction.TransactionID)
 		if err != nil {
 			return err
 		}

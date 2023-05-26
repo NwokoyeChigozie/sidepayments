@@ -94,7 +94,7 @@ func WalletTransferService(c *gin.Context, extReq request.ExternalRequest, db po
 		recipientAmount = amount
 	}
 
-	senderWallet, err = DebitWallet(extReq, db, amount, req.SenderCurrency, req.SenderAccountID, escrowWallet, req.TransactionID)
+	senderWallet, err = DebitWallet(extReq, db, amount, req.SenderCurrency, req.SenderAccountID, GetWalletType(escrowWallet, ""), req.TransactionID)
 	if err != nil {
 		return msg, http.StatusInternalServerError, err
 	}
@@ -109,7 +109,7 @@ func WalletTransferService(c *gin.Context, extReq request.ExternalRequest, db po
 		}
 	}
 
-	receiverWallet, err := CreditWallet(extReq, db, recipientAmount, recipientCurrency, req.RecipientAccountID, req.Refund, escrowWallet, req.TransactionID)
+	receiverWallet, err := CreditWallet(extReq, db, recipientAmount, recipientCurrency, req.RecipientAccountID, req.Refund, GetWalletType(escrowWallet, ""), req.TransactionID)
 	if err != nil {
 		return msg, http.StatusInternalServerError, err
 	}
@@ -234,7 +234,7 @@ func ManualDebitService(c *gin.Context, extReq request.ExternalRequest, db postg
 		return "", data, http.StatusBadRequest, fmt.Errorf("requested amount is greater than wallet balance")
 	}
 
-	walletBalance, err = DebitWallet(extReq, db, amount, currency, req.AccountID, req.EscrowWallet, "")
+	walletBalance, err = DebitWallet(extReq, db, amount, currency, req.AccountID, GetWalletType(req.EscrowWallet, ""), "")
 	if err != nil {
 		return "", data, http.StatusInternalServerError, err
 	}
