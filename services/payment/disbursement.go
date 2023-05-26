@@ -87,7 +87,11 @@ func WalletTransferService(c *gin.Context, extReq request.ExternalRequest, db po
 			return msg, http.StatusBadRequest, err
 		}
 
-		multiplier := rate.Amount / rate.InitialAmount
+		var multiplier float64 = 0
+		if rate.InitialAmount > 0 {
+			multiplier = rate.Amount / rate.InitialAmount
+		}
+
 		convertedAmount := multiplier * amount
 		recipientAmount = convertedAmount
 	} else {

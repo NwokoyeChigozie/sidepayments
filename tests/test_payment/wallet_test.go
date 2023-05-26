@@ -240,6 +240,23 @@ func TestDebitWallet(t *testing.T) {
 				Currency:      "NGN",
 				BusinessID:    int(testUser.AccountID),
 				EscrowWallet:  "yes",
+				MorWallet:     "no",
+				TransactionID: transactionID,
+			},
+			ExpectedCode: http.StatusOK,
+			Message:      "wallet debited",
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+				"v-app":        app.Key,
+			},
+		}, {
+			Name: "OK debit wallet mor yes",
+			RequestBody: models.DebitWalletRequest{
+				Amount:        200,
+				Currency:      "NGN",
+				BusinessID:    int(testUser.AccountID),
+				EscrowWallet:  "no",
+				MorWallet:     "yes",
 				TransactionID: transactionID,
 			},
 			ExpectedCode: http.StatusOK,
@@ -255,6 +272,7 @@ func TestDebitWallet(t *testing.T) {
 				Currency:     "NGN",
 				BusinessID:   int(testUser.AccountID),
 				EscrowWallet: "no",
+				MorWallet:    "no",
 			},
 			ExpectedCode: http.StatusOK,
 			Message:      "wallet debited",
@@ -268,6 +286,7 @@ func TestDebitWallet(t *testing.T) {
 				Currency:     "NGN",
 				BusinessID:   int(testUser.AccountID),
 				EscrowWallet: "no",
+				MorWallet:    "no",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -281,6 +300,7 @@ func TestDebitWallet(t *testing.T) {
 				Currency:     "NGN",
 				BusinessID:   int(testUser.AccountID),
 				EscrowWallet: "no",
+				MorWallet:    "no",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -293,6 +313,7 @@ func TestDebitWallet(t *testing.T) {
 				Amount:       200,
 				BusinessID:   int(testUser.AccountID),
 				EscrowWallet: "no",
+				MorWallet:    "no",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -305,6 +326,7 @@ func TestDebitWallet(t *testing.T) {
 				Amount:       200,
 				Currency:     "NGN",
 				EscrowWallet: "no",
+				MorWallet:    "no",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -317,6 +339,20 @@ func TestDebitWallet(t *testing.T) {
 				Amount:     200,
 				Currency:   "NGN",
 				BusinessID: int(testUser.AccountID),
+				MorWallet:  "no",
+			},
+			ExpectedCode: http.StatusBadRequest,
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+				"v-app":        app.Key,
+			},
+		}, {
+			Name: "no mor wallet",
+			RequestBody: models.DebitWalletRequest{
+				Amount:       200,
+				Currency:     "NGN",
+				BusinessID:   int(testUser.AccountID),
+				EscrowWallet: "no",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -609,6 +645,23 @@ func TestCreditWallet(t *testing.T) {
 				Currency:      "NGN",
 				BusinessID:    int(testUser.AccountID),
 				EscrowWallet:  "yes",
+				MorWallet:     "no",
+				TransactionID: transactionID,
+			},
+			ExpectedCode: http.StatusOK,
+			Message:      "wallet credited",
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+				"v-app":        app.Key,
+			},
+		}, {
+			Name: "OK credit mor escrow yes",
+			RequestBody: models.CreditWalletRequest{
+				Amount:        200,
+				Currency:      "NGN",
+				BusinessID:    int(testUser.AccountID),
+				EscrowWallet:  "no",
+				MorWallet:     "yes",
 				TransactionID: transactionID,
 			},
 			ExpectedCode: http.StatusOK,
@@ -624,6 +677,7 @@ func TestCreditWallet(t *testing.T) {
 				Currency:     "NGN",
 				BusinessID:   int(testUser.AccountID),
 				EscrowWallet: "no",
+				MorWallet:    "no",
 				IsRefund:     true,
 			},
 			ExpectedCode: http.StatusOK,
@@ -638,6 +692,7 @@ func TestCreditWallet(t *testing.T) {
 				Currency:     "NGN",
 				BusinessID:   int(testUser.AccountID),
 				EscrowWallet: "no",
+				MorWallet:    "yes",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -651,6 +706,7 @@ func TestCreditWallet(t *testing.T) {
 				Currency:     "NGN",
 				BusinessID:   int(testUser.AccountID),
 				EscrowWallet: "no",
+				MorWallet:    "yes",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -663,6 +719,7 @@ func TestCreditWallet(t *testing.T) {
 				Amount:       200,
 				BusinessID:   int(testUser.AccountID),
 				EscrowWallet: "no",
+				MorWallet:    "yes",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -675,6 +732,7 @@ func TestCreditWallet(t *testing.T) {
 				Amount:       200,
 				Currency:     "NGN",
 				EscrowWallet: "no",
+				MorWallet:    "yes",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -687,6 +745,20 @@ func TestCreditWallet(t *testing.T) {
 				Amount:     200,
 				Currency:   "NGN",
 				BusinessID: int(testUser.AccountID),
+				MorWallet:  "yes",
+			},
+			ExpectedCode: http.StatusBadRequest,
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+				"v-app":        app.Key,
+			},
+		}, {
+			Name: "no mor wallet",
+			RequestBody: models.CreditWalletRequest{
+				Amount:       200,
+				Currency:     "NGN",
+				BusinessID:   int(testUser.AccountID),
+				EscrowWallet: "yes",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{

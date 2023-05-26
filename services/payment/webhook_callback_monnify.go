@@ -430,7 +430,9 @@ func fundAccount(extReq request.ExternalRequest, db postgresql.Databases, amount
 	if paymentReference != paymentAccount.PaymentReference {
 		pendingTransferFunding := models.PendingTransferFunding{Reference: generatedReference}
 		pendingTransferFunding.GetPendingTransferFundingByReference(db.Payment)
-		pendingTransferFunding.Delete(db.Payment)
+		if pendingTransferFunding.ID != 0 {
+			pendingTransferFunding.Delete(db.Payment)
+		}
 
 		paymentAccount.PaymentReference = paymentReference
 		paymentAccount.UpdateAllFields(db.Payment)
