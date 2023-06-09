@@ -74,11 +74,6 @@ func Security() gin.HandlerFunc {
 		// Feature-Policy
 		c.Writer.Header().Add("Feature-Policy", "microphone 'none'; camera 'none'")
 
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
 		c.Next()
 	}
 }
