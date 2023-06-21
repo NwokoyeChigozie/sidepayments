@@ -580,7 +580,7 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 			obj := rave.RequestObj{
 				Name:         name,
 				Path:         fmt.Sprintf("%v/v3/transactions/verify_by_reference?tx_ref=", config.Rave.BaseUrl),
-				Method:       "POST",
+				Method:       "GET",
 				SuccessCode:  200,
 				DecodeMethod: JsonDecodeMethod,
 				RequestData:  data,
