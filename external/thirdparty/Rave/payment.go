@@ -74,7 +74,7 @@ func (r *RequestObj) RaveVerifyTransactionByTxRef() (external_models.RaveVerifyT
 	)
 
 	headers := map[string]string{
-		"Content-Type":  "application/json",
+		// "Content-Type":  "application/json",
 		"Authorization": "Bearer " + config.GetConfig().Rave.SecretKey,
 	}
 
