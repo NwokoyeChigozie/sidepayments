@@ -42,8 +42,6 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 		return msg, code, fmt.Errorf("payment data lacks a payment record: %v", err.Error())
 	}
 
-	fmt.Println("p1", payment.IsPaid)
-
 	reqByte, err := json.Marshal(req)
 	if err != nil {
 		return responseMessage, http.StatusInternalServerError, err
