@@ -42,6 +42,8 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 		return msg, code, fmt.Errorf("payment data lacks a payment record: %v", err.Error())
 	}
 
+	fmt.Println("p1", payment.IsPaid)
+
 	reqByte, err := json.Marshal(req)
 	if err != nil {
 		return responseMessage, http.StatusInternalServerError, err
@@ -82,19 +84,23 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 	switch strings.ToLower(paymentGateway) {
 	case "rave":
 		_, gatewayStatus, _, _, err = rave.StatusV3(db, payment, paymentInfo, req.Reference)
-		if err != nil {
-			return "rave error", http.StatusInternalServerError, err
-		}
 	case "monnify":
 		_, gatewayStatus, _, _, err = monnify.Status(req.Reference)
-		if err != nil {
-			return "monnify error", http.StatusInternalServerError, err
-		}
 	default:
 		_, gatewayStatus, _, _, err = rave.StatusV3(db, payment, paymentInfo, req.Reference)
-		if err != nil {
-			return "rave error", http.StatusInternalServerError, err
+
+	}
+
+	if err != nil {
+		if !req.Headless {
+			uri = failPage
+			if uri == "" {
+				uri = config.GetConfig().App.Url + "/v2/pay/failed"
+			}
+			c.Redirect(http.StatusMovedPermanently, uri)
+			return "Transaction payment failed", http.StatusBadRequest, nil
 		}
+		return "rave error", http.StatusInternalServerError, err
 	}
 
 	if gatewayStatus {
@@ -106,6 +112,7 @@ func GetStatusService(c *gin.Context, extReq request.ExternalRequest, db postgre
 
 		payment.IsPaid = true
 		payment.PaymentMadeAt = time.Now()
+		err = payment.UpdateAllFields(db.Payment)
 		if err != nil {
 			return "payment update error", http.StatusInternalServerError, err
 		}
