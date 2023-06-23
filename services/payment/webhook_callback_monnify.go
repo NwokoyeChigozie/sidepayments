@@ -211,6 +211,7 @@ func handleMonnifyWebhookRequest(c *gin.Context, extReq request.ExternalRequest,
 
 	payment.PaymentMadeAt = paidOn
 	payment.PaidBy = paymentSourceInformation
+	payment.TotalAmount = amountPaid
 	payment.UpdateAllFields(db.Payment)
 
 	if payment.IsPaid {

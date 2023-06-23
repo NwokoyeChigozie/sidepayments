@@ -210,10 +210,6 @@ func PaymentAccountMonnifyVerifyService(extReq request.ExternalRequest, db postg
 	}
 
 	if payment.IsPaid {
-		err = paymentAccount.Delete(db.Payment)
-		if err != nil {
-			return data, msg, http.StatusBadRequest, err
-		}
 		return map[string]interface{}{"reference": req.Reference, "amount": payment.TotalAmount, "pdf_link": "", "status": true}, "Bank Transfer Already Verified", http.StatusOK, nil
 	}
 
@@ -391,11 +387,6 @@ func PaymentAccountMonnifyVerifyService(extReq request.ExternalRequest, db postg
 			if err != nil {
 				return data, msg, http.StatusBadRequest, err
 			}
-		}
-
-		err = paymentAccount.Delete(db.Payment)
-		if err != nil {
-			return data, msg, http.StatusBadRequest, err
 		}
 
 		err = SlackNotify(extReq, paymentChannelD, `
