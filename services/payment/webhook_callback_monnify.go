@@ -211,7 +211,6 @@ func handleMonnifyWebhookRequest(c *gin.Context, extReq request.ExternalRequest,
 
 	payment.PaymentMadeAt = paidOn
 	payment.PaidBy = paymentSourceInformation
-	payment.TotalAmount = amountPaid
 	payment.UpdateAllFields(db.Payment)
 
 	if payment.IsPaid {
@@ -445,6 +444,9 @@ func fundAccount(extReq request.ExternalRequest, db postgresql.Databases, amount
 		payment.EscrowCharge = fundingCharge
 		payment.IsPaid = true
 		payment.BusinessID = int64(user.BusinessId)
+		if payment.TotalAmount == 0 && payment.TransactionID == "" {
+			payment.TotalAmount = amountPaid
+		}
 		err = payment.UpdateAllFields(db.Payment)
 		if err != nil {
 			return err
