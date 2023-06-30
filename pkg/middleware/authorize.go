@@ -111,13 +111,18 @@ func (at AuthorizationType) ValidateBusinessType(c *gin.Context, extReq request.
 	if !status {
 		return msg, false
 	}
-	_, err := extReq.SendExternalRequest(request.ValidateAuthorization, external_models.ValidateAuthorizationReq{
+	reqInf, err := extReq.SendExternalRequest(request.ValidateAuthorization, external_models.ValidateAuthorizationReq{
 		Type:        string(Business),
 		VPrivateKey: privateKey,
 		VPublicKey:  publicKey,
 	})
 	if err != nil {
 		return err.Error(), false
+	}
+
+	dataResponse := reqInf.(external_models.ValidateAuthorizationDataModel)
+	if !dataResponse.Status {
+		return dataResponse.Message, false
 	}
 	return "authorized", true
 }
@@ -141,13 +146,18 @@ func (at AuthorizationType) ValidateBusinessAdminType(c *gin.Context, extReq req
 	if !status {
 		return msg, false
 	}
-	_, err := extReq.SendExternalRequest(request.ValidateAuthorization, external_models.ValidateAuthorizationReq{
+	reqInf, err := extReq.SendExternalRequest(request.ValidateAuthorization, external_models.ValidateAuthorizationReq{
 		Type:        string(BusinessAdmin),
 		VPrivateKey: privateKey,
 		VPublicKey:  publicKey,
 	})
 	if err != nil {
 		return err.Error(), false
+	}
+
+	dataResponse := reqInf.(external_models.ValidateAuthorizationDataModel)
+	if !dataResponse.Status {
+		return dataResponse.Message, false
 	}
 	return "authorized", true
 }
@@ -157,13 +167,18 @@ func (at AuthorizationType) ValidateApiType(c *gin.Context, extReq request.Exter
 	if !status {
 		return msg, false
 	}
-	_, err := extReq.SendExternalRequest(request.ValidateAuthorization, external_models.ValidateAuthorizationReq{
+	reqInf, err := extReq.SendExternalRequest(request.ValidateAuthorization, external_models.ValidateAuthorizationReq{
 		Type:        string(ApiType),
 		VPrivateKey: privateKey,
 		VPublicKey:  publicKey,
 	})
 	if err != nil {
 		return err.Error(), false
+	}
+
+	dataResponse := reqInf.(external_models.ValidateAuthorizationDataModel)
+	if !dataResponse.Status {
+		return dataResponse.Message, false
 	}
 	return msg, status
 }
